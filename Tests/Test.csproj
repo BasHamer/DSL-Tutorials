@@ -81,6 +81,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainObjects\Employee.cs" />
+    <Compile Include="Features\Google.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Google.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\phpTravels.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>phpTravels.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Retirement.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -107,6 +117,14 @@
     <None Include="App.config" />
     <None Include="Default.srprofile">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Features\Google.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Google.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\phpTravels.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>phpTravels.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Retirement.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
