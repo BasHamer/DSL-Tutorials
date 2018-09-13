@@ -42,3 +42,22 @@ Scenario: multiple reports
 	And 'E1.Reports' has the value '[]'
 	And 'E2.Role' has the value 'null'
 	And 'E2.Reports' has the value '[]'
+
+Scenario: John needs proof
+	Given the Employees
+	| var | Name | Seniority |
+	| E1  | Bob  | 1         |
+	| E2  | Jan  | 1         |
+	And the Employees
+         | var | Name | Reports |
+         | E3  | Mary | E1      |
+         | E4  | Joe  | E2      |
+	And the Employee
+         | var | Name | Reports |
+         | E5  | Tom  | E3, E4  |
+	And the root Employee is 'E5'
+	When Employee 'E3' Retires
+	Then 'E4.Reports' contains the values
+	| Name    |
+	| E1.Name |
+	And 'E1.Role' has the value 'Minion'

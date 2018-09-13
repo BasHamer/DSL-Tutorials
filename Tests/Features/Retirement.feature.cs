@@ -228,6 +228,73 @@ this.ScenarioInitialize(scenarioInfo);
 #line hidden
             this.ScenarioCleanup();
         }
+        
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("John needs proof")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Retirement")]
+        public virtual void JohnNeedsProof()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("John needs proof", null, ((string[])(null)));
+#line 46
+this.ScenarioInitialize(scenarioInfo);
+            this.ScenarioStart();
+#line hidden
+            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+                        "var",
+                        "Name",
+                        "Seniority"});
+            table8.AddRow(new string[] {
+                        "E1",
+                        "Bob",
+                        "1"});
+            table8.AddRow(new string[] {
+                        "E2",
+                        "Jan",
+                        "1"});
+#line 47
+ testRunner.Given("the Employees", ((string)(null)), table8, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                        "var",
+                        "Name",
+                        "Reports"});
+            table9.AddRow(new string[] {
+                        "E3",
+                        "Mary",
+                        "E1"});
+            table9.AddRow(new string[] {
+                        "E4",
+                        "Joe",
+                        "E2"});
+#line 51
+ testRunner.And("the Employees", ((string)(null)), table9, "And ");
+#line hidden
+            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
+                        "var",
+                        "Name",
+                        "Reports"});
+            table10.AddRow(new string[] {
+                        "E5",
+                        "Tom",
+                        "E3, E4"});
+#line 55
+ testRunner.And("the Employee", ((string)(null)), table10, "And ");
+#line 58
+ testRunner.And("the root Employee is \'E5\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 59
+ testRunner.When("Employee \'E3\' Retires", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+            TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Name"});
+            table11.AddRow(new string[] {
+                        "E1.Name"});
+#line 60
+ testRunner.Then("\'E4.Reports\' contains the values", ((string)(null)), table11, "Then ");
+#line 63
+ testRunner.And("\'E1.Role\' has the value \'Minion\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            this.ScenarioCleanup();
+        }
     }
 }
 #pragma warning restore
