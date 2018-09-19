@@ -57,7 +57,7 @@ Scenario: John needs proof
          | E5  | Tom  | E3, E4  |
 	And the root Employee is 'E5'
 	When Employee 'E3' Retires
-	Then 'E4.Reports' contains the values
+	Then 'E5.Reports' contains the values
 	| Name    |
 	| E1.Name |
 	And 'E1.Role' has the value 'Minion'
