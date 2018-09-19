@@ -110,49 +110,25 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Validate a Name")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Heirarchy blank")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Variables")]
-        public virtual void ValidateAName()
+        public virtual void HeirarchyBlank()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Validate a Name", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Heirarchy blank", null, ((string[])(null)));
 #line 8
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "var",
-                        "Name"});
-            table2.AddRow(new string[] {
-                        "E1",
-                        "Bob"});
-#line 9
- testRunner.Given("the Employee", ((string)(null)), table2, "Given ");
-#line 12
- testRunner.Then("\'E1.Name\' has the value \'Bob\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Heirarchy blank")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Variables")]
-        public virtual void HeirarchyBlank()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Heirarchy blank", null, ((string[])(null)));
-#line 14
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
-#line hidden
-            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
-                        "var",
                         "Name",
                         "Reports"});
-            table3.AddRow(new string[] {
+            table2.AddRow(new string[] {
                         "E1",
                         "Bob",
                         ""});
-#line 15
- testRunner.Given("the Employee", ((string)(null)), table3, "Given ");
+#line 9
+ testRunner.Given("the Employee", ((string)(null)), table2, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -163,20 +139,20 @@ this.ScenarioInitialize(scenarioInfo);
         public virtual void HeirarchyNull()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Heirarchy null", null, ((string[])(null)));
-#line 19
+#line 13
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden
-            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "var",
                         "Name",
                         "Reports"});
-            table4.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "E1",
                         "Bob",
                         "null"});
-#line 20
- testRunner.Given("the Employees", ((string)(null)), table4, "Given ");
+#line 14
+ testRunner.Given("the Employees", ((string)(null)), table3, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -187,36 +163,29 @@ this.ScenarioInitialize(scenarioInfo);
         public virtual void HeirarchySingle()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Heirarchy single", null, ((string[])(null)));
-#line 24
+#line 18
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden
-            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "var",
                         "Name"});
-            table5.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "E1",
                         "Bob"});
-#line 25
- testRunner.Given("the Employee", ((string)(null)), table5, "Given ");
+#line 19
+ testRunner.Given("the Employee", ((string)(null)), table4, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "var",
                         "Name",
                         "Reports"});
-            table6.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "E2",
                         "Mary",
                         "E1"});
-#line 28
- testRunner.Given("the Employee", ((string)(null)), table6, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Name"});
-            table7.AddRow(new string[] {
-                        "E1.Name"});
-#line 31
- testRunner.Then("\'E2.Reports\' contains the values", ((string)(null)), table7, "Then ");
+#line 22
+ testRunner.Given("the Employee", ((string)(null)), table5, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -227,41 +196,32 @@ this.ScenarioInitialize(scenarioInfo);
         public virtual void HeirarchyMulti()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Heirarchy multi", null, ((string[])(null)));
-#line 35
+#line 26
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden
-            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "var",
                         "Name"});
-            table8.AddRow(new string[] {
+            table6.AddRow(new string[] {
                         "E1",
                         "Bob"});
-            table8.AddRow(new string[] {
+            table6.AddRow(new string[] {
                         "E2",
                         "Bob2"});
-#line 36
- testRunner.Given("the Employees", ((string)(null)), table8, "Given ");
+#line 27
+ testRunner.Given("the Employees", ((string)(null)), table6, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "var",
                         "Name",
                         "Reports"});
-            table9.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "E3",
                         "Mary",
                         "E1, E2"});
-#line 40
- testRunner.Given("the Employee", ((string)(null)), table9, "Given ");
-#line hidden
-            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Name"});
-            table10.AddRow(new string[] {
-                        "E1.Name"});
-            table10.AddRow(new string[] {
-                        "E2.Name"});
-#line 43
- testRunner.Then("\'E3.Reports\' contains the values", ((string)(null)), table10, "Then ");
+#line 31
+ testRunner.Given("the Employee", ((string)(null)), table7, "Given ");
 #line hidden
             this.ScenarioCleanup();
         }

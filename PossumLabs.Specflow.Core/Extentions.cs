@@ -30,6 +30,15 @@ namespace PossumLabs.Specflow.Core
         public static bool One<T>(this IEnumerable<T> l)
             => l.Count() == 1;
 
+        public static bool None<T>(this IEnumerable<T> l, Func<T, bool> predicate)
+            => !l.Any(predicate);
+
+        public static bool Many<T>(this IEnumerable<T> l, Func<T, bool> predicate)
+            => l.Where(predicate).Count() > 1;
+
+        public static bool One<T>(this IEnumerable<T> l, Func<T, bool> predicate)
+            => l.Where(predicate).Count() == 1;
+
         public static object[] AsObjectArray(this object i)
             => new object[] { i };
 

@@ -214,9 +214,9 @@ this.ScenarioInitialize(scenarioInfo);
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name"});
             table7.AddRow(new string[] {
-                        "E2.Name"});
+                        "E1.Name"});
 #line 38
- testRunner.And("\'E3.Reports\' contains the values", ((string)(null)), table7, "And ");
+ testRunner.Then("\'E3.Reports\' contains the values", ((string)(null)), table7, "Then ");
 #line 41
  testRunner.And("\'E1.Role\' has the value \'Minion\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 42

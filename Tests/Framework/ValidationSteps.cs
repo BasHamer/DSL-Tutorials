@@ -1,4 +1,5 @@
 ﻿using BoDi;
+using FluentAssertions;
 using PossumLabs.Specflow.Core;
 using PossumLabs.Specflow.Core.Validations;
 using System;
@@ -44,18 +45,18 @@ namespace LegacyTest.Framework
 
         [Then(@"'(.*)' has the values")]
         public void ThenTheCallHasTheValues(object o, IEnumerable<Validation> validations)
-            => o.Validate(validations);
+            => Executor.Execute(() => o.Validate(validations));
 
         [Then(@"'(.*)' has the value '(.*)'")]
         public void ThenTheCallHasTheValue(object o, Validation validation)
-            => o.Validate(validation);
+            => Executor.Execute(() => o.Validate(validation));
 
         [Then(@"'(.*)' contains the values?")]
         public void ThenTheCallContainsTheValues(object o, IEnumerable<IEnumerable<Validation>> validations)
-            => o.Contains(validations);
+            => Executor.Execute(() => o.ValidateContains(validations));
 
         [Then(@"'(.*)' contains the value '(.*)'")]
         public void ThenTheCallContainsTheValue(object o, Validation validation)
-            => o.Contains(validation);
+            => Executor.Execute(() => o.ValidateContains(validation));
     }
 }

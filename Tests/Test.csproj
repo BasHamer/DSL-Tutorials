@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions, Version=5.4.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.5.4.2\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>$(SolutionDir)packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
@@ -74,6 +77,7 @@
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TechTalk.SpecFlow, Version=2.4.0.0, Culture=neutral, PublicKeyToken=0778194805d6db41, processorArchitecture=MSIL">
       <HintPath>$(SolutionDir)packages\SpecFlow.2.4.0\lib\net45\TechTalk.SpecFlow.dll</HintPath>
       <Private>True</Private>
@@ -95,6 +99,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Retirement.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Validation.feature.cs">
+      <DependentUpon>Validation.feature</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Features\Variables.feature.cs">
       <AutoGen>True</AutoGen>
@@ -129,6 +138,10 @@
     <None Include="Features\Retirement.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Retirement.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Validation.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Validation.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Variables.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

@@ -50,7 +50,7 @@ namespace PossumLabs.Specflow.Core.Validations
                 return ProcessJson(predicate);
             else
                 return v => 
-                Interpeter.Convert<string>(v) == predicate;
+                Interpeter.Convert<string>(v) == Interpeter.Get<string>(predicate);
         }
 
         public Predicate<object> ProcessSubstitution(string predicate)

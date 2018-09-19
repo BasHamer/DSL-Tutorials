@@ -35,9 +35,9 @@ Scenario: multiple reports
 	And the root Employee is 'E3'
 	When Employee 'E2' Retires
 	Then 'E3.Role' has the value 'CEO'
-	And 'E3.Reports' contains the values
+	Then 'E3.Reports' contains the values
 	| Name    |
-	| E2.Name |
+	| E1.Name |
 	And 'E1.Role' has the value 'Minion'
 	And 'E1.Reports' has the value '[]'
 	And 'E2.Role' has the value 'null'

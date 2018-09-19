@@ -9,10 +9,10 @@ namespace PossumLabs.Specflow.Core.Validations
     public static class ValidationExtensions
     {
         public static Exception[] GetFailedValidations(this object o, IEnumerable<Validation> validations)
-    => validations
-        .Select(x => x.Validate(o))
-        .Where(x => x != null)
-        .ToArray();
+         => validations
+                .Select(x => x.Validate(o))
+                .Where(x => x != null)
+                .ToArray();
 
         public static void Validate(this object o, params Validation[] validations)
             => o.Validate(validations.ToList());
@@ -29,15 +29,21 @@ namespace PossumLabs.Specflow.Core.Validations
             => o.Cast<object>().Where(x => validation.Validate(x) == null).Any();
 
         public static bool Contains(this IEnumerable o, IEnumerable<Validation> validations)
-            => o.Cast<object>().Where(x => x.GetFailedValidations(validations).None()).Any();
+            => o.Cast<object>().Select(x => x.GetFailedValidations(validations)).Any(x => x.None());
 
-        public static bool Contains(this IEnumerable o, IEnumerable<IEnumerable<Validation>> validationRows)
-            => validationRows.Where(validations => !o.Cast<object>().Contains(validations)).None();
+        public static bool ValidateContains(this IEnumerable o, IEnumerable<IEnumerable<Validation>> validationRows)
+        {
+            var missing = validationRows.Where(validations => !o.Cast<object>().Contains(validations));
 
-        public static bool Contains(this object o, IEnumerable<IEnumerable<Validation>> validationRows)
-            => o.ConvertToIEnumerable().Contains(validationRows);
+            if (missing.Any())
+                throw new ValidationException($"Unable to find {missing.LogFormat(v=>v.Text)}");
+            return true;
+        }
 
-        public static bool Contains(this object o, Validation validation)
+        public static bool ValidateContains(this object o, IEnumerable<IEnumerable<Validation>> validationRows)
+            => o.ConvertToIEnumerable().ValidateContains(validationRows);
+
+        public static bool ValidateContains(this object o, Validation validation)
             => o.ConvertToIEnumerable().Contains(validation);
     }
 }
