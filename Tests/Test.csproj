@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainObjects\Employee.cs" />
+    <Compile Include="Selenium\DriverSteps.cs" />
     <Compile Include="Features\Google.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -110,6 +111,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Variables.feature</DependentUpon>
     </Compile>
+    <Compile Include="Selenium\FrameworkInitializationSteps.cs" />
     <Compile Include="Framework\ErrorSteps.cs" />
     <Compile Include="Framework\ValidationSteps.cs" />
     <Compile Include="Managers\RetirementManager.cs" />
@@ -121,6 +123,8 @@
     <Compile Include="Steps\FrameworkInitializationSteps.cs" />
     <Compile Include="Steps\RetirementManagerSteps.cs" />
     <Compile Include="Steps\WaitSteps.cs" />
+    <Compile Include="Selenium\ValidationSteps.cs" />
+    <Compile Include="Selenium\WebDriverStepBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

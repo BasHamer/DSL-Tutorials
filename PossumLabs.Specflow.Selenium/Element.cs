@@ -5,6 +5,7 @@ using System.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using PossumLabs.Specflow.Core.Validations;
+using System.Drawing;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -20,6 +21,7 @@ namespace PossumLabs.Specflow.Selenium
         }
 
         public string Tag => WebElement.TagName;
+        public Point Location => WebElement.Location;
         public IEnumerable<string> Classes => WebElement.GetAttribute("class").Split(' ').Select(x=>x.Trim());
         public string Id => WebElement.GetAttribute("id");
         public virtual List<string> Values => new List<string>() { WebElement.GetAttribute("value"), WebElement.Text };
@@ -38,5 +40,8 @@ namespace PossumLabs.Specflow.Selenium
 
         public void Click()
             => WebElement.Click();
+
+        public  string GetCssValue(string prop)
+            => WebElement.GetCssValue(prop);
     }
 }
