@@ -1,4 +1,6 @@
-﻿using PossumLabs.Specflow.Selenium;
+﻿using BoDi;
+using LegacyTest;
+using PossumLabs.Specflow.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace Shim.Selenium
     [Binding]
     public class FrameworkInitializationSteps : StepBase
     {
-        public FrameworkInitializationSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
+        public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer)
         {
             WebDriverManager = new PossumLabs.Specflow.Selenium.WebDriverManager();
         }

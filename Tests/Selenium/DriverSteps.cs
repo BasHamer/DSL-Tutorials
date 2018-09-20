@@ -1,4 +1,5 @@
-﻿using PossumLabs.Specflow.Selenium;
+﻿using BoDi;
+using PossumLabs.Specflow.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Shim.Selenium
     [Binding]
     public class DriverSteps: WebDriverStepBase
     {
-        public DriverSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
+        public DriverSteps(IObjectContainer objectContainer) : base(objectContainer)
         { }
 
         [StepArgumentTransformation]

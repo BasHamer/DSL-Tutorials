@@ -1,4 +1,6 @@
-﻿using OpenQA.Selenium;
+﻿using BoDi;
+using LegacyTest;
+using OpenQA.Selenium;
 using PossumLabs.Specflow.Selenium;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ namespace Shim.Selenium
 {
     public abstract class WebDriverStepBase:StepBase
     {
-        public WebDriverStepBase(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
+        public WebDriverStepBase(IObjectContainer objectContainer) : base(objectContainer)
         { }
 
         protected WebDriver WebDriver => ScenarioContext.Get<WebDriverManager>((typeof(WebDriverManager).FullName)).Current;

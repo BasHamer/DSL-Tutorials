@@ -1,4 +1,5 @@
-﻿using PossumLabs.Specflow.Core.Benefic;
+﻿using BoDi;
+using FluentAssertions;
 using PossumLabs.Specflow.Core.Validations;
 using PossumLabs.Specflow.Selenium;
 using System;
@@ -13,7 +14,7 @@ namespace Shim.Selenium
     [Binding]
     public class ValidationSteps : WebDriverStepBase
     {
-        public ValidationSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
+        public ValidationSteps(IObjectContainer objectContainer) : base(objectContainer)
         { }
 
         [StepArgumentTransformation]
@@ -24,22 +25,18 @@ namespace Shim.Selenium
         public TableValidation TransformForHas(Table table) 
             => WebValidationFactory.Create(table.Rows.Select(r=>table.Header.ToDictionary(h=>h, h=> WebValidationFactory.Create(r[h]))).ToList());
 
-        [Benefic("Element has Value", icon: "validate")]
         [Then(@"the element '(.*)' has the value '(.*)'")]
         public void ThenTheElementHasTheValue(Selector selector, WebValidation validation)
             => WebDriver.Select(selector).Validate(validation);
 
-        [Benefic("PageContains", icon: "find")]
         [Then(@"the page contains the element '(.*)'")]
         public void ThenThePageContains(Selector selector)
-            => Assert.IsNotNull(WebDriver.Select(selector));
+            => WebDriver.Select(selector).Should().NotBeNull();
 
-        [Benefic(discoverable:false)]
         [Then(@"the table contains")]
         public void ThenTheTableContains(TableValidation table)
             => WebDriver.Tables.Validate(table);
 
-        [Benefic("Element is", icon: "validate")]
         [Then(@"the element '(.*)' is '(.*)'")]
         public void ThenTheElementIs(Selector selector, WebValidation validation)
             => WebDriver.Select(selector).Validate(validation);

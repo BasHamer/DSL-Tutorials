@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+ 
+  hub:
+    image: selenium/hub
+    ports:
+      - "4444:4444"
+    environment:
+      TZ: US/Mountain
+  
+  node-chrome:
+    image: selenium/node-chrome
+    depends_on: 
+      - hub
+    links: 
+      - "hub:hub"
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
+      HUB_PORT_4444_TCP_PORT: 4444
+      TZ: US/Mountain
+    deploy:
+      mode: replicated
+      replicas: 6
