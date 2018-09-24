@@ -89,12 +89,12 @@ namespace LegacyTest.Features
         }
         
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Find flights")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Find flights -- clicking and select")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "phpTravels")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
-        public virtual void FindFlights()
+        public virtual void FindFlights_ClickingAndSelect()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Find flights", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Find flights -- clicking and select", null, ((string[])(null)));
 #line 5
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
@@ -103,7 +103,7 @@ this.ScenarioInitialize(scenarioInfo);
 #line 7
  testRunner.When("entering \'Denv\' into element \'hotel_s2_text\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 8
- testRunner.And("Clicking the element \'Denver, United States\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("clicking the element \'Denver, United States\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 9
  testRunner.And("selecting the element \'Check in\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 10
@@ -111,29 +111,31 @@ this.ScenarioInitialize(scenarioInfo);
 #line 11
  testRunner.And("clicking the element \'Tomorrow.Day\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 12
- testRunner.And("clicking the element\'Search\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("clicking the element \'Search\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 13
- testRunner.Then("the page contains \'No Results Found\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the page contains the element \'No Results Found\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
         
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("hotel details")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("hotel details -- naviagting items in complex scenarios (rows & under)")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "phpTravels")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
-        public virtual void HotelDetails()
+        public virtual void HotelDetails_NaviagtingItemsInComplexScenariosRowsUnder()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("hotel details", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("hotel details -- naviagting items in complex scenarios (rows & under)", null, ((string[])(null)));
 #line 16
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 17
  testRunner.Given("navigated to \'https://www.phptravels.net/hotels/listing/\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 18
- testRunner.When("clicking the element \'Details\' under \'Hyatt Regency Perth\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("under \'Hyatt Regency Perth\' click the element \'Details\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 19
- testRunner.Then("the page contains \'$300\' in row \'EXECUTIVE TWO-BEDROOMS APARTMENT\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.And("for the row \'Hyatt Regency Perth\' click the element \'Details\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 20
+ testRunner.Then("the row \'EXECUTIVE TWO-BEDROOMS APARTMENT\' contains the element \'$300\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }

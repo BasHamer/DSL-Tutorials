@@ -42,6 +42,12 @@
       <HintPath>..\packages\FluentAssertions.5.4.2\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.DotNet.PlatformAbstractions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.DotNet.PlatformAbstractions.2.1.0\lib\net45\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyModel, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyModel.2.1.0\lib\net451\Microsoft.Extensions.DependencyModel.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>$(SolutionDir)packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
       <Private>True</Private>
@@ -62,6 +68,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Security.AccessControl, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>$(SolutionDir)packages\System.Security.AccessControl.4.5.0\lib\net461\System.Security.AccessControl.dll</HintPath>
     </Reference>
@@ -92,6 +103,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainObjects\Employee.cs" />
+    <Compile Include="DomainObjects\User.cs" />
+    <Compile Include="Features\ExistingData.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExistingData.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Templates.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Templates.feature</DependentUpon>
+    </Compile>
     <Compile Include="Selenium\DriverSteps.cs" />
     <Compile Include="Features\Google.feature.cs">
       <AutoGen>True</AutoGen>
@@ -126,6 +148,7 @@
     <Compile Include="Framework\StepBase.cs" />
     <Compile Include="Framework\RepositoryStepBase.cs" />
     <Compile Include="Framework\FileSteps.cs" />
+    <Compile Include="Steps\UserSteps.cs" />
     <Compile Include="Steps\EmployeeSteps.cs" />
     <Compile Include="Steps\FrameworkInitializationSteps.cs" />
     <Compile Include="Steps\RetirementManagerSteps.cs" />
@@ -138,6 +161,16 @@
     <None Include="Default.srprofile">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="DomainObjects\Existing.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="DomainObjects\Templates\Employee.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Features\ExistingData.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>ExistingData.feature.cs</LastGenOutput>
+    </None>
     <None Include="Features\Google.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Google.feature.cs</LastGenOutput>
@@ -149,6 +182,10 @@
     <None Include="Features\Retirement.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Retirement.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Templates.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Templates.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Validation.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
