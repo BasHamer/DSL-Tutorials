@@ -30,5 +30,11 @@ namespace LegacyTest.Steps
             templateManager.Initialize(Assembly.GetExecutingAssembly());
             base.Register(templateManager);
         }
+
+        [BeforeScenario(Order = 1)]
+        public void SetupExistingData()
+        {
+            new PossumLabs.Specflow.Core.Variables.ExistingDataManager(this.Interpeter).Initialize(Assembly.GetExecutingAssembly());
+        }
     }
 }

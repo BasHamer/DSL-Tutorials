@@ -38,7 +38,7 @@ namespace LegacyTest
             throw new NotImplementedException("Create is not supported for this repository.");
         }
 
-        [BeforeScenario]
+        [BeforeScenario(Order = int.MinValue+1)]
         public void RegisterRepositoryWithInterpeter()
         {
             var r = new RepositoryBase<T>(base.Interpeter, base.ObjectFactory);

@@ -97,6 +97,10 @@ namespace LegacyTest.Features
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 4
+ testRunner.Then("\'User.Password\' has the value \'demouser\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 5
+ testRunner.Then("\'Admin.Password\' has the value \'demoadmin\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 6
  testRunner.Then("\'Supplier.Password\' has the value \'demosupplier\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
