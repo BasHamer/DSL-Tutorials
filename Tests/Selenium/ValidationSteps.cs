@@ -29,6 +29,14 @@ namespace Shim.Selenium
         public void ThenTheElementHasTheValue(Selector selector, WebValidation validation)
             => WebDriver.Select(selector).Validate(validation);
 
+        [Then(@"under '(.*)' the element '(.*)' has the value '(.*)'")]
+        public void ThenUnderTheElementHasTheValue(UnderSelectorPrefix prefix, Selector selector, WebValidation validation)
+            => WebDriver.Under(prefix).Select(selector).Validate(validation);
+
+        [Then(@"for row '(.*)' the element '(.*)' has the value '(.*)'")]
+        public void ThenForRowTheElementHasTheValue(RowSelectorPrefix prefix, Selector selector, WebValidation validation)
+            => WebDriver.ForRow(prefix).Select(selector).Validate(validation);
+
         [Then(@"the page contains the element '(.*)'")]
         public void ThenThePageContains(Selector selector)
             => WebDriver.Select(selector).Should().NotBeNull();

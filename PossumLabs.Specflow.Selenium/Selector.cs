@@ -14,7 +14,7 @@ namespace PossumLabs.Specflow.Selenium
             By = by;
         }
 
-        public Selector(string label, List<Func<string, IWebDriver, IEnumerable<Element>>> sequencedByOrder)
+        public Selector(string label, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> sequencedByOrder)
         {
             Label = label;
             SequencedByOrder = sequencedByOrder;
@@ -23,7 +23,7 @@ namespace PossumLabs.Specflow.Selenium
         private string Constructor { get; }
         private By By { get; }
         private string Label { get; }
-        private List<Func<string, IWebDriver, IEnumerable<Element>>> SequencedByOrder { get; }
+        private List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> SequencedByOrder { get; }
 
         internal IEnumerable<Searcher> PrioritizedSearchers
         {
@@ -33,14 +33,14 @@ namespace PossumLabs.Specflow.Selenium
                     return new[] {
                         new Searcher(
                             () => Constructor, 
-                            (driver) => driver.FindElements(By).Select(element => new Element(element, driver)))
+                            (driver, prefixes) => driver.FindElements(By).Select(element => new Element(element, driver)))
                     };
                 else
                 {
                     return SequencedByOrder
                         .Select(By => new Searcher(
                             () => Label,
-                            (driver) => By(Label,driver)));
+                            (driver, prefixes) => By(Label, prefixes, driver)));
                 }
 
             }

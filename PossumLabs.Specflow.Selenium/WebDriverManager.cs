@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
+using PossumLabs.Specflow.Selenium.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,12 @@ namespace PossumLabs.Specflow.Selenium
 {
     public class WebDriverManager
     {
+        public WebDriverManager(SeleniumGridConfiguration seleniumGridConfiguration)
+        {
+            SeleniumGridConfiguration = seleniumGridConfiguration;
+        }
+
+        public SeleniumGridConfiguration SeleniumGridConfiguration { get; }
         public WebDriver Current { get; set; }
         public Uri BaseUrl { get; set; }
 
@@ -19,7 +26,7 @@ namespace PossumLabs.Specflow.Selenium
             options.AddArgument("no-sandbox"); //might be a fix :/
             options.AddArgument("disable-popup-blocking");
             //TODO: Config value
-            var driver = new RemoteWebDriver(new Uri("http://localhost:4444/wd/hub"), options.ToCapabilities(), TimeSpan.FromSeconds(180));
+            var driver = new RemoteWebDriver(new Uri(SeleniumGridConfiguration.Url), options.ToCapabilities(), TimeSpan.FromSeconds(180));
             //do not change this, the site is a bloody nightmare with overlaying buttons etc.
             driver.Manage().Window.Size = new System.Drawing.Size(1440, 900);
             var allowsDetection = driver as IAllowsFileDetection;

@@ -15,7 +15,7 @@ namespace Shim.Selenium
     {
         public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer)
         {
-            WebDriverManager = new PossumLabs.Specflow.Selenium.WebDriverManager();
+            WebDriverManager = new PossumLabs.Specflow.Selenium.WebDriverManager( new PossumLabs.Specflow.Selenium.Configuration.SeleniumGridConfiguration() );
         }
 
         private PossumLabs.Specflow.Selenium.WebDriverManager WebDriverManager { get; }
