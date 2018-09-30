@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BoDi;
+﻿using BoDi;
 using LegacyTest.DomainObjects;
 using LegacyTest.Managers;
 using TechTalk.SpecFlow;
@@ -16,7 +11,7 @@ namespace LegacyTest.Steps
         public RetirementManagerSteps(IObjectContainer objectContainer) : base(objectContainer)
         {
             RetirementManager = new RetirementManager();
-            Register<RetirementManager>(RetirementManager);
+            Register(RetirementManager);
         }
         private RetirementManager RetirementManager { get; }
 
