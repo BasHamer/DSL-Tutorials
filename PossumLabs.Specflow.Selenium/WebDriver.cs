@@ -32,6 +32,9 @@ namespace PossumLabs.Specflow.Selenium
                 Driver.Navigate().GoToUrl(RootUrl().AbsoluteUri + url);
         }
 
+        public void LeaveFrames()
+            => Driver.SwitchTo().DefaultContent();
+
         public void LoadPage(string html)
         {
             Driver.Navigate().GoToUrl("data:text/html;charset=utf-8," + html);
@@ -41,6 +44,30 @@ namespace PossumLabs.Specflow.Selenium
         {
             var loggingWebdriver = new LoggingWebDriver(Driver);
             var index = 0;
+            var element =  FindElement(selector, loggingWebdriver, ref index);
+            if (element != null)
+                return element;
+            //iframes ? 
+            var iframes = Driver.FindElements(By.XPath("//iframe"));
+            foreach (var iframe in iframes)
+            {
+                try
+                {
+                    loggingWebdriver.Log($"Trying iframe:{iframe}");
+                    Driver.SwitchTo().Frame(iframe);
+                    element = FindElement(selector, loggingWebdriver, ref index);
+                    if (element != null)
+                        return element;
+                }
+                catch
+                { }
+            }
+            Driver.SwitchTo().DefaultContent();
+            throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
+        }
+
+        private Element FindElement(Selector selector, LoggingWebDriver loggingWebdriver, ref int index)
+        {
             foreach (var searcher in selector.PrioritizedSearchers)
             {
                 var results = searcher.SearchIn(loggingWebdriver, Prefixes);
@@ -54,9 +81,9 @@ namespace PossumLabs.Specflow.Selenium
                 {
                     //HACK: HACK HELL
                     var filterHidden = results
-                        .Select(e=>new { e, o = loggingWebdriver.GetElementFromPoint(e.Location.X + 1, e.Location.Y + 1) })
+                        .Select(e => new { e, o = loggingWebdriver.GetElementFromPoint(e.Location.X + 1, e.Location.Y + 1) })
                         .Where(p => p.e.Tag == p.o?.TagName && p.e.Location == p.o?.Location);
-                    if(filterHidden.One())
+                    if (filterHidden.One())
                     {
                         SuccessfulSearchers.Add(searcher);
                         return results.First();
@@ -67,7 +94,7 @@ namespace PossumLabs.Specflow.Selenium
                 }
                 index++;
             }
-            throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
+            return null;
         }
 
         public void ExecuteScript(string script)

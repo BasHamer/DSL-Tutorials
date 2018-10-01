@@ -150,6 +150,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ExistingData.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\IFrames.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IFrames.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\RowSelector.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -235,6 +240,10 @@
     <None Include="Features\Google.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Google.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\IFrames.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>IFrames.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\phpTravels.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

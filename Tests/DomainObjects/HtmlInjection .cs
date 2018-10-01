@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace LegacyTest.DomainObjects
 {
@@ -34,5 +35,16 @@ namespace LegacyTest.DomainObjects
                 Content = $"<html><head></head><body><table><tr>{value}</tr></table></body></html>";
             }
         }
+
+        public string IFrame
+        {
+            set
+            {
+                Content = $"<html><head></head><body><iframe srcdoc=\"{XmlEscapeAttribute(value)}\" src=\"mock.htm\"></iframe></body></html>";
+            }
+        }
+
+        public static string XmlEscapeAttribute(string unescaped)
+            => unescaped.Replace("\"", "&quot;");
     }
 }

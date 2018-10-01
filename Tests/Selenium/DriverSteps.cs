@@ -26,7 +26,12 @@ namespace Shim.Selenium
         [StepArgumentTransformation]
         public RowSelectorPrefix TransformRowSearcherPrefix(string Constructor)
             => SelectorFactory.CreateRowPrefix(Constructor);
-        
+
+        [AfterStep]
+        public void Cleanup()
+        {
+            if (WebDriver != null) WebDriver.LeaveFrames();
+        }
 
         [When(@"clicking the element '(.*)'")]
         public void WhenClickingTheElement(Selector selector)

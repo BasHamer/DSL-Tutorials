@@ -45,7 +45,8 @@ namespace LegacyTest.Features
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner(null, 0);
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Row Selector", null, ProgrammingLanguage.CSharp, new string[] {
-                        "SingleBrowser"});
+                        "SingleBrowser",
+                        "injected-html"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -113,6 +114,7 @@ this.ScenarioInitialize(scenarioInfo);
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 01 simple")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "01 simple")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "01 simple")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -130,6 +132,7 @@ this.TableRow("01 simple", "row1", "target", "Bob", "<td>row1<td><td><label>targ
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 02 label")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "02 label")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "02 label")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -149,6 +152,7 @@ this.TableRow("02 label", "row1", "target", "Bob", "<td><label>row1</label><td><
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 03 b")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "03 b")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "03 b")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -166,6 +170,7 @@ this.TableRow("03 b", "row1", "target", "Bob", "<td><b>row1</b><td><td><label>ta
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 04 h1")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "04 h1")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "04 h1")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -183,6 +188,7 @@ this.TableRow("04 h1", "row1", "target", "Bob", "<td><h1>row1</h1><td><td><label
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 05 h2")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "05 h2")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "05 h2")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -200,6 +206,7 @@ this.TableRow("05 h2", "row1", "target", "Bob", "<td><h2>row1</h2><td><td><label
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 06 h3")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "06 h3")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "06 h3")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -217,6 +224,7 @@ this.TableRow("06 h3", "row1", "target", "Bob", "<td><h3>row1</h3><td><td><label
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 07 h4")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "07 h4")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "07 h4")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -234,6 +242,7 @@ this.TableRow("07 h4", "row1", "target", "Bob", "<td><h4>row1</h4><td><td><label
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 08 h5")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "08 h5")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "08 h5")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -251,6 +260,7 @@ this.TableRow("08 h5", "row1", "target", "Bob", "<td><h5>row1</h5><td><td><label
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 09 h6")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "09 h6")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "09 h6")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -268,6 +278,7 @@ this.TableRow("09 h6", "row1", "target", "Bob", "<td><h6>row1</h6><td><td><label
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 10 input")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "10 input")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "10 input")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -287,17 +298,18 @@ this.TableRow("10 input", "row1", "target", "Bob", "<td><input value=\"row1\"></
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("table row: 11 span")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "11 span")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "11 span")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:target", "target")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:value", "Bob")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<td><span>row1</label><td><td><span>target<input type=\"text\"></input></label></td" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<td><span>row1</span><td><td><label>target<input type=\"text\"></input></label></td" +
             ">")]
         public virtual void TableRow_11Span()
         {
 #line 4
-this.TableRow("11 span", "row1", "target", "Bob", "<td><span>row1</label><td><td><span>target<input type=\"text\"></input></label></td" +
+this.TableRow("11 span", "row1", "target", "Bob", "<td><span>row1</span><td><td><label>target<input type=\"text\"></input></label></td" +
                     ">", ((string[])(null)));
 #line hidden
         }
@@ -310,7 +322,7 @@ this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
-                        "TableRow"});
+                        "Html"});
             table2.AddRow(new string[] {
                         string.Format("{0}", html)});
 #line 26
@@ -327,6 +339,7 @@ this.ScenarioInitialize(scenarioInfo);
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 01 simple")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "01 simple")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "01 simple")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -344,6 +357,7 @@ this.DivRow("01 simple", "row1", "target", "Bob", "<div role=\"row\">row1<label>
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 02 label")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "02 label")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "02 label")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -363,6 +377,7 @@ this.DivRow("02 label", "row1", "target", "Bob", "<div role=\"row\"><label>row1<
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 03 b")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "03 b")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "03 b")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -382,6 +397,7 @@ this.DivRow("03 b", "row1", "target", "Bob", "<div role=\"row\"><b>row1</b><labe
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 04 h1")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "04 h1")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "04 h1")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -401,6 +417,7 @@ this.DivRow("04 h1", "row1", "target", "Bob", "<div role=\"row\"><h1>row1</h1><l
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 05 h2")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "05 h2")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "05 h2")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -420,6 +437,7 @@ this.DivRow("05 h2", "row1", "target", "Bob", "<div role=\"row\"><h2>row1</h2><l
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 06 h3")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "06 h3")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "06 h3")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -439,6 +457,7 @@ this.DivRow("06 h3", "row1", "target", "Bob", "<div role=\"row\"><h3>row1</h3><l
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 07 h4")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "07 h4")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "07 h4")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -458,6 +477,7 @@ this.DivRow("07 h4", "row1", "target", "Bob", "<div role=\"row\"><h4>row1</h4><l
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 08 h5")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "08 h5")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "08 h5")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -477,6 +497,7 @@ this.DivRow("08 h5", "row1", "target", "Bob", "<div role=\"row\"><h5>row1</h5><l
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 09 h6")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "09 h6")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "09 h6")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -496,6 +517,7 @@ this.DivRow("09 h6", "row1", "target", "Bob", "<div role=\"row\"><h6>row1</h6><l
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 10 input")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "10 input")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "10 input")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -515,6 +537,7 @@ this.DivRow("10 input", "row1", "target", "Bob", "<div role=\"row\"><input value
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("div row: 11 span")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "11 span")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "11 span")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:row", "row1")]
@@ -528,20 +551,6 @@ this.DivRow("10 input", "row1", "target", "Bob", "<div role=\"row\"><input value
 this.DivRow("11 span", "row1", "target", "Bob", "<div role=\"row\"><span>row1</span><label>target<input type=\"text\"></input></label>" +
                     "</div>", ((string[])(null)));
 #line hidden
-        }
-        
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("row label")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Row Selector")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
-        public virtual void RowLabel()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("row label", null, ((string[])(null)));
-#line 46
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
-#line hidden
-            this.ScenarioCleanup();
         }
     }
 }

@@ -96,7 +96,7 @@ namespace PossumLabs.Specflow.Selenium
             {
                 foreach (var prefix in prefixes.CrossMultiply())
                 {
-                    var elements = driver.FindElements(By.XPath($"{prefix}//label[@for and text()={target.XpathEncode()}]"));
+                    var elements = driver.FindElements(By.XPath($"{prefix}//label[@for and {TextMatch(target)}]"));
                     if (elements.Any())
                         return elements.SelectMany(e => driver.FindElements(By.Id(e.GetAttribute("for"))))
                         .Select(e => CreateElement(driver, e));
@@ -111,7 +111,7 @@ namespace PossumLabs.Specflow.Selenium
             (target, prefixes, driver) => 
                 prefixes.CrossMultiply().Select(prefix=>
                     driver
-                    .FindElements(By.XPath($"{prefix}//label[text()[normalize-space(.)={target.XpathEncode()}]]/*[self::input or self::textarea or self::select or self::button]"))
+                    .FindElements(By.XPath($"{prefix}//label[{TextMatch(target)}]/*[{ActiveElements}]"))
                     .Where(Filter)
                     .Distinct(Comparer)
                     .Select(e => CreateElement(driver, e))
@@ -135,8 +135,8 @@ namespace PossumLabs.Specflow.Selenium
                     driver
                         .FindElements(By.XPath(
                             $"{prefix}//*[{ActiveElements} and (" +
-                                $"normalize-space(text())={target.XpathEncode()} or " +
-                                $"label[text()={target.XpathEncode()}] or " +
+                                $"{TextMatch(target)} or " +
+                                $"label[{TextMatch(target)}] or " +
                                 $"(@type='button' and @value={target.XpathEncode()}) or " +
                                 $"@name={target.XpathEncode()} or " +
                                 $"@aria-label={target.XpathEncode()} or " +
@@ -153,7 +153,7 @@ namespace PossumLabs.Specflow.Selenium
             (target, prefixes, driver) =>
                 prefixes.CrossMultiply().Select(prefix => 
                     driver
-                        .FindElements(By.XPath($"{prefix}//*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem') and text()={target.XpathEncode()}]"))
+                        .FindElements(By.XPath($"{prefix}//*[{ActiveElements} and {TextMatch(target)}]"))
                         .Where(Filter)
                         .Distinct(Comparer)
                         .Select(e => CreateElement(driver, e))
@@ -215,35 +215,39 @@ namespace PossumLabs.Specflow.Selenium
                 $"//tr[td[normalize-space() = {target.XpathEncode()}]]",
                 $"//tr[td/*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]]",
                 $"//tr[td/*[@value = {target.XpathEncode()}]]",
-                $"//tr[td/select/option[@selected='selected' and text()={target.XpathEncode()}]]"
+                $"//tr[td/select/option[@selected='selected' and {TextMatch(target)}]]"
             };
 
         virtual protected Func<string, IEnumerable<string>> DivRoleRow =>
             (target) => new List<string>() {
-                $"//*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//select[option[@selected='selected' and text()={target.XpathEncode()}]]/ancestor::div[@class='row'][1]"
+                $"//*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
+                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
+                $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]",
+                $"//div[{TextMatch(target)}]/ancestor-or-self::div[@role='row'][1]"
             };
 
         virtual protected Func<string, IEnumerable<string>> ParrentDiv =>
             (target) => new List<string>() { $"//div[" +
-                    $"normalize-space(text())={target.XpathEncode()} or " +
-                    $"label[text()={target.XpathEncode()}] or " +
-                    $"(@type='button' and @value={target.XpathEncode()}) or " +
+                    $"{TextMatch(target)} or " +
+                    $"*[{MarkerElements} and {TextMatch(target)}] or " +
+                    $"*[{ActiveElements} and @value = {target.XpathEncode()}] or " +
                     $"@name={target.XpathEncode()} or " +
                     $"@aria-label={target.XpathEncode()}" +
-                $")]" };
+                $"]" };
 
         virtual protected Func<string, IEnumerable<string>> ParrentDivWithRowRole =>
             (target) => new List<string>() {
-                $"//*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//select[option[@selected='selected' and text()={target.XpathEncode()}]]/ancestor::div[@class='row'][1]"
+                $"//*[{MarkerElements} and {TextMatch(target)}]/ancestor::div[@role='row'][1]",
+                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
+                $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]"
             };
         #endregion
 
+        virtual protected string TextMatch(string target)
+            => $"text()[normalize-space(.)={target.XpathEncode()}]";
+
         virtual protected string MarkerElements 
-            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 )";
+            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";
 
         virtual protected string ActiveElements 
             => "( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' )";

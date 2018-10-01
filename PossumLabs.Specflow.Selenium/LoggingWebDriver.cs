@@ -53,6 +53,9 @@ namespace PossumLabs.Specflow.Selenium
             return Driver.FindElements(by);
         }
 
+        public void Log(string message)
+            => Messages.Add(message);
+
         public void Dispose() => Driver.Dispose();
 
         public Screenshot GetScreenshot()
