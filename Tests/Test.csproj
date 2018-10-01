@@ -175,6 +175,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UnderSelector.feature</DependentUpon>
     </Compile>
+    <Compile Include="Framework\VariableSteps.cs" />
     <Compile Include="Selenium\DriverSteps.cs" />
     <Compile Include="Features\Google.feature.cs">
       <AutoGen>True</AutoGen>
