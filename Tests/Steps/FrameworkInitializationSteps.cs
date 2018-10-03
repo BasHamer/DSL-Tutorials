@@ -21,6 +21,8 @@ namespace LegacyTest.Steps
         [BeforeScenario(Order = int.MinValue)]
         public void Setup()
         {
+            ObjectContainer.RegisterInstanceAs(new ImageLogging());
+
             var factory = new PossumLabs.Specflow.Core.Variables.ObjectFactory();
             base.Register(factory);
             base.Register(new PossumLabs.Specflow.Core.Variables.Interpeter(factory));

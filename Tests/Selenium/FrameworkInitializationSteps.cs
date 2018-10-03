@@ -1,6 +1,10 @@
 ﻿using BoDi;
 using LegacyTest;
+using PossumLabs.Specflow.Core.Exceptions;
+using PossumLabs.Specflow.Core.Logging;
 using PossumLabs.Specflow.Selenium;
+using PossumLabs.Specflow.Selenium.Configuration;
+using PossumLabs.Specflow.Selenium.Diagnostic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,19 +23,28 @@ namespace Shim.Selenium
         }
 
         private PossumLabs.Specflow.Selenium.WebDriverManager WebDriverManager { get; }
+        private ScreenshotProcessor ScreenshotProcessor { get; set; }
+        private ImageLogging ImageLogging { get; set; }
 
         [BeforeScenario(Order = int.MinValue+1)]
         public void Setup()
         {
+            ScreenshotProcessor = ObjectContainer.Resolve<ScreenshotProcessor>();
+            ImageLogging = ObjectContainer.Resolve<ImageLogging>();
+
             base.Register(WebDriverManager);
             base.Register(new PossumLabs.Specflow.Selenium.WebValidationFactory(Interpeter));
-            base.Register(new PossumLabs.Specflow.Selenium.SelectorFactory());
+            base.Register<SelectorFactory>(new LegacyTest.Framework.SpecializedSelectorFactory());
         }
 
         [BeforeScenario("SingleBrowser")]
         public void SetupBrowser()
         {
-            WebDriverManager.Current = new WebDriver(WebDriverManager.Create(), ()=>WebDriverManager.BaseUrl);
+            WebDriverManager.Current = new WebDriver(
+                WebDriverManager.Create(), 
+                ()=>WebDriverManager.BaseUrl, 
+                ObjectContainer.Resolve<SeleniumGridConfiguration>(), 
+                ObjectContainer.Resolve<RetryExecutor>());
         }
 
         [AfterScenario]
@@ -39,6 +52,26 @@ namespace Shim.Selenium
         {
             if (WebDriverManager?.Current != null)
                 WebDriverManager.Current.Dispose();
+        }
+
+        [AfterStep]
+        public void TakeScreenshot()
+        {
+            if (WebDriverManager?.Current != null)
+            {
+                var img = WebDriverManager.Current.Screenshot();
+                var withText = ImageLogging.AddTextToImage(img, $"{ScenarioContext.StepContext.StepInfo.StepDefinitionType} {ScenarioContext.StepContext.StepInfo.Text}");
+                WebDriverManager.Screenshots.Add(withText);
+            }
+        }
+
+        [AfterScenario]
+        public void LogScreenshots()
+        {
+            if (WebDriverManager.Screenshots.Any())
+                ScreenshotProcessor.CreateGif("movie.gif",WebDriverManager.Screenshots);
+
+
         }
     }
 }

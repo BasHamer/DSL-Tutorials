@@ -55,6 +55,7 @@ namespace PossumLabs.Specflow.Selenium
                     ByLabelledBy,
                     RadioByName,
                     SpecialButtons,
+                    ByFollowingMarker,
            };
 
         virtual protected List<Func<string, IEnumerable<string>>> SequencedRowPrefixesByOrder
@@ -68,7 +69,8 @@ namespace PossumLabs.Specflow.Selenium
            => new List<Func<string, IEnumerable<string>>>
            {
                 ParrentDiv,
-                ParrentDivWithRowRole
+                ParrentDivWithRowRole,
+                FollowingRow
            };
 
         private bool Filter(IWebElement e) =>
@@ -137,7 +139,7 @@ namespace PossumLabs.Specflow.Selenium
                             $"{prefix}//*[{ActiveElements} and (" +
                                 $"{TextMatch(target)} or " +
                                 $"label[{TextMatch(target)}] or " +
-                                $"(@type='button' and @value={target.XpathEncode()}) or " +
+                                $"((@type='button' or @type='submit' or @type='reset') and @value={target.XpathEncode()}) or " +
                                 $"@name={target.XpathEncode()} or " +
                                 $"@aria-label={target.XpathEncode()} or " +
                                 $"(@type='radio' and @value={target.XpathEncode()})" +
@@ -207,13 +209,25 @@ namespace PossumLabs.Specflow.Selenium
                 }
                 return new Element[] { };
             };
+
+        //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
+        //a[@title='{target}']
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByFollowingMarker =>
+            (target, prefixes, driver) =>
+                prefixes.CrossMultiply().Select(prefix =>
+                    driver
+                        .FindElements(By.XPath($"{prefix}//*[{MarkerElements} and {TextMatch(target)}]/following-sibling::*[not(self::br or self::hr)][1][{ActiveElements}]"))
+                        .Where(Filter)
+                        .Distinct(Comparer)
+                        .Select(e => new Element(e, driver))
+            ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
         #endregion
 
         #region Prefixes
         virtual protected Func<string, IEnumerable<string>> TableRow =>
             (target) => new List<string>(){
                 $"//tr[td[normalize-space() = {target.XpathEncode()}]]",
-                $"//tr[td/*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]]",
+                $"//tr[td/*[{MarkerElements} and {TextMatch(target)}]]",
                 $"//tr[td/*[@value = {target.XpathEncode()}]]",
                 $"//tr[td/select/option[@selected='selected' and {TextMatch(target)}]]"
             };
@@ -241,6 +255,9 @@ namespace PossumLabs.Specflow.Selenium
                 $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
                 $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]"
             };
+
+        virtual protected Func<string, IEnumerable<string>> FollowingRow =>
+            (target) => TableRow(target).Select(x => $"{x}/following-sibling::tr[1]").ToList();
         #endregion
 
         virtual protected string TextMatch(string target)

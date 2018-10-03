@@ -1,5 +1,7 @@
 ﻿using OpenQA.Selenium;
 using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Exceptions;
+using PossumLabs.Specflow.Selenium.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,17 +12,21 @@ namespace PossumLabs.Specflow.Selenium
 {
     public class WebDriver:IDisposable
     {
-        public WebDriver(IWebDriver driver, Func<Uri> rootUrl, IEnumerable<SelectorPrefix> prefixes = null)
+        public WebDriver(IWebDriver driver, Func<Uri> rootUrl, SeleniumGridConfiguration configuration, RetryExecutor retryExecutor, IEnumerable<SelectorPrefix> prefixes = null)
         {
             Driver = driver;
             SuccessfulSearchers = new List<Searcher>();
             RootUrl = rootUrl;
+            SeleniumGridConfiguration = configuration;
+            RetryExecutor = retryExecutor;
             Prefixes = prefixes ?? new List<SelectorPrefix>() { new EmptySelectorPrefix() };
         }
 
         private Func<Uri> RootUrl {get;set;}
         private IWebDriver Driver { get; }
         private List<Searcher> SuccessfulSearchers { get; }
+        private SeleniumGridConfiguration SeleniumGridConfiguration { get; }
+        private RetryExecutor RetryExecutor { get; }
         private IEnumerable<SelectorPrefix> Prefixes;
 
         //TODO: check this form
@@ -41,30 +47,32 @@ namespace PossumLabs.Specflow.Selenium
         }
 
         public Element Select(Selector selector)
-        {
-            var loggingWebdriver = new LoggingWebDriver(Driver);
-            var index = 0;
-            var element =  FindElement(selector, loggingWebdriver, ref index);
-            if (element != null)
-                return element;
-            //iframes ? 
-            var iframes = Driver.FindElements(By.XPath("//iframe"));
-            foreach (var iframe in iframes)
+            =>RetryExecutor.RetryFor(() =>
             {
-                try
+                var loggingWebdriver = new LoggingWebDriver(Driver);
+                var index = 0;
+                var element = FindElement(selector, loggingWebdriver, ref index);
+                if (element != null)
+                    return element;
+                //iframes ? 
+                var iframes = Driver.FindElements(By.XPath("//iframe"));
+                foreach (var iframe in iframes)
                 {
-                    loggingWebdriver.Log($"Trying iframe:{iframe}");
-                    Driver.SwitchTo().Frame(iframe);
-                    element = FindElement(selector, loggingWebdriver, ref index);
-                    if (element != null)
-                        return element;
+                    try
+                    {
+                        loggingWebdriver.Log($"Trying iframe:{iframe}");
+                        Driver.SwitchTo().Frame(iframe);
+                        element = FindElement(selector, loggingWebdriver, ref index);
+                        if (element != null)
+                            return element;
+                    }
+                    catch
+                    { }
                 }
-                catch
-                { }
-            }
-            Driver.SwitchTo().DefaultContent();
-            throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
-        }
+                Driver.SwitchTo().DefaultContent();
+                throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
+            }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
+        
 
         private Element FindElement(Selector selector, LoggingWebDriver loggingWebdriver, ref int index)
         {
@@ -101,10 +109,10 @@ namespace PossumLabs.Specflow.Selenium
             => ((IJavaScriptExecutor)Driver).ExecuteScript(script);
                
         public WebDriver Under(UnderSelectorPrefix under)
-            => new WebDriver(Driver, RootUrl, Prefixes.Concat(under));
+            => new WebDriver(Driver, RootUrl, SeleniumGridConfiguration, RetryExecutor, Prefixes.Concat(under));
 
         public WebDriver ForRow(RowSelectorPrefix row)
-            => new WebDriver(Driver, RootUrl, Prefixes.Concat(row));
+            => new WebDriver(Driver, RootUrl, SeleniumGridConfiguration, RetryExecutor, Prefixes.Concat(row));
 
         public void Dispose()
             => Driver.Dispose();

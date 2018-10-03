@@ -20,7 +20,7 @@ namespace LegacyTest
 
         }
 
-        private IObjectContainer ObjectContainer { get; }
+        protected IObjectContainer ObjectContainer { get; }
         protected ScenarioContext ScenarioContext { get => ObjectContainer.Resolve<ScenarioContext>(); }
         protected FeatureContext FeatureContext { get => ObjectContainer.Resolve<FeatureContext>(); }
 
