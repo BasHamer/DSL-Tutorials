@@ -1,4 +1,6 @@
 ﻿using BoDi;
+using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Files;
 using PossumLabs.Specflow.Core.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,12 +24,13 @@ namespace LegacyTest.Steps
         public void Setup()
         {
             ObjectContainer.RegisterInstanceAs(new ImageLogging());
-
             var factory = new PossumLabs.Specflow.Core.Variables.ObjectFactory();
             base.Register(factory);
             base.Register(new PossumLabs.Specflow.Core.Variables.Interpeter(factory));
             base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor());
             base.Register((PossumLabs.Specflow.Core.Logging.ILog)new DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory)));
+            base.Register(new FileManager(new DatetimeManager() { Now = () => DateTime.Now }));
+            FileManager.Initialize(FeatureContext.FeatureInfo.Title, ScenarioContext.ScenarioInfo.Title, null /*Specflow limitation*/);
             var templateManager = new PossumLabs.Specflow.Core.Variables.TemplateManager();
             templateManager.Initialize(Assembly.GetExecutingAssembly());
             base.Register(templateManager);

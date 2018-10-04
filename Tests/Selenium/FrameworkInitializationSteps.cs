@@ -69,9 +69,21 @@ namespace Shim.Selenium
         public void LogScreenshots()
         {
             if (WebDriverManager.Screenshots.Any())
-                ScreenshotProcessor.CreateGif("movie.gif",WebDriverManager.Screenshots);
+            {
+                //This is a seperation of concerns issue; not sure how to fix it yet w/o a package update for the gif code. 
+                string random = "temp";
+                ScreenshotProcessor.CreateGif($"{random}.gif", WebDriverManager.Screenshots);
+                FileManager.CreateFile($"{random}.gif", "movie", "gif");
+            }
+        }
 
-
+        [AfterScenario(Order = int.MinValue)]
+        public void LogHtml()
+        {
+            if (WebDriverManager.Current!=null)
+            {
+                FileManager.CreateFile(Encoding.UTF8.GetBytes(WebDriverManager.Current.PageSource), "source", "html");
+            }
         }
     }
 }

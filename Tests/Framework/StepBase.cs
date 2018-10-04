@@ -1,6 +1,7 @@
 ﻿using BoDi;
 using PossumLabs.Specflow.Core;
 using PossumLabs.Specflow.Core.Exceptions;
+using PossumLabs.Specflow.Core.Files;
 using PossumLabs.Specflow.Core.Logging;
 using PossumLabs.Specflow.Core.Variables;
 using System;
@@ -30,6 +31,7 @@ namespace LegacyTest
         protected ILog Log => ScenarioContext.Get<ILog>((typeof(ILog).FullName));
         protected ObjectFactory ObjectFactory => ScenarioContext.Get<ObjectFactory>(typeof(ObjectFactory).FullName);
         protected TemplateManager TemplateManager => ScenarioContext.Get<TemplateManager>(typeof(TemplateManager).FullName);
+        protected FileManager FileManager => ScenarioContext.Get<FileManager>(typeof(FileManager).FullName);
 
         internal void Register<T>(T item)
         {

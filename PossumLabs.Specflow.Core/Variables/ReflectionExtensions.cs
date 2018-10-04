@@ -18,6 +18,14 @@ namespace PossumLabs.Specflow.Core.Variables
                 .Concat(t.CachedGetProperties()
                 .Select(p => new ValueMemberInfo(p)));
 
+        public static ValueMemberInfo GetValueMember(this Type t, string name)
+            => t.CachedGetFields()
+                .Select(f => new ValueMemberInfo(f))
+                .Concat(t.CachedGetProperties()
+                .Select(p => new ValueMemberInfo(p)))
+            .Where(m=>m.Name == name)
+            .FirstOrDefault();
+
         public static bool HasAllPropertiesAndFieldsOf(this object target, object subset)
         {
             if (target == null && subset == null)

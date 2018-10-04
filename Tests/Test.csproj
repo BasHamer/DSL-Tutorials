@@ -225,6 +225,7 @@
     <Compile Include="Selenium\MockHtmlSteps.cs" />
     <Compile Include="Steps\DateSteps.cs" />
     <Compile Include="Steps\HtmlInjectionSteps.cs" />
+    <Compile Include="Steps\ResolvedStringSteps.cs" />
     <Compile Include="Steps\UserSteps.cs" />
     <Compile Include="Steps\EmployeeSteps.cs" />
     <Compile Include="Steps\FrameworkInitializationSteps.cs" />
@@ -233,6 +234,7 @@
     <Compile Include="Selenium\ValidationSteps.cs" />
     <Compile Include="Selenium\WebDriverStepBase.cs" />
     <Compile Include="ValueObjects\Date.cs" />
+    <Compile Include="ValueObjects\ResolvedString.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
