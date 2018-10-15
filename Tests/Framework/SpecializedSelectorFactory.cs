@@ -1,4 +1,5 @@
-﻿using PossumLabs.Specflow.Selenium;
+﻿using OpenQA.Selenium;
+using PossumLabs.Specflow.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,13 @@ namespace LegacyTest.Framework
             {
                 LooseFollowingRow
             }).ToList();
+
+        override protected Element CreateElement(IWebDriver driver, IWebElement e)
+        {
+            if (e.TagName == "select" || (e.TagName == "input" && !string.IsNullOrEmpty(e.GetAttribute("list"))))
+                return new SloppySelectElement(e, driver);
+            return base.CreateElement(driver, e);
+        }
 
         protected Func<string, IEnumerable<string>> LooseFollowingRow =>
             (target) => TableRow(target).Select(x => $"{x}/ancestor::tr/following-sibling::tr[1]").ToList();

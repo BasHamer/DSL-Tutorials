@@ -628,10 +628,29 @@ this.EnteringDropdownInputs("dl aria-labelledby", "t1 t2", "Bob", "<input aria-l
 #line hidden
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("entering dropdown inputs: default name")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Selectors")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("SingleBrowser")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute("injected-html")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "default name")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "default name")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:target", "target")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:value", "Bob")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<select name=\"target\"><option value=\"\" groupname displayorder=\"-1\"></option><opti" +
+            "on value=\"bad\">Bad</option><option value=\"Bob\">test</option></select>")]
+        public virtual void EnteringDropdownInputs_DefaultName()
+        {
+#line 34
+this.EnteringDropdownInputs("default name", "target", "Bob", "<select name=\"target\"><option value=\"\" groupname displayorder=\"-1\"></option><opti" +
+                    "on value=\"bad\">Bad</option><option value=\"Bob\">test</option></select>", ((string[])(null)));
+#line hidden
+        }
+        
         public virtual void EnteringRadio(string description, string target, string value, string html, string[] exampleTags)
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("entering radio", null, exampleTags);
-#line 57
+#line 58
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden
@@ -639,11 +658,11 @@ this.ScenarioInitialize(scenarioInfo);
                         "Html"});
             table4.AddRow(new string[] {
                         string.Format("{0}", html)});
-#line 58
+#line 59
  testRunner.Given("injecting browser content", ((string)(null)), table4, "Given ");
-#line 61
- testRunner.When(string.Format("entering \'{0}\' into element \'{1}\'", value, target), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 62
+ testRunner.When(string.Format("entering \'{0}\' into element \'{1}\'", value, target), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 63
  testRunner.Then(string.Format("the element \'{0}\' has the value \'{1}\'", target, value), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
@@ -662,7 +681,7 @@ this.ScenarioInitialize(scenarioInfo);
             "p</label>")]
         public virtual void EnteringRadio_Value()
         {
-#line 57
+#line 58
 this.EnteringRadio("value", "target", "Bob", "<input type=\"radio\" id=\"i1\" name=\"target\" value=\"Bob\"></input><label for=\"i1\">noo" +
                     "p</label>", ((string[])(null)));
 #line hidden
@@ -681,7 +700,7 @@ this.EnteringRadio("value", "target", "Bob", "<input type=\"radio\" id=\"i1\" na
             "b</label>")]
         public virtual void EnteringRadio_LabelFor()
         {
-#line 57
+#line 58
 this.EnteringRadio("label for", "target", "Bob", "<input type=\"radio\" id=\"i1\" name=\"target\" value=\"noop\"></input><label for=\"i1\">Bo" +
                     "b</label>", ((string[])(null)));
 #line hidden
@@ -700,7 +719,7 @@ this.EnteringRadio("label for", "target", "Bob", "<input type=\"radio\" id=\"i1\
             "")]
         public virtual void EnteringRadio_LabelNested()
         {
-#line 57
+#line 58
 this.EnteringRadio("label nested", "target", "Bob", "<label>Bob<input type=\"radio\" id=\"i1\" name=\"target\" value=\"noop\"></input></label>" +
                     "", ((string[])(null)));
 #line hidden
@@ -709,7 +728,7 @@ this.EnteringRadio("label nested", "target", "Bob", "<label>Bob<input type=\"rad
         public virtual void Clicking(string description, string target, string html, string[] exampleTags)
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("clicking", null, exampleTags);
-#line 69
+#line 70
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden
@@ -717,9 +736,9 @@ this.ScenarioInitialize(scenarioInfo);
                         "Html"});
             table5.AddRow(new string[] {
                         string.Format("{0}", html)});
-#line 70
+#line 71
  testRunner.Given("injecting browser content", ((string)(null)), table5, "Given ");
-#line 73
+#line 74
  testRunner.When(string.Format("clicking the element \'{0}\'", target), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
             this.ScenarioCleanup();
@@ -736,7 +755,7 @@ this.ScenarioInitialize(scenarioInfo);
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<a href = \"https://www.w3schools.com/html/\" >target</a>")]
         public virtual void Clicking_0AText()
         {
-#line 69
+#line 70
 this.Clicking("0   a text", "target", "<a href = \"https://www.w3schools.com/html/\" >target</a>", ((string[])(null)));
 #line hidden
         }
@@ -753,7 +772,7 @@ this.Clicking("0   a text", "target", "<a href = \"https://www.w3schools.com/htm
             "l</a>")]
         public virtual void Clicking_1ATitle()
         {
-#line 69
+#line 70
 this.Clicking("1   a title", "target", "<a href = \"https://www.w3schools.com/html/\" title=\"target\">Visit our HTML Tutoria" +
                     "l</a>", ((string[])(null)));
 #line hidden
@@ -771,7 +790,7 @@ this.Clicking("1   a title", "target", "<a href = \"https://www.w3schools.com/ht
             "label>")]
         public virtual void Clicking_2RadioLabel()
         {
-#line 69
+#line 70
 this.Clicking("2   radio label", "target", "<input type=\"radio\" id=\"i1\" name=\"rb\" value=\"42\"></input><label for=\"i1\">target</" +
                     "label>", ((string[])(null)));
 #line hidden
@@ -788,7 +807,7 @@ this.Clicking("2   radio label", "target", "<input type=\"radio\" id=\"i1\" name
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<label>target<input type=\"radio\" name=\"rb\" value=\"42\"></input></label>")]
         public virtual void Clicking_3RadioLabel()
         {
-#line 69
+#line 70
 this.Clicking("3   radio label", "target", "<label>target<input type=\"radio\" name=\"rb\" value=\"42\"></input></label>", ((string[])(null)));
 #line hidden
         }
@@ -804,7 +823,7 @@ this.Clicking("3   radio label", "target", "<label>target<input type=\"radio\" n
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<input type=\"radio\" id=\"i1\" name=\"rb\" value=\"target\"></input>")]
         public virtual void Clicking_4RadioTarget()
         {
-#line 69
+#line 70
 this.Clicking("4   radio target", "target", "<input type=\"radio\" id=\"i1\" name=\"rb\" value=\"target\"></input>", ((string[])(null)));
 #line hidden
         }
@@ -820,7 +839,7 @@ this.Clicking("4   radio target", "target", "<input type=\"radio\" id=\"i1\" nam
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<input type=\"submit\"></input>")]
         public virtual void Clicking_5SubmitInput()
         {
-#line 69
+#line 70
 this.Clicking("5   submit input", "submit", "<input type=\"submit\"></input>", ((string[])(null)));
 #line hidden
         }
@@ -836,7 +855,7 @@ this.Clicking("5   submit input", "submit", "<input type=\"submit\"></input>", (
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<button type=\"submit\"></button>")]
         public virtual void Clicking_6SubmitButton()
         {
-#line 69
+#line 70
 this.Clicking("6   submit button", "submit", "<button type=\"submit\"></button>", ((string[])(null)));
 #line hidden
         }
@@ -852,7 +871,7 @@ this.Clicking("6   submit button", "submit", "<button type=\"submit\"></button>"
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<input type=\"reset\"></input>")]
         public virtual void Clicking_7Reset()
         {
-#line 69
+#line 70
 this.Clicking("7   reset", "reset", "<input type=\"reset\"></input>", ((string[])(null)));
 #line hidden
         }
@@ -868,7 +887,7 @@ this.Clicking("7   reset", "reset", "<input type=\"reset\"></input>", ((string[]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<button>target</button>")]
         public virtual void Clicking_8Button()
         {
-#line 69
+#line 70
 this.Clicking("8   button", "target", "<button>target</button>", ((string[])(null)));
 #line hidden
         }
@@ -884,7 +903,7 @@ this.Clicking("8   button", "target", "<button>target</button>", ((string[])(nul
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<label>target<button></button></label>")]
         public virtual void Clicking_9ButtonNested()
         {
-#line 69
+#line 70
 this.Clicking("9   button nested", "target", "<label>target<button></button></label>", ((string[])(null)));
 #line hidden
         }
@@ -900,7 +919,7 @@ this.Clicking("9   button nested", "target", "<label>target<button></button></la
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<label for=\"b1\">target</label><button id=\"b1\"></button>")]
         public virtual void Clicking_10ButtonFor()
         {
-#line 69
+#line 70
 this.Clicking("10  button for", "target", "<label for=\"b1\">target</label><button id=\"b1\"></button>", ((string[])(null)));
 #line hidden
         }
@@ -916,7 +935,7 @@ this.Clicking("10  button for", "target", "<label for=\"b1\">target</label><butt
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<button aria-label=\"target\"></button>")]
         public virtual void Clicking_11ButtonAria_Label()
         {
-#line 69
+#line 70
 this.Clicking("11  button aria-label", "target", "<button aria-label=\"target\"></button>", ((string[])(null)));
 #line hidden
         }
@@ -933,7 +952,7 @@ this.Clicking("11  button aria-label", "target", "<button aria-label=\"target\">
             "\">t2</label>")]
         public virtual void Clicking_12ButtonAria_Labelledby()
         {
-#line 69
+#line 70
 this.Clicking("12  button aria-labelledby", "t1 t2", "<button aria-labelledby= \"l1 l2\"></button><label id=\"l1\">t1</label> <label id=\"l2" +
                     "\">t2</label>", ((string[])(null)));
 #line hidden
@@ -950,7 +969,7 @@ this.Clicking("12  button aria-labelledby", "t1 t2", "<button aria-labelledby= \
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<label>target<input type=\"button\"></input></label>")]
         public virtual void Clicking_14InputButtonNested()
         {
-#line 69
+#line 70
 this.Clicking("14  input button nested", "target", "<label>target<input type=\"button\"></input></label>", ((string[])(null)));
 #line hidden
         }
@@ -966,7 +985,7 @@ this.Clicking("14  input button nested", "target", "<label>target<input type=\"b
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<label for=\"b1\">target</label><input type=\"button\" id=\"b1\"></input>")]
         public virtual void Clicking_15InputButtonFor()
         {
-#line 69
+#line 70
 this.Clicking("15  input button for", "target", "<label for=\"b1\">target</label><input type=\"button\" id=\"b1\"></input>", ((string[])(null)));
 #line hidden
         }
@@ -982,7 +1001,7 @@ this.Clicking("15  input button for", "target", "<label for=\"b1\">target</label
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<input type=\"button\" aria-label=\"target\"></input>")]
         public virtual void Clicking_16InputButtonAria_Label()
         {
-#line 69
+#line 70
 this.Clicking("16  input button aria-label", "target", "<input type=\"button\" aria-label=\"target\"></input>", ((string[])(null)));
 #line hidden
         }
@@ -999,7 +1018,7 @@ this.Clicking("16  input button aria-label", "target", "<input type=\"button\" a
             "label id=\"l2\">t2</label>")]
         public virtual void Clicking_17InputButtonAria_Labelledby()
         {
-#line 69
+#line 70
 this.Clicking("17  input button aria-labelledby", "t1 t2", "<input type=\"button\" aria-labelledby= \"l1 l2\"></input><label id=\"l1\">t1</label> <" +
                     "label id=\"l2\">t2</label>", ((string[])(null)));
 #line hidden
@@ -1016,7 +1035,7 @@ this.Clicking("17  input button aria-labelledby", "t1 t2", "<input type=\"button
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<div role=\'button\'>target</div>")]
         public virtual void Clicking_18DivButton()
         {
-#line 69
+#line 70
 this.Clicking("18  div button", "target", "<div role=\'button\'>target</div>", ((string[])(null)));
 #line hidden
         }
@@ -1032,7 +1051,7 @@ this.Clicking("18  div button", "target", "<div role=\'button\'>target</div>", (
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<div role=\'button\'><label>target</label></div>")]
         public virtual void Clicking_19DivButtonLabel()
         {
-#line 69
+#line 70
 this.Clicking("19  div button label", "target", "<div role=\'button\'><label>target</label></div>", ((string[])(null)));
 #line hidden
         }
@@ -1048,7 +1067,7 @@ this.Clicking("19  div button label", "target", "<div role=\'button\'><label>tar
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<div role=\'link\'>target</div>")]
         public virtual void Clicking_20DivLink()
         {
-#line 69
+#line 70
 this.Clicking("20  div link", "target", "<div role=\'link\'>target</div>", ((string[])(null)));
 #line hidden
         }
@@ -1064,7 +1083,7 @@ this.Clicking("20  div link", "target", "<div role=\'link\'>target</div>", ((str
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<div role=\'link\'><label>target</label></div>")]
         public virtual void Clicking_21DivLinkLabel()
         {
-#line 69
+#line 70
 this.Clicking("21  div link label", "target", "<div role=\'link\'><label>target</label></div>", ((string[])(null)));
 #line hidden
         }
@@ -1080,7 +1099,7 @@ this.Clicking("21  div link label", "target", "<div role=\'link\'><label>target<
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<div role=\'menuitem\'>target</div>")]
         public virtual void Clicking_22DivMenuitem()
         {
-#line 69
+#line 70
 this.Clicking("22  div menuitem", "target", "<div role=\'menuitem\'>target</div>", ((string[])(null)));
 #line hidden
         }
@@ -1096,7 +1115,7 @@ this.Clicking("22  div menuitem", "target", "<div role=\'menuitem\'>target</div>
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<div role=\'menuitem\'><label>target</label></div>")]
         public virtual void Clicking_23DivMenuitemLabel()
         {
-#line 69
+#line 70
 this.Clicking("23  div menuitem label", "target", "<div role=\'menuitem\'><label>target</label></div>", ((string[])(null)));
 #line hidden
         }
@@ -1109,7 +1128,7 @@ this.Clicking("23  div menuitem label", "target", "<div role=\'menuitem\'><label
         public virtual void Checkboxes()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("checkboxes", null, ((string[])(null)));
-#line 101
+#line 102
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line hidden

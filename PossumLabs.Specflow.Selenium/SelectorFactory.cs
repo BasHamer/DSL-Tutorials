@@ -170,7 +170,7 @@ namespace PossumLabs.Specflow.Selenium
                         .FindElements(By.XPath($"{prefix}//a[@title={target.XpathEncode()}]"))
                         .Where(Filter)
                         .Distinct(Comparer)
-                        .Select(e => new Element(e, driver))
+                        .Select(e => CreateElement(driver, e))
             ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
 
         //<input type="radio" id="i1" name="target"
@@ -219,7 +219,7 @@ namespace PossumLabs.Specflow.Selenium
                         .FindElements(By.XPath($"{prefix}//*[{MarkerElements} and {TextMatch(target)}]/following-sibling::*[not(self::br or self::hr)][1][{ActiveElements}]"))
                         .Where(Filter)
                         .Distinct(Comparer)
-                        .Select(e => new Element(e, driver))
+                        .Select(e => CreateElement(driver, e))
             ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
         #endregion
 
@@ -234,7 +234,7 @@ namespace PossumLabs.Specflow.Selenium
 
         virtual protected Func<string, IEnumerable<string>> DivRoleRow =>
             (target) => new List<string>() {
-                $"//*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
+                $"//*[{MarkerElements} and {TextMatch(target)}]/ancestor::div[@role='row'][1]",
                 $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
                 $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]",
                 $"//div[{TextMatch(target)}]/ancestor-or-self::div[@role='row'][1]"

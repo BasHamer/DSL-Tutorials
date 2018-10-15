@@ -1,4 +1,5 @@
 ﻿using BoDi;
+using Microsoft.Extensions.Configuration;
 using PossumLabs.Specflow.Core;
 using PossumLabs.Specflow.Core.Files;
 using PossumLabs.Specflow.Core.Logging;
@@ -18,11 +19,18 @@ namespace LegacyTest.Steps
     {
         public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer)
         {
-
+            ComparisonDefaults.StringComparison = StringComparison.InvariantCultureIgnoreCase;
         }
         [BeforeScenario(Order = int.MinValue)]
         public void Setup()
         {
+            IConfiguration config = new ConfigurationBuilder()
+              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddEnvironmentVariables()
+              .Build();
+            var imageLoggingColor = config["imageLoggingColor"];
+            var imageLoggingSize = config["imageLoggingSize"];
+
             ObjectContainer.RegisterInstanceAs(new ImageLogging());
             var factory = new PossumLabs.Specflow.Core.Variables.ObjectFactory();
             base.Register(factory);
