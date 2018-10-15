@@ -13,8 +13,10 @@ namespace LegacyTest.Framework
         override protected List<Func<string, IEnumerable<string>>> SequencedUnderPrefixesByOrder
             => base.SequencedUnderPrefixesByOrder.Concat(new List<Func<string, IEnumerable<string>>>
             {
-                LooseFollowingRow
+                LooseFollowingRow,
+                ParrentRowTableLayout
             }).ToList();
+
 
         override protected Element CreateElement(IWebDriver driver, IWebElement e)
         {
@@ -25,6 +27,11 @@ namespace LegacyTest.Framework
 
         protected Func<string, IEnumerable<string>> LooseFollowingRow =>
             (target) => TableRow(target).Select(x => $"{x}/ancestor::tr/following-sibling::tr[1]").ToList();
+
+        virtual protected Func<string, IEnumerable<string>> ParrentRowTableLayout =>
+            (target) => new List<string>() {
+                $"//*[{MarkerElements} and {TextMatch(target)}]/ancestor::td[1]",
+        };
 
     }
 }
