@@ -8,34 +8,16 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Selenium
 {
-    public class SloppySelectElement : Element
+    public class SloppySelectElement : SelectElement
     {
         private Dictionary<string, IWebElement> Options { get; }
 
         public SloppySelectElement(IWebElement element, IWebDriver driver) : base(element, driver)
         {
-            if (element.TagName == "select")
-            {
-                OldStyleSelect = new OpenQA.Selenium.Support.UI.SelectElement(element);
-                AvailableOptions = OldStyleSelect.Options;
-                SelectedOptions = OldStyleSelect.AllSelectedOptions;
-            }
-            else
-            {
-                var listId = element.GetAttribute("list");
-                AvailableOptions = driver.FindElements(By.XPath($"//datalist[@id='{listId}']/option"));
-                SelectedOptions = new List<IWebElement>();
-                var value = element.GetAttribute("value");
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    SelectedOptions.Add(AvailableOptions.First(o => o.GetAttribute("value") == value));
-                }
-            }
+           
         }
 
-        private OpenQA.Selenium.Support.UI.SelectElement OldStyleSelect { get; }
-        private IList<IWebElement> AvailableOptions { get; }
-        private IList<IWebElement> SelectedOptions { get; }
+
 
         public static string ToCammelCase(string s)
         {
@@ -80,7 +62,7 @@ namespace PossumLabs.Specflow.Selenium
                 catch { }
 
                 //Partial match ?
-                var l = OldStyleSelect.Options.ToList();
+                var l = AvailableOptions.ToList();
                 var realText = l.Where(x => x.Text.ToLower().Contains(text.ToLower()));
                 if (realText.Count() == 1)
                 {
