@@ -10,16 +10,16 @@ namespace PossumLabs.Specflow.Core
     public static class Extentions
     {
         public static string LogFormat(this IEnumerable<string> l)
-            => l.OrderBy(x=>x.ToLower()).Aggregate((x, y) => x + ", " + y);
+            => l.Any() ? l.OrderBy(x => x.ToLower()).Aggregate((x, y) => x + ", " + y) : string.Empty;
 
         public static string LogFormat(this IEnumerable<IEnumerable<string>> l)
-            => l.Select(x=>x.LogFormat()).Aggregate((x, y) => x + "\n" + y);
+            => l.Any() ? l.Select(x => x.LogFormat()).Aggregate((x, y) => x + "\n" + y) : string.Empty;
 
         public static string LogFormat<T>(this IEnumerable<T> l, Func<T, string> f)
-            => l.Select(x => f.Invoke(x)).LogFormat();
+            => l.Any() ? l.Select(x => f.Invoke(x)).LogFormat() : string.Empty;
 
         public static string LogFormat<T>(this IEnumerable<IEnumerable<T>> l, Func<T, string> f)
-            => l.Select(x=>x.Select(y=>f.Invoke(y))).LogFormat();
+            => l.Any() ? l.Select(x => x.Select(y => f.Invoke(y))).LogFormat() : string.Empty;
 
         public static bool None<T>(this IEnumerable<T> l)
             => !l.Any();

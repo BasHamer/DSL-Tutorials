@@ -70,6 +70,9 @@ namespace PossumLabs.Specflow.Core.Variables
             }
         }
 
+        public void Add(Type t, string name, Object item) 
+            => Repositories.First(x => x.Type == t).Add(name, (IValueObject)item);
+
         public void Add<T>(string name, T item) where T:IValueObject
             => Repositories.First(x => x.Type == typeof(T)).Add(name, item);
 

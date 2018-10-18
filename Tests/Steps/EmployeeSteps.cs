@@ -16,7 +16,11 @@ namespace LegacyTest.Steps
 
         [Given(@"the Employees?")]
         public void GivenTheEmployees(Dictionary<string, Employee> employees)
-            => employees.Keys.ToList().ForEach(k => Add(k, employees[k]));
+            => employees.Keys.ToList().ForEach(k => Add(k, TemplateManager.ApplyTemplate(employees[k])));
+
+        [Given(@"the Employees? of type '(.*)'")]
+        public void GivenTheEmployeesOfType(string type, Dictionary<string, Employee> employees)
+            => employees.Keys.ToList().ForEach(k => Add(k, TemplateManager.ApplyTemplate(employees[k],type)));
 
     }
 }

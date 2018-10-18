@@ -10,16 +10,18 @@ namespace PossumLabs.Specflow.Selenium
 {
     public class WebDriver:IDisposable
     {
-        public WebDriver(IWebDriver driver, Func<Uri> rootUrl)
+        public WebDriver(IWebDriver driver, Func<Uri> rootUrl, IEnumerable<SelectorPrefix> prefixes = null)
         {
             Driver = driver;
             SuccessfulSearchers = new List<Searcher>();
             RootUrl = rootUrl;
+            Prefixes = prefixes ?? new List<SelectorPrefix>() { new EmptySelectorPrefix() };
         }
 
         private Func<Uri> RootUrl {get;set;}
         private IWebDriver Driver { get; }
         private List<Searcher> SuccessfulSearchers { get; }
+        private IEnumerable<SelectorPrefix> Prefixes;
 
         //TODO: check this form
         public void NavigateTo(string url)
@@ -30,13 +32,18 @@ namespace PossumLabs.Specflow.Selenium
                 Driver.Navigate().GoToUrl(RootUrl().AbsoluteUri + url);
         }
 
+        public void LoadPage(string html)
+        {
+            Driver.Navigate().GoToUrl("data:text/html;charset=utf-8," + html);
+        }
+
         public Element Select(Selector selector)
         {
             var loggingWebdriver = new LoggingWebDriver(Driver);
             var index = 0;
             foreach (var searcher in selector.PrioritizedSearchers)
             {
-                var results = searcher.SearchIn(loggingWebdriver);
+                var results = searcher.SearchIn(loggingWebdriver, Prefixes);
 
                 if (results.One())
                 {
@@ -63,6 +70,15 @@ namespace PossumLabs.Specflow.Selenium
             throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
         }
 
+        public void ExecuteScript(string script)
+            => ((IJavaScriptExecutor)Driver).ExecuteScript(script);
+               
+        public WebDriver Under(UnderSelectorPrefix under)
+            => new WebDriver(Driver, RootUrl, Prefixes.Concat(under));
+
+        public WebDriver ForRow(RowSelectorPrefix row)
+            => new WebDriver(Driver, RootUrl, Prefixes.Concat(row));
+
         public void Dispose()
             => Driver.Dispose();
 
@@ -72,5 +88,7 @@ namespace PossumLabs.Specflow.Selenium
 
         public IEnumerable<TableElement> Tables
             => Driver.FindElements(By.TagName("table")).Select(t => new TableElement(t, Driver));
+
+        public string PageSource { get => Driver.PageSource; }
     }
 }
