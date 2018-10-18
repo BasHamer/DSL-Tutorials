@@ -176,6 +176,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Selector.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Tables.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Tables.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Templates.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -223,6 +228,7 @@
     <Compile Include="Framework\RepositoryStepBase.cs" />
     <Compile Include="Framework\FileSteps.cs" />
     <Compile Include="Selenium\MockHtmlSteps.cs" />
+    <Compile Include="Selenium\TableSteps.cs" />
     <Compile Include="Steps\DateSteps.cs" />
     <Compile Include="Steps\HtmlInjectionSteps.cs" />
     <Compile Include="Steps\ResolvedStringSteps.cs" />
@@ -281,6 +287,10 @@
     <None Include="Features\Selector.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Selector.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Tables.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Tables.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Templates.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

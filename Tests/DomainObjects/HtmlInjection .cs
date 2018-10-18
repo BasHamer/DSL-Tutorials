@@ -28,6 +28,14 @@ namespace LegacyTest.DomainObjects
             }
         }
 
+        public string Table
+        {
+            set
+            {
+                Content = $"<html><head></head><body><table>{value}</table></body></html>";
+            }
+        }
+
         public string TableRow
         {
             set

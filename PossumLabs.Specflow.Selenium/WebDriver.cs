@@ -26,6 +26,23 @@ namespace PossumLabs.Specflow.Selenium
         private Func<Uri> RootUrl {get;set;}
         private IWebDriver Driver { get; }
         private List<Searcher> SuccessfulSearchers { get; }
+
+        public IEnumerable<TableElement> GetTables(int minimumWidth)
+        {
+            var xpath = $"//tr[*[self::td or self::th][{minimumWidth}] and (.|parent::tbody)[1]/parent::table]/ancestor::table[1]";
+            var tables = Driver.
+                FindElements(By.XPath(xpath))
+                .Select(t => new TableElement(t, Driver)).ToList();
+            var Ordinal = 1;
+            foreach(var table in tables)
+            {
+                table.Ordinal = Ordinal++;
+                table.Xpath = xpath;
+                table.Setup();
+            }
+            return tables;
+        }
+
         private SeleniumGridConfiguration SeleniumGridConfiguration { get; }
         private RetryExecutor RetryExecutor { get; }
         private IEnumerable<SelectorPrefix> Prefixes;
@@ -51,8 +68,7 @@ namespace PossumLabs.Specflow.Selenium
             =>RetryExecutor.RetryFor(() =>
             {
                 var loggingWebdriver = new LoggingWebDriver(Driver);
-                var index = 0;
-                var element = FindElement(selector, loggingWebdriver, ref index);
+                var element = FindElement(selector, loggingWebdriver);
                 if (element != null)
                     return element;
                 //iframes ? 
@@ -63,7 +79,7 @@ namespace PossumLabs.Specflow.Selenium
                     {
                         loggingWebdriver.Log($"Trying iframe:{iframe}");
                         Driver.SwitchTo().Frame(iframe);
-                        element = FindElement(selector, loggingWebdriver, ref index);
+                        element = FindElement(selector, loggingWebdriver);
                         if (element != null)
                             return element;
                     }
@@ -75,16 +91,27 @@ namespace PossumLabs.Specflow.Selenium
             }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
         
 
-        private Element FindElement(Selector selector, LoggingWebDriver loggingWebdriver, ref int index)
+        private class Wrapper
         {
-            foreach (var searcher in selector.PrioritizedSearchers)
+            public Element Element;
+            public Searcher Searcher;
+            public Exception Exception;
+        }
+
+        private Element FindElement(Selector selector, LoggingWebDriver loggingWebdriver)
+        {
+            var wrappers = selector.PrioritizedSearchers.Select(s => new Wrapper { Searcher = s }).ToList();
+            var loopResults = Parallel.ForEach(wrappers, (wrapper, loopState) =>
             {
+                var searcher = wrapper.Searcher;
                 var results = searcher.SearchIn(loggingWebdriver, Prefixes);
 
                 if (results.One())
                 {
                     SuccessfulSearchers.Add(searcher);
-                    return results.First();
+                    loopState.Break();
+                    wrapper.Element = results.First();
+                    return;
                 }
                 else if (results.Many())
                 {
@@ -95,12 +122,25 @@ namespace PossumLabs.Specflow.Selenium
                     if (filterHidden.One())
                     {
                         SuccessfulSearchers.Add(searcher);
-                        return results.First();
+                        loopState.Break();
+                        wrapper.Element = results.First();
+                        return;
                     }
 
                     var items = results.Select(e => $"{e.Tag}@{e.Location.X},{e.Location.Y}").LogFormat();
-                    throw new Exception($"Multiple results were found using {searcher.LogFormat()} using seracher {index}");
+                    loopState.Break();
+                    wrapper.Exception = new Exception($"Multiple results were found using {searcher.LogFormat()}");
+                    return;
                 }
+            });
+            var r = loopResults.IsCompleted;
+            var index = 0;
+            foreach(var w in wrappers)
+            {
+                if (w.Element != null)
+                    return w.Element;
+                if (w.Exception != null)
+                    throw new AggregateException($"Error throw on xpath {index}", w.Exception);
                 index++;
             }
             return null;
@@ -120,10 +160,6 @@ namespace PossumLabs.Specflow.Selenium
 
         public byte[] Screenshot()
             => ((ITakesScreenshot)Driver).GetScreenshot().AsByteArray;
-
-
-        public IEnumerable<TableElement> Tables
-            => Driver.FindElements(By.TagName("table")).Select(t => new TableElement(t, Driver));
 
         public string PageSource { get => Driver.PageSource; }
     }

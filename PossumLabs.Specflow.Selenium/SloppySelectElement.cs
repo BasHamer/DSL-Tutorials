@@ -61,6 +61,13 @@ namespace PossumLabs.Specflow.Selenium
                 }
                 catch { }
 
+                try
+                {
+                    OldStyleSelect.SelectByValue(text);
+                    return;
+                }
+                catch { }
+
                 //Partial match ?
                 var l = AvailableOptions.ToList();
                 var realText = l.Where(x => x.Text.ToLower().Contains(text.ToLower()));
