@@ -11,7 +11,6 @@ namespace LegacyTest.Steps
     {
         public EmployeeSteps(IObjectContainer objectContainer) : base(objectContainer)
         {
-
         }
 
         [Given(@"the Employees?")]
