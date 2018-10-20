@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
+using PossumLabs.Specflow.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace PossumLabs.Specflow.Selenium.Configuration
 {
-    public class SeleniumGridConfiguration 
+    public class SeleniumGridConfiguration
     {
 
         public SeleniumGridConfiguration()
@@ -15,8 +16,12 @@ namespace PossumLabs.Specflow.Selenium.Configuration
               .AddEnvironmentVariables()
               .Build();
             Url = config["seleniumGridUrl"];
+            if(!int.TryParse(config["seleniumRetryMs"], out var retry))
+                new GherkinException($"Can't parse seleniumRetryMs, found value {config["seleniumRetryMs"]} this has to be an integer like 10000 for 10 seconds");
+            RetryMs = retry;
         }
 
-         public string Url { get; }
+        public string Url { get; }
+        public int RetryMs { get; }
     }
 }

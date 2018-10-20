@@ -55,6 +55,7 @@ namespace PossumLabs.Specflow.Selenium
                     ByLabelledBy,
                     RadioByName,
                     SpecialButtons,
+                    ByFollowingMarker,
            };
 
         virtual protected List<Func<string, IEnumerable<string>>> SequencedRowPrefixesByOrder
@@ -68,7 +69,8 @@ namespace PossumLabs.Specflow.Selenium
            => new List<Func<string, IEnumerable<string>>>
            {
                 ParrentDiv,
-                ParrentDivWithRowRole
+                ParrentDivWithRowRole,
+                FollowingRow
            };
 
         private bool Filter(IWebElement e) =>
@@ -96,7 +98,7 @@ namespace PossumLabs.Specflow.Selenium
             {
                 foreach (var prefix in prefixes.CrossMultiply())
                 {
-                    var elements = driver.FindElements(By.XPath($"{prefix}//label[@for and text()={target.XpathEncode()}]"));
+                    var elements = driver.FindElements(By.XPath($"{prefix}//label[@for and {TextMatch(target)}]"));
                     if (elements.Any())
                         return elements.SelectMany(e => driver.FindElements(By.Id(e.GetAttribute("for"))))
                         .Select(e => CreateElement(driver, e));
@@ -111,7 +113,7 @@ namespace PossumLabs.Specflow.Selenium
             (target, prefixes, driver) => 
                 prefixes.CrossMultiply().Select(prefix=>
                     driver
-                    .FindElements(By.XPath($"{prefix}//label[text()[normalize-space(.)={target.XpathEncode()}]]/*[self::input or self::textarea or self::select or self::button]"))
+                    .FindElements(By.XPath($"{prefix}//label[{TextMatch(target)}]/*[{ActiveElements}]"))
                     .Where(Filter)
                     .Distinct(Comparer)
                     .Select(e => CreateElement(driver, e))
@@ -135,9 +137,9 @@ namespace PossumLabs.Specflow.Selenium
                     driver
                         .FindElements(By.XPath(
                             $"{prefix}//*[{ActiveElements} and (" +
-                                $"normalize-space(text())={target.XpathEncode()} or " +
-                                $"label[text()={target.XpathEncode()}] or " +
-                                $"(@type='button' and @value={target.XpathEncode()}) or " +
+                                $"{TextMatch(target)} or " +
+                                $"label[{TextMatch(target)}] or " +
+                                $"((@type='button' or @type='submit' or @type='reset') and @value={target.XpathEncode()}) or " +
                                 $"@name={target.XpathEncode()} or " +
                                 $"@aria-label={target.XpathEncode()} or " +
                                 $"(@type='radio' and @value={target.XpathEncode()})" +
@@ -153,7 +155,7 @@ namespace PossumLabs.Specflow.Selenium
             (target, prefixes, driver) =>
                 prefixes.CrossMultiply().Select(prefix => 
                     driver
-                        .FindElements(By.XPath($"{prefix}//*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem') and text()={target.XpathEncode()}]"))
+                        .FindElements(By.XPath($"{prefix}//*[{ActiveElements} and {TextMatch(target)}]"))
                         .Where(Filter)
                         .Distinct(Comparer)
                         .Select(e => CreateElement(driver, e))
@@ -168,7 +170,7 @@ namespace PossumLabs.Specflow.Selenium
                         .FindElements(By.XPath($"{prefix}//a[@title={target.XpathEncode()}]"))
                         .Where(Filter)
                         .Distinct(Comparer)
-                        .Select(e => new Element(e, driver))
+                        .Select(e => CreateElement(driver, e))
             ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
 
         //<input type="radio" id="i1" name="target"
@@ -207,43 +209,62 @@ namespace PossumLabs.Specflow.Selenium
                 }
                 return new Element[] { };
             };
+
+        //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
+        //a[@title='{target}']
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByFollowingMarker =>
+            (target, prefixes, driver) =>
+                prefixes.CrossMultiply().Select(prefix =>
+                    driver
+                        .FindElements(By.XPath($"{prefix}//*[{MarkerElements} and {TextMatch(target)}]/following-sibling::*[not(self::br or self::hr)][1][{ActiveElements}]"))
+                        .Where(Filter)
+                        .Distinct(Comparer)
+                        .Select(e => CreateElement(driver, e))
+            ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
         #endregion
 
         #region Prefixes
         virtual protected Func<string, IEnumerable<string>> TableRow =>
             (target) => new List<string>(){
                 $"//tr[td[normalize-space() = {target.XpathEncode()}]]",
-                $"//tr[td/*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]]",
+                $"//tr[td/*[{MarkerElements} and {TextMatch(target)}]]",
                 $"//tr[td/*[@value = {target.XpathEncode()}]]",
-                $"//tr[td/select/option[@selected='selected' and text()={target.XpathEncode()}]]"
+                $"//tr[td/select/option[@selected='selected' and {TextMatch(target)}]]"
             };
 
         virtual protected Func<string, IEnumerable<string>> DivRoleRow =>
             (target) => new List<string>() {
-                $"//*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//select[option[@selected='selected' and text()={target.XpathEncode()}]]/ancestor::div[@class='row'][1]"
+                $"//*[{MarkerElements} and {TextMatch(target)}]/ancestor::div[@role='row'][1]",
+                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
+                $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]",
+                $"//div[{TextMatch(target)}]/ancestor-or-self::div[@role='row'][1]"
             };
 
         virtual protected Func<string, IEnumerable<string>> ParrentDiv =>
             (target) => new List<string>() { $"//div[" +
-                    $"normalize-space(text())={target.XpathEncode()} or " +
-                    $"label[text()={target.XpathEncode()}] or " +
-                    $"(@type='button' and @value={target.XpathEncode()}) or " +
+                    $"{TextMatch(target)} or " +
+                    $"*[{MarkerElements} and {TextMatch(target)}] or " +
+                    $"*[{ActiveElements} and @value = {target.XpathEncode()}] or " +
                     $"@name={target.XpathEncode()} or " +
                     $"@aria-label={target.XpathEncode()}" +
-                $")]" };
+                $"]" };
 
         virtual protected Func<string, IEnumerable<string>> ParrentDivWithRowRole =>
             (target) => new List<string>() {
-                $"//*[{MarkerElements} and normalize-space() = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@class='row'][1]",
-                $"//select[option[@selected='selected' and text()={target.XpathEncode()}]]/ancestor::div[@class='row'][1]"
+                $"//*[{MarkerElements} and {TextMatch(target)}]/ancestor::div[@role='row'][1]",
+                $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
+                $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]"
             };
+
+        virtual protected Func<string, IEnumerable<string>> FollowingRow =>
+            (target) => TableRow(target).Select(x => $"{x}/following-sibling::tr[1]").ToList();
         #endregion
 
+        virtual protected string TextMatch(string target)
+            => $"text()[normalize-space(.)={target.XpathEncode()}]";
+
         virtual protected string MarkerElements 
-            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 )";
+            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";
 
         virtual protected string ActiveElements 
             => "( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' )";

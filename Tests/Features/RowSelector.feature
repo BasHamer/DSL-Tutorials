@@ -1,4 +1,4 @@
-﻿@SingleBrowser
+﻿@SingleBrowser @injected-html
 Feature: Row Selector
 
 Scenario Outline: table row
@@ -20,11 +20,11 @@ Scenario Outline: table row
 	| 08 h5       | row1 | target | Bob   | <td><h5>row1</h5><td><td><label>target<input type="text"></input></label></td>                |
 	| 09 h6       | row1 | target | Bob   | <td><h6>row1</h6><td><td><label>target<input type="text"></input></label></td>                |
 	| 10 input    | row1 | target | Bob   | <td><input value="row1"></input><td><td><label>target<input type="text"></input></label></td> |
-	| 11 span     | row1 | target | Bob   | <td><span>row1</label><td><td><span>target<input type="text"></input></label></td>            |
+	| 11 span     | row1 | target | Bob   | <td><span>row1</span><td><td><label>target<input type="text"></input></label></td>            |
 
 Scenario Outline: div row
 	Given injecting browser content
-	| TableRow |
+	| Html |
 	| <html>   |
 	When for row '<row>' entering '<value>' into element '<target>'
 	Then for row '<row>' the element '<target>' has the value '<value>'
@@ -43,5 +43,5 @@ Scenario Outline: div row
 	| 10 input    | row1 | target | Bob   | <div role="row"><input value="row1"></input><label>target<input type="text"></input></label></div> |
 	| 11 span     | row1 | target | Bob   | <div role="row"><span>row1</span><label>target<input type="text"></input></label></div>            |
 
-Scenario: row label
+
 

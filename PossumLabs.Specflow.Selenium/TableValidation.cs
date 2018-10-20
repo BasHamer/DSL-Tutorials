@@ -11,7 +11,10 @@ namespace PossumLabs.Specflow.Selenium
     {
         public TableValidation(List<Dictionary<string, WebValidation>> validations) : base((o)=>AggregatePredicate(o,validations), "")
         {
+            Header = validations.First().Keys.ToList();
         }
+
+        public List<string> Header { get; }
 
         private static string AggregatePredicate(object o, List<Dictionary<string, WebValidation>> validations)
         {
@@ -22,23 +25,18 @@ namespace PossumLabs.Specflow.Selenium
 
             foreach(var rowValidation in validations)
             {
-                if (table.Rows.Where(r => ValidateRow(rowValidation, r)).None())
-                    return $"Unable to find row {rowValidation.LogFormat()}";
+                var rowId = table.GetRowId(rowValidation.First().Value.Text);
+
+                foreach( var column in rowValidation.Skip(1))
+                {
+                    var e = table.GetElement(rowId, column.Key);
+                    var result = column.Value.Predicate(e);
+                    if (result != null)
+                        return result;
+                }
             }
 
             return null;
-        }
-
-        private static bool ValidateRow(Dictionary<string, WebValidation> validations, Dictionary<string, Element> row)
-        {
-            if (validations.Keys.Except(row.Keys).Any())
-                return false;
-
-            if (validations.Keys
-                .Select(column => validations[column].Predicate(row[column]))
-                .Any(msg => !string.IsNullOrEmpty(msg)))
-                return false;
-            return true;
         }
     }
 }

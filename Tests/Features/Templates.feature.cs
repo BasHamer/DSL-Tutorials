@@ -130,6 +130,37 @@ this.ScenarioInitialize(scenarioInfo);
 #line hidden
             this.ScenarioCleanup();
         }
+        
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("overriding template")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Templates")]
+        public virtual void OverridingTemplate()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("overriding template", null, ((string[])(null)));
+#line 16
+this.ScenarioInitialize(scenarioInfo);
+            this.ScenarioStart();
+#line hidden
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                        "var"});
+            table3.AddRow(new string[] {
+                        "E1"});
+#line 17
+ testRunner.Given("the Employee of type \'Contractor\'", ((string)(null)), table3, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+                        "var",
+                        "Role"});
+            table4.AddRow(new string[] {
+                        "E1",
+                        "Consultant"});
+#line 20
+ testRunner.And("setting the properties", ((string)(null)), table4, "And ");
+#line 23
+ testRunner.Then("\'E1.Role\' has the value \'Consultant\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
     }
 }
 #pragma warning restore

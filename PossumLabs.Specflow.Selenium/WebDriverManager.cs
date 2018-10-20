@@ -13,11 +13,14 @@ namespace PossumLabs.Specflow.Selenium
         public WebDriverManager(SeleniumGridConfiguration seleniumGridConfiguration)
         {
             SeleniumGridConfiguration = seleniumGridConfiguration;
+            Screenshots = new List<byte[]>();
         }
 
         public SeleniumGridConfiguration SeleniumGridConfiguration { get; }
         public WebDriver Current { get; set; }
         public Uri BaseUrl { get; set; }
+
+        public List<byte[]> Screenshots { get; }
 
         public Func<IWebDriver> Create => () =>
         {

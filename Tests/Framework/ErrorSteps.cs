@@ -24,11 +24,12 @@ namespace LegacyTest.Framework
 
         [Then(@"the Error has values")]
         public void ThenTheErrorHasValues(IEnumerable<Validation> validations)
-        {
-            if (Executor.Exception == null)
-                throw new GherkinException("No excetion was caught.");
-            Flatten(Executor.Exception).Contains(validations);
-        }
+            => Executor.Execute(() =>
+            {
+                if (Executor.Exception == null)
+                    throw new GherkinException("No excetion was caught.");
+                Flatten(Executor.Exception).Contains(validations);
+            });
 
         private IEnumerable<Exception> Flatten(Exception ex)
         {

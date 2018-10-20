@@ -9,8 +9,11 @@ namespace PossumLabs.Specflow.Core
 {
     public static class Extentions
     {
+        public static string LogFormatSeperator(this IEnumerable<string> l)
+            => (l.Count() > 5 || (l.Max(x => x == null ? 0 : x.Length) > 25)) ? Environment.NewLine : ", ";
+        
         public static string LogFormat(this IEnumerable<string> l)
-            => l.Any() ? l.OrderBy(x => x.ToLower()).Aggregate((x, y) => x + ", " + y) : string.Empty;
+            => l.Any() ? l.OrderBy(x => x.ToLower()).Aggregate((x, y) => x + LogFormatSeperator(l) + y) : string.Empty;
 
         public static string LogFormat(this IEnumerable<IEnumerable<string>> l)
             => l.Any() ? l.Select(x => x.LogFormat()).Aggregate((x, y) => x + "\n" + y) : string.Empty;

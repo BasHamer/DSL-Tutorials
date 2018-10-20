@@ -1,4 +1,5 @@
 ﻿using BoDi;
+using LegacyTest.ValueObjects;
 using PossumLabs.Specflow.Selenium;
 using TechTalk.SpecFlow;
 
@@ -21,7 +22,12 @@ namespace Shim.Selenium
         [StepArgumentTransformation]
         public RowSelectorPrefix TransformRowSearcherPrefix(string Constructor)
             => SelectorFactory.CreateRowPrefix(Constructor);
-        
+
+        [AfterStep]
+        public void Cleanup()
+        {
+            if (WebDriver != null) WebDriver.LeaveFrames();
+        }
 
         [When(@"clicking the element '(.*)'")]
         public void WhenClickingTheElement(Selector selector)
@@ -32,7 +38,7 @@ namespace Shim.Selenium
             => WebDriver.Select(selector).Select();
 
         [When(@"entering '(.*)' into element '(.*)'")]
-        public void WhenEnteringForTheElement(string text, Selector selector)
+        public void WhenEnteringForTheElement(ResolvedString text, Selector selector)
             => WebDriver.Select(selector).Enter(text);
 
         [When(@"for row '(.*)' clicking the element '(.*)'")]
@@ -44,7 +50,7 @@ namespace Shim.Selenium
             => WebDriver.ForRow(row).Select(selector).Select();
 
         [When(@"for row '(.*)' entering '(.*)' into element '(.*)'")]
-        public void WhenEnteringForTheElementRow(RowSelectorPrefix row, string text, Selector selector)
+        public void WhenEnteringForTheElementRow(RowSelectorPrefix row, ResolvedString text, Selector selector)
             => WebDriver.ForRow(row).Select(selector).Enter(text);
 
         [When(@"under '(.*)' clicking the element '(.*)'")]
@@ -56,7 +62,7 @@ namespace Shim.Selenium
             => WebDriver.Under(under).Select(selector).Select();
 
         [When(@"under '(.*)' entering '(.*)' into element '(.*)'")]
-        public void WhenEnteringForTheElementUnder(UnderSelectorPrefix under, string text, Selector selector)
+        public void WhenEnteringForTheElementUnder(UnderSelectorPrefix under, ResolvedString text, Selector selector)
             => WebDriver.Under(under).Select(selector).Enter(text);
 
         [Given(@"navigated to '(.*)'")]

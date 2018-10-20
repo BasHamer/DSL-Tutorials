@@ -41,10 +41,6 @@ namespace Shim.Selenium
         public void ThenThePageContains(Selector selector)
             => WebDriver.Select(selector).Should().NotBeNull();
 
-        [Then(@"the table contains")]
-        public void ThenTheTableContains(TableValidation table)
-            => WebDriver.Tables.Validate(table);
-
         [Then(@"the element '(.*)' is '(.*)'")]
         public void ThenTheElementIs(Selector selector, WebValidation validation)
             => WebDriver.Select(selector).Validate(validation);

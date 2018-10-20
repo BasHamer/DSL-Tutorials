@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AnimatedGif, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AnimatedGif.1.0.3\lib\netstandard2.0\AnimatedGif.dll</HintPath>
+    </Reference>
     <Reference Include="FluentAssertions, Version=5.4.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.5.4.2\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
@@ -94,6 +97,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.4.5.1\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.1\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
@@ -133,10 +139,20 @@
     <Compile Include="DomainObjects\Employee.cs" />
     <Compile Include="DomainObjects\HtmlInjection .cs" />
     <Compile Include="DomainObjects\User.cs" />
+    <Compile Include="Features\Envision.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Envision.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\ExistingData.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ExistingData.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\IFrames.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IFrames.feature</DependentUpon>
     </Compile>
     <Compile Include="Features\RowSelector.feature.cs">
       <AutoGen>True</AutoGen>
@@ -148,6 +164,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Selector.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Tables.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Tables.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Templates.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -158,6 +179,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UnderSelector.feature</DependentUpon>
     </Compile>
+    <Compile Include="Framework\SpecializedSelectorFactory.cs" />
+    <Compile Include="Framework\VariableSteps.cs" />
     <Compile Include="Selenium\DriverSteps.cs" />
     <Compile Include="Features\Google.feature.cs">
       <AutoGen>True</AutoGen>
@@ -193,7 +216,10 @@
     <Compile Include="Framework\RepositoryStepBase.cs" />
     <Compile Include="Framework\FileSteps.cs" />
     <Compile Include="Selenium\MockHtmlSteps.cs" />
+    <Compile Include="Selenium\TableSteps.cs" />
+    <Compile Include="Steps\DateSteps.cs" />
     <Compile Include="Steps\HtmlInjectionSteps.cs" />
+    <Compile Include="Steps\ResolvedStringSteps.cs" />
     <Compile Include="Steps\UserSteps.cs" />
     <Compile Include="Steps\EmployeeSteps.cs" />
     <Compile Include="Steps\FrameworkInitializationSteps.cs" />
@@ -201,6 +227,8 @@
     <Compile Include="Steps\WaitSteps.cs" />
     <Compile Include="Selenium\ValidationSteps.cs" />
     <Compile Include="Selenium\WebDriverStepBase.cs" />
+    <Compile Include="ValueObjects\Date.cs" />
+    <Compile Include="ValueObjects\ResolvedString.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -216,6 +244,10 @@
     <None Include="DomainObjects\Templates\Employee.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Features\Envision.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Envision.feature.cs</LastGenOutput>
+    </None>
     <None Include="Features\ExistingData.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ExistingData.feature.cs</LastGenOutput>
@@ -223,6 +255,10 @@
     <None Include="Features\Google.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Google.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\IFrames.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>IFrames.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\phpTravels.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -239,6 +275,10 @@
     <None Include="Features\Selector.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Selector.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Tables.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Tables.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Templates.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -274,7 +314,9 @@
       <Name>PossumLabs.Specflow.Selenium</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

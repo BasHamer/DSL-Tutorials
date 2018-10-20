@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Selenium
 {
-    class SelectElement : Element
+    public class SelectElement : Element
     {
         private Dictionary<string, IWebElement> Options { get; }
 
@@ -16,14 +16,14 @@ namespace PossumLabs.Specflow.Selenium
             if (element.TagName == "select")
             {
                 OldStyleSelect = new OpenQA.Selenium.Support.UI.SelectElement(element);
-                AvailableOptions = OldStyleSelect.Options;
-                SelectedOptions = OldStyleSelect.AllSelectedOptions;
+                LazyAvailableOptions = new Lazy<IList<IWebElement>>(() => OldStyleSelect.Options);
+                LazySelectedOptions = new Lazy<IList<IWebElement>>(() => OldStyleSelect.AllSelectedOptions);
             }
             else
             {
                 var listId = element.GetAttribute("list");
-                AvailableOptions = driver.FindElements(By.XPath($"//datalist[@id='{listId}']/option"));
-                SelectedOptions = new List<IWebElement>();
+                LazyAvailableOptions = new Lazy<IList<IWebElement>>(() => driver.FindElements(By.XPath($"//datalist[@id='{listId}']/option")));
+                LazySelectedOptions = new Lazy<IList<IWebElement>>(() => new List<IWebElement>());
                 var value = element.GetAttribute("value");
                 if (!string.IsNullOrWhiteSpace(value))
                 {
@@ -32,9 +32,12 @@ namespace PossumLabs.Specflow.Selenium
             }
         }
 
-        private OpenQA.Selenium.Support.UI.SelectElement OldStyleSelect { get; }
-        private IList<IWebElement> AvailableOptions { get; }
-        private IList<IWebElement> SelectedOptions { get; }
+        protected OpenQA.Selenium.Support.UI.SelectElement OldStyleSelect { get; }
+        private Lazy<IList<IWebElement>> LazyAvailableOptions { get; }
+        private Lazy<IList<IWebElement>> LazySelectedOptions { get; }
+
+        protected IList<IWebElement> AvailableOptions => LazyAvailableOptions.Value;
+        protected IList<IWebElement> SelectedOptions => LazySelectedOptions.Value;
 
         public override void Enter(string text)
         {

@@ -53,6 +53,7 @@ Examples:
 	| dl nested          | target | Bob   | <label>target<input list="o"><datalist id="o"><option value="bad"><option value="Bob"></datalist></label >                                                      |
 	| dl aria-label      | target | Bob   | <input aria-label="target" list="o"><datalist id="o"><option value="bad"><option value="Bob"></datalist>                                                        |
 	| dl aria-labelledby | t1 t2  | Bob   | <input aria-labelledby= "l1 l2" list="o"><datalist id="o"><option value="bad"><option value="Bob"></datalist><label id="l1">t1</label><label id="l2">t2</label> |
+	| default name       | target | Bob   | <select name="target"><option value="" groupname displayorder="-1"></option><option value="bad">Bad</option><option value="Bob">test</option></select>          |
 
 Scenario Outline: entering radio
 	Given injecting browser content
