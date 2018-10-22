@@ -1,11 +1,8 @@
 ﻿using BoDi;
-<<<<<<< HEAD
-=======
 using Microsoft.Extensions.Configuration;
 using PossumLabs.Specflow.Core;
 using PossumLabs.Specflow.Core.Files;
 using PossumLabs.Specflow.Core.Logging;
->>>>>>> 4e815326aa962c9e2c51d7f19d27b67669f9057e
 using System;
 using System.IO;
 using System.Linq;

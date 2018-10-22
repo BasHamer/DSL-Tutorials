@@ -139,11 +139,6 @@
     <Compile Include="DomainObjects\Employee.cs" />
     <Compile Include="DomainObjects\HtmlInjection .cs" />
     <Compile Include="DomainObjects\User.cs" />
-    <Compile Include="Features\Envision.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Envision.feature</DependentUpon>
-    </Compile>
     <Compile Include="Features\ExistingData.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -243,10 +238,6 @@
     </None>
     <None Include="DomainObjects\Templates\Employee.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Features\Envision.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Envision.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\ExistingData.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
