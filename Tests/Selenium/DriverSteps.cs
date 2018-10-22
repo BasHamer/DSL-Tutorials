@@ -36,42 +36,52 @@ namespace Shim.Selenium
 
         [When(@"clicking the element '(.*)'")]
         public void WhenClickingTheElement(Selector selector)
-            => WebDriver.Select(selector).Click();
+            => Executor.Execute(()
+            => WebDriver.Select(selector).Click());
 
         [When(@"selecting the element '(.*)'")]
         public void WhenSelectingTheElement(Selector selector)
-            => WebDriver.Select(selector).Select();
+            => Executor.Execute(()
+            => WebDriver.Select(selector).Select());
 
         [When(@"entering '(.*)' into element '(.*)'")]
         public void WhenEnteringForTheElement(ResolvedString text, Selector selector)
-            => WebDriver.Select(selector).Enter(text);
+            => Executor.Execute(()
+            => WebDriver.Select(selector).Enter(text));
 
         [When(@"for row '(.*)' clicking the element '(.*)'")]
         public void WhenClickingTheElementRow(RowSelectorPrefix row, Selector selector)
-            => WebDriver.ForRow(row).Select(selector).Click();
+            => Executor.Execute(()
+            => WebDriver.ForRow(row).Select(selector).Click());
 
         [When(@"for row '(.*)' selecting the element '(.*)'")]
         public void WhenSelectingTheElementRow(RowSelectorPrefix row, Selector selector)
-            => WebDriver.ForRow(row).Select(selector).Select();
+            => Executor.Execute(()
+            => WebDriver.ForRow(row).Select(selector).Select());
 
         [When(@"for row '(.*)' entering '(.*)' into element '(.*)'")]
         public void WhenEnteringForTheElementRow(RowSelectorPrefix row, ResolvedString text, Selector selector)
-            => WebDriver.ForRow(row).Select(selector).Enter(text);
+            => Executor.Execute(()
+            => WebDriver.ForRow(row).Select(selector).Enter(text));
 
         [When(@"under '(.*)' clicking the element '(.*)'")]
         public void WhenClickingTheElementUnder(UnderSelectorPrefix under, Selector selector)
-            => WebDriver.Under(under).Select(selector).Click();
+            => Executor.Execute(()
+            => WebDriver.Under(under).Select(selector).Click());
 
         [When(@"under '(.*)' selecting the element '(.*)'")]
         public void WhenSelectingTheElementUnder(UnderSelectorPrefix under, Selector selector)
-            => WebDriver.Under(under).Select(selector).Select();
+            => Executor.Execute(()
+            => WebDriver.Under(under).Select(selector).Select());
 
         [When(@"under '(.*)' entering '(.*)' into element '(.*)'")]
         public void WhenEnteringForTheElementUnder(UnderSelectorPrefix under, ResolvedString text, Selector selector)
-            => WebDriver.Under(under).Select(selector).Enter(text);
+            => Executor.Execute(()
+            => WebDriver.Under(under).Select(selector).Enter(text));
 
         [Given(@"navigated to '(.*)'")]
         public void GivenNavigatedTo(string page)
-            => WebDriver.NavigateTo(page);
+            => Executor.Execute(()
+            => WebDriver.NavigateTo(page));
     }
 }

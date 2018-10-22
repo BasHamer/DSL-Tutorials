@@ -85,6 +85,11 @@ namespace PossumLabs.Specflow.Selenium
                 var elements = driver.FindElements(By.XPath($"//input[@type='radio' and @name='{e.GetAttribute("name")}']"));
                 return new RadioElement(elements, driver);
             }
+            if (e.TagName == "input" && e.GetAttribute("type") == "checkbox")
+            {
+                return new CheckboxElement(e, driver);
+            }
+            
             return new Element(e, driver);
         }
 
