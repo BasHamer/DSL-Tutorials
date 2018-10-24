@@ -21,6 +21,9 @@ namespace PossumLabs.Specflow.Selenium
             SeleniumGridConfiguration = configuration;
             RetryExecutor = retryExecutor;
             Prefixes = prefixes ?? new List<SelectorPrefix>() { new EmptySelectorPrefix() };
+
+            Children = new List<WebDriver>();
+            Screenshots = new List<byte[]>();
         }
 
         private Func<Uri> RootUrl {get;set;}
@@ -46,6 +49,8 @@ namespace PossumLabs.Specflow.Selenium
         private SeleniumGridConfiguration SeleniumGridConfiguration { get; }
         private RetryExecutor RetryExecutor { get; }
         private IEnumerable<SelectorPrefix> Prefixes;
+        private List<byte[]> Screenshots { get; set; }
+        private List<WebDriver> Children { get; set; }
 
         //TODO: check this form
         public void NavigateTo(string url)
@@ -68,26 +73,35 @@ namespace PossumLabs.Specflow.Selenium
             =>RetryExecutor.RetryFor(() =>
             {
                 var loggingWebdriver = new LoggingWebDriver(Driver);
-                var element = FindElement(selector, loggingWebdriver);
-                if (element != null)
-                    return element;
-                //iframes ? 
-                var iframes = Driver.FindElements(By.XPath("//iframe"));
-                foreach (var iframe in iframes)
+                try
                 {
-                    try
+                    var element = FindElement(selector, loggingWebdriver);
+                    if (element != null)
+                        return element;
+                    //iframes ? 
+                    var iframes = Driver.FindElements(By.XPath("//iframe"));
+                    foreach (var iframe in iframes)
                     {
-                        loggingWebdriver.Log($"Trying iframe:{iframe}");
-                        Driver.SwitchTo().Frame(iframe);
-                        element = FindElement(selector, loggingWebdriver);
-                        if (element != null)
-                            return element;
+                        try
+                        {
+                            loggingWebdriver.Log($"Trying iframe:{iframe}");
+                            Driver.SwitchTo().Frame(iframe);
+                            element = FindElement(selector, loggingWebdriver);
+                            if (element != null)
+                                return element;
+                        }
+                        catch
+                        { }
                     }
-                    catch
-                    { }
+                    Driver.SwitchTo().DefaultContent();
+                    throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
                 }
-                Driver.SwitchTo().DefaultContent();
-                throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
+                finally
+                {
+                    if (loggingWebdriver.Screenshots.Any())
+                        Screenshots = loggingWebdriver.Screenshots.Select(x => x.AsByteArray).ToList();
+
+                }
             }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
         
 
@@ -148,18 +162,39 @@ namespace PossumLabs.Specflow.Selenium
 
         public void ExecuteScript(string script)
             => ((IJavaScriptExecutor)Driver).ExecuteScript(script);
-               
+
         public WebDriver Under(UnderSelectorPrefix under)
-            => new WebDriver(Driver, RootUrl, SeleniumGridConfiguration, RetryExecutor, Prefixes.Concat(under));
+        {
+            var wdm = new WebDriver(Driver, RootUrl, SeleniumGridConfiguration, RetryExecutor, Prefixes.Concat(under));
+            Children.Add(wdm);
+            return wdm;
+        }
 
         public WebDriver ForRow(RowSelectorPrefix row)
-            => new WebDriver(Driver, RootUrl, SeleniumGridConfiguration, RetryExecutor, Prefixes.Concat(row));
+        {
+            var wdm = new WebDriver(Driver, RootUrl, SeleniumGridConfiguration, RetryExecutor, Prefixes.Concat(row));
+            Children.Add(wdm);
+            return wdm;
+        }
 
         public void Dispose()
             => Driver.Dispose();
 
-        public byte[] Screenshot()
-            => ((ITakesScreenshot)Driver).GetScreenshot().AsByteArray;
+        public IEnumerable<byte[]> GetScreenshots()
+        {
+            foreach (var c in Children)
+                foreach (var s in c.GetScreenshots())
+                    yield return s;
+            foreach (var s in Screenshots)
+                yield return s;
+            yield return ((ITakesScreenshot)Driver).GetScreenshot().AsByteArray;
+        }
+
+        public void ResetScreenshots()
+        {
+            Children = new List<WebDriver>();
+            Screenshots = new List<byte[]>();
+        }
 
         public string PageSource { get => Driver.PageSource; }
     }

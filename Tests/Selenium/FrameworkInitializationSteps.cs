@@ -59,9 +59,13 @@ namespace Shim.Selenium
         {
             if (WebDriverManager?.Current != null)
             {
-                var img = WebDriverManager.Current.Screenshot();
-                var withText = ImageLogging.AddTextToImage(img, $"{ScenarioContext.StepContext.StepInfo.StepDefinitionType} {ScenarioContext.StepContext.StepInfo.Text}");
-                WebDriverManager.Screenshots.Add(withText);
+                foreach (var img in WebDriverManager.Current.GetScreenshots())
+                {
+                    var withText = ImageLogging.AddTextToImage(img, $"{ScenarioContext.StepContext.StepInfo.StepDefinitionType} {ScenarioContext.StepContext.StepInfo.Text}");
+                    WebDriverManager.Screenshots.Add(withText);
+                }
+
+                WebDriverManager.Current.ResetScreenshots();
             }
         }
 

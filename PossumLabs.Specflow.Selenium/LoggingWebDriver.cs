@@ -6,6 +6,7 @@ using PossumLabs.Specflow.Core;
 using System.Collections.ObjectModel;
 using OpenQA.Selenium.Remote;
 using System.Drawing;
+using System.Linq;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -15,9 +16,12 @@ namespace PossumLabs.Specflow.Selenium
         {
             Driver = driver;
             Messages = new List<string>();
+            Screenshots = new List<Screenshot>();
         }
 
         private List<string> Messages { get; }
+        public List<Screenshot> Screenshots { get; }
+
         public string Url { get => Driver.Url; set => Driver.Url = value; }
 
         public string Title => Driver.Title;
@@ -44,13 +48,25 @@ namespace PossumLabs.Specflow.Selenium
         public IWebElement FindElement(By by)
         {
             Messages.Add(by.ToString());
-            return Driver.FindElement(by);
+            var element = Driver.FindElement(by);
+            if (element != null && by.ToString().StartsWith("By.XPath: "))
+            {
+                var xpath = by.ToString().Substring("By.XPath: ".Length);
+                Screenshots.Add(Preview(xpath));
+            }
+            return element;
         }
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
             Messages.Add(by.ToString());
-            return Driver.FindElements(by);
+            var elements = Driver.FindElements(by);
+            if(elements!=null && elements.Any() && by.ToString().StartsWith("By.XPath: "))
+            {
+                var xpath = by.ToString().Substring("By.XPath: ".Length);
+                Screenshots.Add(Preview(xpath));
+            }
+            return elements;
         }
 
         public void Log(string message)
@@ -61,9 +77,71 @@ namespace PossumLabs.Specflow.Selenium
         public Screenshot GetScreenshot()
             => ((ITakesScreenshot)Driver).GetScreenshot();
 
-
-
         //HACK: wrong place for this code
+        private Screenshot Preview(string xpath)
+        {
+            var id = "data-possum-labs-"+Guid.NewGuid().ToString();
+            //add style
+            String s_Script = @"
+var css = new function()
+{
+    function addStyleSheet()
+    {
+        let head = document.head;
+        let style = document.createElement('style');
+
+        head.appendChild(style);
+    }
+
+    this.insert = function(rule)
+    {
+        if(document.styleSheets.length == 0) { addStyleSheet(); }
+
+        let sheet = document.styleSheets[document.styleSheets.length - 1];
+        let rules = sheet.rules;
+
+        sheet.insertRule(rule, rules.length);
+    }
+}
+
+css.insert( '*['+arguments[0]+'] { outline: DarkOrange dashed 2px; }');
+";
+            ((IJavaScriptExecutor)Driver).ExecuteScript(s_Script, id);
+
+            //mark items
+
+            s_Script = @"
+var nodesSnapshot = document.evaluate(arguments[1], document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+
+for (var i=0 ; i<nodesSnapshot.snapshotLength; i++ )
+{
+  nodesSnapshot.snapshotItem(i).setAttribute(arguments[0], i);
+}
+";
+            ((IJavaScriptExecutor)Driver).ExecuteScript(s_Script, id, xpath);
+            var screenshot = GetScreenshot();
+            //remove style
+            s_Script = @"
+let sheet = document.styleSheets[document.styleSheets.length - 1];
+let index = sheet.rules.length-1;
+sheet.deleteRule(index);
+";
+            ((IJavaScriptExecutor)Driver).ExecuteScript(s_Script, id);
+            //unmark
+            s_Script = @"
+var nodesSnapshot = document.evaluate('//*[@'+arguments[0]+']', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+
+for (var i=0 ; i<nodesSnapshot.snapshotLength; i++ )
+{
+  nodesSnapshot.snapshotItem(i).removeAttribute(arguments[0]);
+}
+";
+            ((IJavaScriptExecutor)Driver).ExecuteScript(s_Script, id);
+            return screenshot;
+        }
+            
+            
+            
         /// <summary>
         /// Get the element at the viewport coordinates X, Y
         /// </summary>
