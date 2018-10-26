@@ -94,7 +94,7 @@ namespace PossumLabs.Specflow.Selenium
                         { }
                     }
                     Driver.SwitchTo().DefaultContent();
-                    throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}");
+                    throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}, maybe try one of these identifiers {GetIdentifiers().LogFormat()}");
                 }
                 finally
                 {
@@ -158,6 +158,34 @@ namespace PossumLabs.Specflow.Selenium
                 index++;
             }
             return null;
+        }
+
+        virtual public List<string> GetIdentifiers()
+        {
+            var options = new List<Tuple<By, Func<IWebElement, string>, List<string>>>()
+            {
+                new Tuple<By, Func<IWebElement,string>, List<string>>( 
+                    By.XPath("//label"), (e)=>e.Text,  new List<string>()),
+                new Tuple<By, Func<IWebElement,string>, List<string>>(
+                    By.XPath("//*[self::button or self::a or (self::input and @type='button')]"), (e)=>e.Text, new List<string>()),
+                new Tuple<By, Func<IWebElement,string>, List<string>>(
+                    By.XPath("//*[@alt]"), (e)=>e.GetAttribute("alt"),  new List<string>()),
+                new Tuple<By, Func<IWebElement,string>, List<string>>( 
+                    By.XPath("//*[@name]"), (e)=>e.GetAttribute("name"),  new List<string>()),
+                new Tuple<By, Func<IWebElement,string>, List<string>>(
+                    By.XPath("//*[@aria-label]"), (e)=>e.GetAttribute("aria-label"),  new List<string>()),
+                new Tuple<By, Func<IWebElement,string>, List<string>>( 
+                    By.XPath("//*[@title]"), (e)=>e.GetAttribute("title"),  new List<string>()),
+            };
+
+            Parallel.ForEach(options, (option, loopState) =>
+            {
+                var elements = Driver.FindElements(option.Item1);
+                foreach (var e in elements)
+                    option.Item3.Add(option.Item2(e));
+            });
+
+            return options.SelectMany(o => o.Item3).Distinct().OrderBy(s=>s.ToLower()).ToList();
         }
 
         public void ExecuteScript(string script)

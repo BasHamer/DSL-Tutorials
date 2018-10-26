@@ -35,8 +35,10 @@ namespace LegacyTest.Steps
             var factory = new PossumLabs.Specflow.Core.Variables.ObjectFactory();
             base.Register(factory);
             base.Register(new PossumLabs.Specflow.Core.Variables.Interpeter(factory));
-            base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor());
-            base.Register((PossumLabs.Specflow.Core.Logging.ILog)new DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory)));
+            var logger = new DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory));
+            base.Register((PossumLabs.Specflow.Core.Logging.ILog)logger);
+            base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor(logger));
+            
             base.Register(new FileManager(new DatetimeManager() { Now = () => DateTime.Now }));
             FileManager.Initialize(FeatureContext.FeatureInfo.Title, ScenarioContext.ScenarioInfo.Title, null /*Specflow limitation*/);
             var templateManager = new PossumLabs.Specflow.Core.Variables.TemplateManager();
