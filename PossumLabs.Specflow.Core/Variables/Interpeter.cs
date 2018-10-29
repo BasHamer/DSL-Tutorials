@@ -25,6 +25,26 @@ namespace PossumLabs.Specflow.Core.Variables
         private Regex MatchVariable { get; }
         private ObjectFactory ObjectFactory { get; }
 
+        public RepositoryView GenerateView()
+        {
+            return new RepositoryView
+            {
+                Types = Repositories
+                .Select(r=>new { repository = r , properties = r.Type.GetValueMembers().Where(m => m.CanRead).OrderBy(m => m.Name).ToList() })
+                .Select(r => new TypeView
+                {
+                    Name = r.repository.Type.Name,
+                    Properties = r.properties.Select(m => m.Name).ToList(),
+                    Objects = r.repository.AsDictionary().Select(kv=>new ObjectView
+                    {
+                        Var = kv.Key,
+                        LogFormat = (kv.Value is IDomainObject) ? ((IDomainObject)kv.Value).LogFormat():null, 
+                        Values = r.properties.Select(p=>p.GetValue(kv.Value)?.ToString()).ToList()
+                    }).ToList()
+                }).ToList()
+            };
+        }
+
         public void Register(IRepository repository) 
             => Repositories.Add(repository);
 

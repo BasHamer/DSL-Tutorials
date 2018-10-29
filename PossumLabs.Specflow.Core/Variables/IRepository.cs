@@ -15,5 +15,7 @@ namespace PossumLabs.Specflow.Core.Variables
         IEnumerable<TypeConverter> RegisteredConversions { get; }
 
         void Add(string key, IValueObject item);
+
+        Dictionary<string, object> AsDictionary();
     }
 }
