@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
+using PossumLabs.Specflow.Core.Variables;
 using PossumLabs.Specflow.Selenium.Configuration;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,10 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Selenium
 {
-    public class WebDriverManager
+    public class WebDriverManager:RepositoryBase<WebDriver>
     {
-        public WebDriverManager(SeleniumGridConfiguration seleniumGridConfiguration)
+        public WebDriverManager(Interpeter interpeter, ObjectFactory objectFactory, SeleniumGridConfiguration seleniumGridConfiguration) : 
+            base(interpeter, objectFactory)
         {
             SeleniumGridConfiguration = seleniumGridConfiguration;
             Screenshots = new List<byte[]>();

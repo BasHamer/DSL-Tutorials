@@ -1,6 +1,7 @@
 ﻿using BoDi;
 using LegacyTest.ValueObjects;
 using PossumLabs.Specflow.Selenium;
+using PossumLabs.Specflow.Selenium.Selectors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +18,28 @@ namespace Shim.Selenium
         { }
 
         [StepArgumentTransformation]
-        public Selector TransformSelector(string Constructor)
-            => SelectorFactory.Create(Constructor);
+        public ActiveElementSelector TransformSelector(string Constructor)
+            => SelectorFactory.CreateSelector<ActiveElementSelector>(Constructor);
+
+        [StepArgumentTransformation]
+        public ContentSelector TransformContentSelector(string Constructor)
+            => SelectorFactory.CreateSelector<ContentSelector>(Constructor);
 
         [StepArgumentTransformation]
         public UnderSelectorPrefix TransformUnderSearcherPrefix(string Constructor)
-            => SelectorFactory.CreateUnderPrefix(Constructor);
+            => SelectorFactory.CreatePrefix<UnderSelectorPrefix>(Constructor);
 
         [StepArgumentTransformation]
         public RowSelectorPrefix TransformRowSearcherPrefix(string Constructor)
-            => SelectorFactory.CreateRowPrefix(Constructor);
+            => SelectorFactory.CreatePrefix<RowSelectorPrefix>(Constructor);
+
+        [StepArgumentTransformation]
+        public WarningSelectorPrefix TransformWarningSearcherPrefix(string Constructor)
+            => SelectorFactory.CreatePrefix<WarningSelectorPrefix>(Constructor);
+
+        [StepArgumentTransformation]
+        public ErrorSelectorPrefix TransformErrorSearcherPrefix(string Constructor)
+            => SelectorFactory.CreatePrefix<ErrorSelectorPrefix>(Constructor);
 
         [AfterStep]
         public void Cleanup()

@@ -1,77 +1,106 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
+using PossumLabs.Specflow.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PossumLabs.Specflow.Selenium
+namespace PossumLabs.Specflow.Selenium.Selectors
 {
     public class SelectorFactory
     {
+        public SelectorFactory()
+        {
+            Selectors = new Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>>
+            {
+                {
+                    SelectorNames.Active,
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>
+                    {
+                        ByForAttribute,
+                        ByNestedInLabel,
+                        ByNested,
+                        ByText,
+                        ByTitle,
+                        ByLabelledBy,
+                        RadioByName,
+                        SpecialButtons,
+                        ByFollowingMarker,
+                    }
+                },
+                {
+                    SelectorNames.Content,
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>
+                    {
+                        ByContentSelf,
+                        ByContent
+                    }
+                }
+            };
+
+            Prefixes = new Dictionary<string, List<Func<string, IEnumerable<string>>>>
+            {
+                {
+                    PrefixNames.Row,
+                    new List<Func<string, IEnumerable<string>>>
+                    {
+                        TableRow,
+                        DivRoleRow,
+                    }
+                },
+                {
+                    PrefixNames.Under,
+                    new List<Func<string, IEnumerable<string>>>
+                    {
+                        ParrentDiv,
+                        ParrentDivWithRowRole,
+                        FollowingRow
+                    }
+                },
+                { PrefixNames.Warning, new List<Func<string, IEnumerable<string>>> { } },
+                { PrefixNames.Error, new List<Func<string, IEnumerable<string>>> { } }
+            };
+        }
+
         private static readonly Core.EqualityComparer<IWebElement> Comparer =
             new Core.EqualityComparer<IWebElement>((x, y) => x.Location == y.Location && x.TagName == y.TagName);
 
-        public Selector Create(string constructor)
+
+
+        public T CreateSelector<T>(string constructor) where T: Selector,new()
         {
+            var t = new T();
             if (Parser.IsId.IsMatch(constructor))
-                return new Selector(constructor, By.Id(Parser.IsId.Match(constructor).Groups[1].Value));
-            if (Parser.IsElement.IsMatch(constructor))
-                return new Selector(constructor, By.TagName(Parser.IsElement.Match(constructor).Groups[1].Value));
-            if (Parser.IsClass.IsMatch(constructor))
-                return new Selector(constructor, By.ClassName(Parser.IsClass.Match(constructor).Groups[1].Value));
-            return new Selector(constructor, SequencedSelectorsByOrder);
+                t.Init(constructor, By.Id(Parser.IsId.Match(constructor).Groups[1].Value));
+            else if (Parser.IsElement.IsMatch(constructor))
+                t.Init(constructor, By.TagName(Parser.IsElement.Match(constructor).Groups[1].Value));
+            else if (Parser.IsClass.IsMatch(constructor))
+                t.Init(constructor, By.ClassName(Parser.IsClass.Match(constructor).Groups[1].Value));
+            else if (Selectors.ContainsKey(t.Type) && Selectors[t.Type].Any())
+                t.Init(constructor, Selectors[t.Type]);
+            else
+                throw new GherkinException($"the selector type of '{t.Type}' is not supported.");
+            return t;
         }
 
-        public RowSelectorPrefix CreateRowPrefix(string constructor)
+        public T CreatePrefix<T>(string constructor = "") where T: SelectorPrefix,new()
         {
+            var t = new T();
             if (Parser.IsId.IsMatch(constructor))
-                return new RowSelectorPrefix(constructor, $"//*[id={Parser.IsId.Match(constructor).Groups[1].Value.XpathEncode()}]");
-            if (Parser.IsElement.IsMatch(constructor))
-                return new RowSelectorPrefix(constructor, $"//{Parser.IsElement.Match(constructor).Groups[1].Value}");
-            if (Parser.IsClass.IsMatch(constructor))
-                return new RowSelectorPrefix(constructor, $"//*[class={Parser.IsClass.Match(constructor).Groups[1].Value.XpathEncode()}]");
-            return new RowSelectorPrefix(constructor, SequencedRowPrefixesByOrder);
+                t.Init(constructor, $"//*[id={Parser.IsId.Match(constructor).Groups[1].Value.XpathEncode()}]");
+            else if (Parser.IsElement.IsMatch(constructor))
+                t.Init(constructor, $"//{Parser.IsElement.Match(constructor).Groups[1].Value}");
+            else if (Parser.IsClass.IsMatch(constructor))
+                t.Init(constructor, $"//*[class={Parser.IsClass.Match(constructor).Groups[1].Value.XpathEncode()}]");
+            else if (Prefixes.ContainsKey(t.Type) && Prefixes[t.Type].Any())
+                t.Init(constructor, Prefixes[t.Type]);
+            else
+                throw new GherkinException($"the prefix type of '{t.Type}' is not supported.");
+            return t;
         }
 
-        public UnderSelectorPrefix CreateUnderPrefix(string constructor)
-        {
-            if (Parser.IsId.IsMatch(constructor))
-                return new UnderSelectorPrefix(constructor, $"//*[id={Parser.IsId.Match(constructor).Groups[1].Value.XpathEncode()}]");
-            if (Parser.IsElement.IsMatch(constructor))
-                return new UnderSelectorPrefix(constructor, $"//{Parser.IsElement.Match(constructor).Groups[1].Value}");
-            if (Parser.IsClass.IsMatch(constructor))
-                return new UnderSelectorPrefix(constructor, $"//*[class={Parser.IsClass.Match(constructor).Groups[1].Value.XpathEncode()}]");
-            return new UnderSelectorPrefix(constructor, SequencedUnderPrefixesByOrder);
-        }
-
-        virtual protected List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> SequencedSelectorsByOrder
-           => new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>
-           {
-                    ByForAttribute,
-                    ByNestedInLabel,
-                    ByNested,
-                    ByText,
-                    ByTitle,
-                    ByLabelledBy,
-                    RadioByName,
-                    SpecialButtons,
-                    ByFollowingMarker,
-           };
-
-        virtual protected List<Func<string, IEnumerable<string>>> SequencedRowPrefixesByOrder
-           => new List<Func<string, IEnumerable<string>>>
-           {
-               TableRow,
-               DivRoleRow,
-           };
-
-        virtual protected List<Func<string, IEnumerable<string>>> SequencedUnderPrefixesByOrder
-           => new List<Func<string, IEnumerable<string>>>
-           {
-                ParrentDiv,
-                ParrentDivWithRowRole,
-                FollowingRow
-           };
+        public Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>> Selectors { get; }
+        public Dictionary<string, List<Func<string, IEnumerable<string>>>> Prefixes { get; }
 
         private bool Filter(IWebElement e) =>
             e is RemoteWebElement && ((RemoteWebElement)e).Displayed && ((RemoteWebElement)e).Enabled;
@@ -89,7 +118,7 @@ namespace PossumLabs.Specflow.Selenium
             {
                 return new CheckboxElement(e, driver);
             }
-            
+
             return new Element(e, driver);
         }
 
@@ -115,18 +144,18 @@ namespace PossumLabs.Specflow.Selenium
         //<label>target<input type = "text" ></ label >
         //label[text()='{target}']/*[self::input or self::textarea or self::select]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByNestedInLabel =>
-            (target, prefixes, driver) => 
-                prefixes.CrossMultiply().Select(prefix=>
+            (target, prefixes, driver) =>
+                prefixes.CrossMultiply().Select(prefix =>
                     driver
                     .FindElements(By.XPath($"{prefix}//label[{TextMatch(target)}]/*[{ActiveElements}]"))
                     .Where(Filter)
                     .Distinct(Comparer)
                     .Select(e => CreateElement(driver, e))
-                ).FirstOrDefault(e=>e.Any()) ?? new Element[] { };
+                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> SpecialButtons =>
             (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix => 
+                prefixes.CrossMultiply().Select(prefix =>
                     driver
                     .FindElements(By.XPath($"{prefix}//*[(self::input or self::button) and @type={target.XpathEncode()} and (@type='submit' or @type='reset')]"))
                     .Where(Filter)
@@ -138,7 +167,7 @@ namespace PossumLabs.Specflow.Selenium
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and @aria-label='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByNested =>
             (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix => 
+                prefixes.CrossMultiply().Select(prefix =>
                     driver
                         .FindElements(By.XPath(
                             $"{prefix}//*[{ActiveElements} and (" +
@@ -158,7 +187,7 @@ namespace PossumLabs.Specflow.Selenium
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem') and text()='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByText =>
             (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix => 
+                prefixes.CrossMultiply().Select(prefix =>
                     driver
                         .FindElements(By.XPath($"{prefix}//*[{ActiveElements} and {TextMatch(target)}]"))
                         .Where(Filter)
@@ -170,7 +199,7 @@ namespace PossumLabs.Specflow.Selenium
         //a[@title='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByTitle =>
             (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix => 
+                prefixes.CrossMultiply().Select(prefix =>
                     driver
                         .FindElements(By.XPath($"{prefix}//a[@title={target.XpathEncode()}]"))
                         .Where(Filter)
@@ -228,6 +257,32 @@ namespace PossumLabs.Specflow.Selenium
             ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
         #endregion
 
+        #region content
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContentSelf =>
+            (target, prefixes, driver) =>
+                prefixes.CrossMultiply().Select(prefix =>
+                    driver
+                        .FindElements(By.XPath(string.IsNullOrWhiteSpace(prefix)?
+                            "//[1=2]":
+                            $"{prefix}/self::*[{TextMatch(target)}]"))
+                        .Where(Filter)
+                        .Distinct(Comparer)
+                        .Select(e => CreateElement(driver, e))
+                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContent =>
+            (target, prefixes, driver) =>
+                prefixes.CrossMultiply().Select(prefix =>
+                    driver
+                        .FindElements(By.XPath(
+                            $"{prefix}//*[{ContentElements} and {TextMatch(target)}]"))
+                        .Where(Filter)
+                        .Distinct(Comparer)
+                        .Select(e => CreateElement(driver, e))
+                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+
+        #endregion
+
         #region Prefixes
         virtual protected Func<string, IEnumerable<string>> TableRow =>
             (target) => new List<string>(){
@@ -268,10 +323,14 @@ namespace PossumLabs.Specflow.Selenium
         virtual protected string TextMatch(string target)
             => $"text()[normalize-space(.)={target.XpathEncode()}]";
 
-        virtual protected string MarkerElements 
+        virtual protected string MarkerElements
             => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";
 
-        virtual protected string ActiveElements 
+        virtual protected string ContentElements
+            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
+            "or self::p or self::div)";
+
+        virtual protected string ActiveElements
             => "( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' )";
     }
 }

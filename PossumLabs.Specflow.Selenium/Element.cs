@@ -12,7 +12,7 @@ namespace PossumLabs.Specflow.Selenium
 {
     public class Element
     {
-        protected IWebElement WebElement { get; }
+        public IWebElement WebElement { get; }
         protected IWebDriver WebDriver { get; }
 
         public Element(IWebElement element, IWebDriver driver)
@@ -26,6 +26,13 @@ namespace PossumLabs.Specflow.Selenium
         public IEnumerable<string> Classes => WebElement.GetAttribute("class").Split(' ').Select(x=>x.Trim());
         public string Id => WebElement.GetAttribute("id");
         public virtual List<string> Values => new List<string>() { WebElement.GetAttribute("value"), WebElement.Text };
+        public virtual string Value => WebElement.GetAttribute("value") ?? WebElement.Text;
+
+        public string GetAttribute(string name) => WebElement.GetAttribute(name);
+
+        public bool Displayed => WebElement.Displayed;
+
+        public System.Drawing.Size Size { get => WebElement.Size; }
 
         public void Select()
             => WebElement.Click();

@@ -5,6 +5,7 @@ using PossumLabs.Specflow.Core.Logging;
 using PossumLabs.Specflow.Selenium;
 using PossumLabs.Specflow.Selenium.Configuration;
 using PossumLabs.Specflow.Selenium.Diagnostic;
+using PossumLabs.Specflow.Selenium.Selectors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,10 @@ namespace Shim.Selenium
     {
         public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer)
         {
-            WebDriverManager = new PossumLabs.Specflow.Selenium.WebDriverManager( new PossumLabs.Specflow.Selenium.Configuration.SeleniumGridConfiguration() );
+            WebDriverManager = new PossumLabs.Specflow.Selenium.WebDriverManager( 
+                this.Interpeter,
+                this.ObjectFactory,
+                new PossumLabs.Specflow.Selenium.Configuration.SeleniumGridConfiguration() );
         }
 
         private PossumLabs.Specflow.Selenium.WebDriverManager WebDriverManager { get; }
@@ -44,7 +48,8 @@ namespace Shim.Selenium
                 WebDriverManager.Create(), 
                 ()=>WebDriverManager.BaseUrl, 
                 ObjectContainer.Resolve<SeleniumGridConfiguration>(), 
-                ObjectContainer.Resolve<RetryExecutor>());
+                ObjectContainer.Resolve<RetryExecutor>(),
+                ObjectContainer.Resolve<SelectorFactory>());
         }
 
         [AfterScenario]

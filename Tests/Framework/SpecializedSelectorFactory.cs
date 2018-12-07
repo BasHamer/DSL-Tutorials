@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using PossumLabs.Specflow.Selenium;
+using PossumLabs.Specflow.Selenium.Selectors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,14 @@ namespace LegacyTest.Framework
 {
     public class SpecializedSelectorFactory : SelectorFactory
     {
-        override protected List<Func<string, IEnumerable<string>>> SequencedUnderPrefixesByOrder
-            => base.SequencedUnderPrefixesByOrder.Concat(new List<Func<string, IEnumerable<string>>>
+        public SpecializedSelectorFactory():base()
+        {
+            Prefixes[PrefixNames.Under].AddRange(new List<Func<string, IEnumerable<string>>>
             {
                 LooseFollowingRow,
                 ParrentRowTableLayout
-            }).ToList();
-
+            });
+        }
 
         override protected Element CreateElement(IWebDriver driver, IWebElement e)
         {

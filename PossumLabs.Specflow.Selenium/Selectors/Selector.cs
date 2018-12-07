@@ -4,26 +4,26 @@ using System.Linq;
 using System.Text;
 using OpenQA.Selenium;
 
-namespace PossumLabs.Specflow.Selenium
+namespace PossumLabs.Specflow.Selenium.Selectors
 {
-    public class Selector
+    public abstract class Selector
     {
-        public Selector(string constructor, By by)
+        public void Init(string constructor, By by)
         {
             Constructor = constructor;
             By = by;
         }
 
-        public Selector(string label, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> sequencedByOrder)
+        public void Init(string label, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> sequencedByOrder)
         {
             Label = label;
             SequencedByOrder = sequencedByOrder;
         }
 
-        private string Constructor { get; }
-        private By By { get; }
-        private string Label { get; }
-        private List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> SequencedByOrder { get; }
+        private string Constructor { get; set; }
+        private By By { get; set; }
+        private string Label { get; set; }
+        private List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> SequencedByOrder { get; set; }
 
         internal IEnumerable<Searcher> PrioritizedSearchers
         {
@@ -46,7 +46,7 @@ namespace PossumLabs.Specflow.Selenium
             }
         }
 
-   
+        public virtual string Type => SelectorNames.Unknown;
     }
 }
 

@@ -2,6 +2,7 @@
 using LegacyTest;
 using OpenQA.Selenium;
 using PossumLabs.Specflow.Selenium;
+using PossumLabs.Specflow.Selenium.Selectors;
 using System;
 using System.Collections.Generic;
 using System.Linq;

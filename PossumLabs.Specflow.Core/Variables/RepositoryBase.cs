@@ -30,6 +30,7 @@ namespace PossumLabs.Specflow.Core.Variables
         public Dictionary<string, string> Defaults { get; }
 
         public void Add(string key, IValueObject item) => dictionary.Add(key, item);
+        public void Add(Dictionary<string,T> d) => d.Keys.ToList().ForEach(key=>dictionary.Add(key, d[key]));
         public bool ContainsKey(string root) => dictionary.ContainsKey(root);
 
         public IEnumerator<KeyValuePair<string, T>> GetEnumerator() 

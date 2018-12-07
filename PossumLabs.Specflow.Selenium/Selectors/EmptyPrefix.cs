@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PossumLabs.Specflow.Selenium
+namespace PossumLabs.Specflow.Selenium.Selectors
 {
     public class EmptySelectorPrefix : SelectorPrefix
     {
