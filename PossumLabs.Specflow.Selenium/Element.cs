@@ -7,6 +7,7 @@ using OpenQA.Selenium.Support.UI;
 using PossumLabs.Specflow.Core.Validations;
 using System.Drawing;
 using PossumLabs.Specflow.Core;
+using OpenQA.Selenium.Interactions;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -41,10 +42,10 @@ namespace PossumLabs.Specflow.Selenium
 
         public virtual void Enter(string text)
         {
-            if (text == null)
-                throw new GherkinException("you can't enter 'null' into an element.");
-            //TODO: v2 Check Boxes
             WebElement.Clear();
+            if (text == null)
+                return;
+            //TODO: v2 Check Boxes
             WebElement.SendKeys(text);
         }
 
@@ -53,5 +54,12 @@ namespace PossumLabs.Specflow.Selenium
 
         public  string GetCssValue(string prop)
             => WebElement.GetCssValue(prop);
+
+        public void DoubleClick()
+        {
+            var builder = new Actions(WebDriver);
+            var action = builder.DoubleClick(WebElement);
+            action.Build().Perform();
+        }
     }
 }

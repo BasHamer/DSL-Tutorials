@@ -5,22 +5,44 @@ using PossumLabs.Specflow.Core.Variables;
 using PossumLabs.Specflow.Selenium.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace PossumLabs.Specflow.Selenium
 {
-    public class WebDriverManager:RepositoryBase<WebDriver>
+    public class WebDriverManager:RepositoryBase<WebDriver>, IDisposable
     {
-        public WebDriverManager(Interpeter interpeter, ObjectFactory objectFactory, SeleniumGridConfiguration seleniumGridConfiguration) : 
+        public WebDriverManager(
+            Interpeter interpeter, 
+            ObjectFactory objectFactory, 
+            SeleniumGridConfiguration seleniumGridConfiguration) : 
             base(interpeter, objectFactory)
         {
             SeleniumGridConfiguration = seleniumGridConfiguration;
             Screenshots = new List<byte[]>();
+            DefaultDriver = new Lazy<WebDriver>(()=>DefaultDriverFactory());
+            Drivers = new List<RemoteWebDriver>();
+            DefaultSize = new System.Drawing.Size(SeleniumGridConfiguration.Width, SeleniumGridConfiguration.Height);
         }
 
+
+        public void Initialize(Func<WebDriver> defaultDriverFactory)
+        {
+            DefaultDriverFactory = defaultDriverFactory;
+        }
         public SeleniumGridConfiguration SeleniumGridConfiguration { get; }
-        public WebDriver Current { get; set; }
+        public WebDriver Current
+        {
+            get => OverWrittenDriver ?? DefaultDriver.Value;
+        }
+        public void SetCurrentDriver(WebDriver webdriver)
+        { OverWrittenDriver = webdriver; }
+        private WebDriver OverWrittenDriver { get; set; }
+        private Lazy<WebDriver> DefaultDriver { get; set; }
+        public Func<WebDriver> DefaultDriverFactory { get; private set; }
         public Uri BaseUrl { get; set; }
+
+        public bool ActiveDriver => OverWrittenDriver != null || DefaultDriver.IsValueCreated;
 
         public List<byte[]> Screenshots { get; }
 
@@ -33,13 +55,56 @@ namespace PossumLabs.Specflow.Selenium
             //TODO: Config value
             var driver = new RemoteWebDriver(new Uri(SeleniumGridConfiguration.Url), options.ToCapabilities(), TimeSpan.FromSeconds(180));
             //do not change this, the site is a bloody nightmare with overlaying buttons etc.
-            driver.Manage().Window.Size = new System.Drawing.Size(1440, 900);
+            driver.Manage().Window.Size = DefaultSize;
             var allowsDetection = driver as IAllowsFileDetection;
             if (allowsDetection != null)
             {
                 allowsDetection.FileDetector = new LocalFileDetector();
             }
+            Drivers.Add(driver);
             return driver;
         };
+
+        public Size DefaultSize { get; set; }
+
+        private List<RemoteWebDriver> Drivers;
+
+        public DisposableDriverScope DisposableDriver()
+        {
+            var c = OverWrittenDriver;
+            OverWrittenDriver = DefaultDriverFactory();
+            return new DisposableDriverScope(
+                () =>
+                {
+                    var d = ((IWebDriverWrapper)OverWrittenDriver).IWebDriver;
+                    d.Quit();
+                    d.Dispose();
+                    OverWrittenDriver = c;
+                });
+        }
+
+        public void Dispose()
+        {
+            foreach (var d in Drivers)
+            {
+                try
+                {
+                    d.Quit();
+                    d.Dispose();
+                }
+                catch { }
+            }
+        }
+
+        public class DisposableDriverScope : IDisposable
+        {
+            public DisposableDriverScope(Action disposal)
+            {
+
+            }
+            Action Disposal { get; }
+            public void Dispose()
+                => Disposal();
+        }
     }
 }

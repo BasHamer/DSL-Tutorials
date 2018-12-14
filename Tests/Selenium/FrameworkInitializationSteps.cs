@@ -24,7 +24,19 @@ namespace Shim.Selenium
                 this.Interpeter,
                 this.ObjectFactory,
                 new PossumLabs.Specflow.Selenium.Configuration.SeleniumGridConfiguration() );
+            WebDriverManager.Initialize(BuildDriver);
+            SelectorFactory = new LegacyTest.Framework.SpecializedSelectorFactory();
         }
+
+        private SelectorFactory SelectorFactory { get; }
+
+        public WebDriver BuildDriver()
+            => new WebDriver(
+                WebDriverManager.Create(),
+                () => WebDriverManager.BaseUrl,
+                ObjectContainer.Resolve<SeleniumGridConfiguration>(),
+                ObjectContainer.Resolve<RetryExecutor>(),
+                SelectorFactory);
 
         private PossumLabs.Specflow.Selenium.WebDriverManager WebDriverManager { get; }
         private ScreenshotProcessor ScreenshotProcessor { get; set; }
@@ -38,31 +50,13 @@ namespace Shim.Selenium
 
             base.Register(WebDriverManager);
             base.Register(new PossumLabs.Specflow.Selenium.WebValidationFactory(Interpeter));
-            base.Register<SelectorFactory>(new LegacyTest.Framework.SpecializedSelectorFactory());
-        }
-
-        [BeforeScenario("SingleBrowser")]
-        public void SetupBrowser()
-        {
-            WebDriverManager.Current = new WebDriver(
-                WebDriverManager.Create(), 
-                ()=>WebDriverManager.BaseUrl, 
-                ObjectContainer.Resolve<SeleniumGridConfiguration>(), 
-                ObjectContainer.Resolve<RetryExecutor>(),
-                ObjectContainer.Resolve<SelectorFactory>());
-        }
-
-        [AfterScenario]
-        public void CloseBrowsers()
-        {
-            if (WebDriverManager?.Current != null)
-                WebDriverManager.Current.Dispose();
+            base.Register<SelectorFactory>(SelectorFactory);
         }
 
         [AfterStep]
         public void TakeScreenshot()
         {
-            if (WebDriverManager?.Current != null)
+            if (WebDriverManager.ActiveDriver)
             {
                 foreach (var img in WebDriverManager.Current.GetScreenshots())
                 {
@@ -86,10 +80,16 @@ namespace Shim.Selenium
             }
         }
 
+        [AfterScenario(Order =int.MaxValue)]
+        public void DisposeDriverManager()
+        {
+            WebDriverManager.Dispose();
+        }
+
         [AfterScenario(Order = int.MinValue)]
         public void LogHtml()
         {
-            if (WebDriverManager.Current!=null)
+            if (WebDriverManager.ActiveDriver)
             {
                 FileManager.CreateFile(Encoding.UTF8.GetBytes(WebDriverManager.Current.PageSource), "source", "html");
             }

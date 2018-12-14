@@ -26,6 +26,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                         RadioByName,
                         SpecialButtons,
                         ByFollowingMarker,
+                        ByCellBelow,
                     }
                 },
                 {
@@ -62,7 +63,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             };
         }
 
-        private static readonly Core.EqualityComparer<IWebElement> Comparer =
+        protected static readonly Core.EqualityComparer<IWebElement> Comparer =
             new Core.EqualityComparer<IWebElement>((x, y) => x.Location == y.Location && x.TagName == y.TagName);
 
 
@@ -102,7 +103,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         public Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>> Selectors { get; }
         public Dictionary<string, List<Func<string, IEnumerable<string>>>> Prefixes { get; }
 
-        private bool Filter(IWebElement e) =>
+        protected bool Filter(IWebElement e) =>
             e is RemoteWebElement && ((RemoteWebElement)e).Displayed && ((RemoteWebElement)e).Enabled;
 
         virtual protected Element CreateElement(IWebDriver driver, IWebElement e)
@@ -243,6 +244,16 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                 }
                 return new Element[] { };
             };
+        // //tr[*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]]/following-sibling::tr[1]/td[1+count(//*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]/preceding-sibling::*[self::td])]
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByCellBelow =>
+            (target, prefixes, driver) =>
+                prefixes.CrossMultiply().Select(prefix =>
+                    driver
+                        .FindElements(By.XPath($"{prefix}//tr[*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]]/following-sibling::tr[1]/td[1+count(//*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]/preceding-sibling::*[self::td or self::th])]/*[{ActiveElements}]"))
+                        .Where(Filter)
+                        .Distinct(Comparer)
+                        .Select(e => CreateElement(driver, e))
+            ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
 
         //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
         //a[@title='{target}']
@@ -264,7 +275,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                     driver
                         .FindElements(By.XPath(string.IsNullOrWhiteSpace(prefix)?
                             "//[1=2]":
-                            $"{prefix}/self::*[{TextMatch(target)}]"))
+                            $"{prefix}/self::*[{ContentElements} and {TextMatch(target)}]"))
                         .Where(Filter)
                         .Distinct(Comparer)
                         .Select(e => CreateElement(driver, e))
@@ -328,7 +339,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
 
         virtual protected string ContentElements
             => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
-            "or self::p or self::div)";
+            "or self::p or self::div or self::option)";
 
         virtual protected string ActiveElements
             => "( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' )";

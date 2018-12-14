@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace PossumLabs.Specflow.Selenium
 {
-    public class WebDriver : IDisposable, IDomainObject
+    public class WebDriver : IDomainObject, IWebDriverWrapper
     {
         public WebDriver(
             IWebDriver driver, 
@@ -73,6 +73,9 @@ namespace PossumLabs.Specflow.Selenium
                 Driver.Navigate().GoToUrl(RootUrl().AbsoluteUri + url);
         }
 
+        public void Close()
+        => Driver.Close();
+
         public void LeaveFrames()
             => Driver.SwitchTo().DefaultContent();
 
@@ -121,9 +124,6 @@ namespace PossumLabs.Specflow.Selenium
 
                  }
              }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
-
-        public void Close()
-            => Driver.Close();
 
         public IEnumerable<Element> SelectMany(Selector selector)
             => RetryExecutor.RetryFor(() =>
@@ -298,9 +298,6 @@ namespace PossumLabs.Specflow.Selenium
             return wdm;
         }
 
-        public void Dispose()
-            => Driver.Dispose();
-
         public IEnumerable<byte[]> GetScreenshots()
         {
             foreach (var c in Children)
@@ -356,7 +353,7 @@ namespace PossumLabs.Specflow.Selenium
             }
         }
 
-     
+        IWebDriver IWebDriverWrapper.IWebDriver => Driver;
     }
 }
 

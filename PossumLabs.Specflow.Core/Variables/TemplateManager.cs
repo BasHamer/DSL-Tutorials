@@ -36,7 +36,7 @@ namespace PossumLabs.Specflow.Core.Variables
             Templates[t].Add(name?? DefaultKey, template);
         }
 
-        public T ApplyTemplate<T>(T item, string name = null) where T : IDomainObject
+        public T ApplyTemplate<T>(T item, string name = null) where T : IValueObject
         {
             var t = typeof(T);
             if (!Templates.ContainsKey(t) && name != null)
@@ -51,7 +51,7 @@ namespace PossumLabs.Specflow.Core.Variables
 
         public void Initialize(Assembly assembly)
         {
-            var fileInfo = new FileInfo(assembly.FullName);
+            var fileInfo = new FileInfo(assembly.Location);
             var directoryInfo = fileInfo.Directory;
             var dlls = GetAllFiles(directoryInfo, "dll").Select(f=>f.Name).ToList();
             var types = GetAllTypesOf<IDomainObject>(dlls, assembly).Where(t=>!t.IsAbstract && !t.IsInterface).ToList();

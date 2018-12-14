@@ -114,11 +114,23 @@ namespace PossumLabs.Specflow.Core.Variables
                 try
                 {
                     indexResolver = ResolveIndexFactory(parts.First(), out string part, path);
-                    var prop = current.GetType().GetValueMember(part);
-                    if (prop == null)
-                        throw new GherkinException($"The property {part} does not exist on {current.GetType().Name} " +
-                            $"please choose one of these {current.GetType().GetValueMembers().LogFormat(m=>m.Name)}");
-                    current = prop.GetValue(current);
+                    if (current.GetType().GetInterfaces().Any(i=>i == typeof(IDictionary)))
+                    {
+                        var d = (IDictionary)current;
+                        if (d.Contains(part))
+                            current = d[part];
+                        else
+                            throw new GherkinException($"The key {part} does not exist in dictionary " +
+                                $"please choose one of these {d.Keys.AsObjectArray().Select(k=>k.ToString()).LogFormat()}");
+                    }
+                    else
+                    {
+                        var prop = current.GetType().GetValueMember(part);
+                        if(prop == null)
+                            throw new GherkinException($"The property {part} does not exist on {current.GetType().Name} " +
+                                $"please choose one of these {current.GetType().GetValueMembers().LogFormat(m => m.Name)}");
+                        current = prop.GetValue(current);
+                    }
                     current = indexResolver(current);
                     parts = parts.Skip(1);
                 }

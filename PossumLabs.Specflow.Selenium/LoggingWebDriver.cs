@@ -7,10 +7,12 @@ using System.Collections.ObjectModel;
 using OpenQA.Selenium.Remote;
 using System.Drawing;
 using System.Linq;
+using OpenQA.Selenium.Internal;
+using OpenQA.Selenium.Interactions;
 
 namespace PossumLabs.Specflow.Selenium
 {
-    public class LoggingWebDriver : IWebDriver, ITakesScreenshot
+    public class LoggingWebDriver : IWebDriver, ITakesScreenshot, IHasInputDevices, IActionExecutor
     {
         public LoggingWebDriver(IWebDriver driver)
         {
@@ -31,6 +33,15 @@ namespace PossumLabs.Specflow.Selenium
         public string CurrentWindowHandle => Driver.CurrentWindowHandle;
 
         public ReadOnlyCollection<string> WindowHandles => Driver.WindowHandles;
+
+        private IHasInputDevices HasInputDevices => (IHasInputDevices)Driver;
+
+        public IKeyboard Keyboard => HasInputDevices.Keyboard;
+
+        public IMouse Mouse => HasInputDevices.Mouse;
+
+        private IActionExecutor ActionExecutor => (IActionExecutor)Driver;
+        public bool IsActionExecutor => ActionExecutor.IsActionExecutor;
 
         private IWebDriver Driver;
         public string GetLogs() => Messages.LogFormat();
@@ -197,5 +208,11 @@ for (var i=0 ; i<nodesSnapshot.snapshotLength; i++ )
                              i_Elem.Location.Y - s32_ScrollY);
 
         }
+
+        public void PerformActions(IList<ActionSequence> actionSequenceList)
+        => ActionExecutor.PerformActions(actionSequenceList);
+
+        public void ResetInputState()
+        => ActionExecutor.ResetInputState();
     }
 }
