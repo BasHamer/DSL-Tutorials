@@ -34,6 +34,7 @@ namespace PossumLabs.Specflow.Selenium
         public bool Displayed => WebElement.Displayed;
 
         public System.Drawing.Size Size { get => WebElement.Size; }
+        public bool IsEnabled { get => WebElement.Enabled; }
 
         public void Select()
             => WebElement.Click();
@@ -42,7 +43,11 @@ namespace PossumLabs.Specflow.Selenium
 
         public virtual void Enter(string text)
         {
-            WebElement.Clear();
+            try
+            {
+                WebElement.Clear();
+            }
+            catch { }
             if (text == null)
                 return;
             //TODO: v2 Check Boxes

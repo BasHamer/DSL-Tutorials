@@ -40,6 +40,18 @@ namespace PossumLabs.Specflow.Core.Variables
 
         public void SetValue(object source, object value)
         {
+            if(value is Int64 || value is Int32)
+            {
+                var temp = Convert.ToInt64(value);
+                if (temp <= Byte.MaxValue && temp >= Byte.MinValue)
+                    value = Convert.ToByte(value);
+                else if (temp >= Int16.MinValue && temp <= Int16.MaxValue)
+                    value = Convert.ToInt16(value);
+                else if (temp >= Int32.MinValue && temp <= Int32.MaxValue)
+                    value = Convert.ToInt32(value);
+                else
+                    value = temp;
+            }
             if (Property != null)
                 Property.SetValue(source, value);
             else

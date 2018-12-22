@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,9 +43,63 @@ namespace PossumLabs.Specflow.Selenium
         private SelectorFactory SelectorFactory { get; }
         private List<Searcher> SuccessfulSearchers { get; }
 
+        public TableElement GetTables(IEnumerable<string> headers, StringComparison comparison = StringComparison.CurrentCulture )
+        => RetryExecutor.RetryFor(() =>
+        {
+            
+            var loggingWebdriver = new LoggingWebDriver(Driver);
+            try
+            {
+                var possilbeTables = GetTables(headers.Count() - 1).ToList();
+                Func<string, string, bool> comparer = (s1, s2) => s1.Equals(s2, comparison);
+
+                var tableElements = possilbeTables.Where(t => headers.Where(h => !string.IsNullOrEmpty(h)).Except(t.Header.Keys, 
+                    new Core.EqualityComparer<string>(comparer)).None());
+
+                if (tableElements.One())
+                    return tableElements.First();
+                if(tableElements.Many())
+                    throw new Exception($"multiple talbes matched the definition of {headers.LogFormat()}, table headers were {tableElements.LogFormat(t=>$"Table: {t.Header.Keys.LogFormat()}")};");
+                //iframes ? 
+                var iframes = Driver.FindElements(By.XPath("//iframe"));
+                foreach (var iframe in iframes)
+                {
+                    try
+                    {
+                        loggingWebdriver.Log($"Trying iframe:{iframe}");
+                        Driver.SwitchTo().Frame(iframe);
+                        possilbeTables = GetTables(headers.Count() - 1).ToList();
+                        
+                        tableElements = possilbeTables.Where(t => headers.Where(h => !string.IsNullOrEmpty(h)).Except(t.Header.Keys,
+                            new Core.EqualityComparer<string>(comparer)).None());
+
+                        if (tableElements.One())
+                            return tableElements.First();
+                        if (tableElements.Many())
+                            throw new Exception($"multiple talbes matched the definition of {headers.LogFormat()}, table headers were {tableElements.LogFormat(t => $"Table: {t.Header.Keys.LogFormat()}")};");
+                    }
+                    catch
+                    { }
+                }
+                Driver.SwitchTo().DefaultContent();
+                throw new Exception($"table was not found");
+            }
+            finally
+            {
+                if (loggingWebdriver.Screenshots.Any())
+                    Screenshots = loggingWebdriver.Screenshots.Select(x => x.AsByteArray).ToList();
+
+            }
+        }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
+
         public IEnumerable<TableElement> GetTables(int minimumWidth)
         {
-            var xpath = $"//tr[*[self::td or self::th][{minimumWidth}] and (.|parent::tbody)[1]/parent::table]/ancestor::table[1]";
+            var xpath = $"//table[" +
+                $"tr[th[{minimumWidth}] or td[{minimumWidth}]] or " +
+                $"tbody/tr[th[{minimumWidth}] or td[{minimumWidth}]] or " +
+                $"thead/tr[th[{minimumWidth}] or td[{minimumWidth}]]" +
+                $"]";
+            //var xpath = $"//tr[*[self::td or self::th][{minimumWidth}] and (.|parent::tbody)[1]/parent::table]/ancestor::table[1]";
             var tables = Driver.
                 FindElements(By.XPath(xpath))
                 .Select(t => new TableElement(t, Driver)).ToList();
@@ -53,9 +108,9 @@ namespace PossumLabs.Specflow.Selenium
             {
                 table.Ordinal = Ordinal++;
                 table.Xpath = xpath;
-                table.Setup();
             }
-            return tables;
+            tables.AsParallel().ForAll(table => table.Setup());
+            return tables.Where(t=>t.IsValid);
         }
 
         private SeleniumGridConfiguration SeleniumGridConfiguration { get; }
@@ -150,7 +205,7 @@ namespace PossumLabs.Specflow.Selenium
                         { }
                     }
                     Driver.SwitchTo().DefaultContent();
-                    throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}, maybe try one of these identifiers {GetIdentifiers().LogFormat()}");
+                    return new List<Element>();
                 }
                 finally
                 {
@@ -191,7 +246,7 @@ namespace PossumLabs.Specflow.Selenium
                 }
                 else if (results.Many())
                 {
-                    //HACK: HACK HELL
+                    //lets make sure none are hidden
                     var filterHidden = results
                         .Select(e => new { e, o = loggingWebdriver.GetElementFromPoint(e.Location.X + 1, e.Location.Y + 1) })
                         .Where(p => p.e.Tag == p.o?.TagName && p.e.Location == p.o?.Location);
@@ -202,7 +257,14 @@ namespace PossumLabs.Specflow.Selenium
                         wrapper.Element = results.First();
                         return;
                     }
-
+                    //check if they are logical duplicates.
+                    if (results.GroupBy(e => e.Id).One())
+                    {
+                        SuccessfulSearchers.Add(searcher);
+                        loopState.Break();
+                        wrapper.Element = results.First();
+                        return;
+                    }
                     var items = results.Select(e => $"{e.Tag}@{e.Location.X},{e.Location.Y}").LogFormat();
                     loopState.Break();
                     wrapper.Exception = new Exception($"Multiple results were found using {searcher.LogFormat()}");
@@ -239,7 +301,7 @@ namespace PossumLabs.Specflow.Selenium
             var index = 0;
             foreach (var w in wrappers)
             {
-                if (w.Element != null)
+                if (w.Elements != null)
                     return w.Elements;
                 if (w.Exception != null)
                     throw new AggregateException($"Error throw on xpath {index}", w.Exception);
@@ -305,7 +367,14 @@ namespace PossumLabs.Specflow.Selenium
                     yield return s;
             foreach (var s in Screenshots)
                 yield return s;
-            yield return ((ITakesScreenshot)Driver).GetScreenshot().AsByteArray;
+            byte[] data = null; 
+            try
+            {
+                data = ((ITakesScreenshot)Driver).GetScreenshot().AsByteArray;
+            }
+            catch (OpenQA.Selenium.UnhandledAlertException) { }
+            if (data != null)
+                yield return data;
         }
 
         public void ResetScreenshots()

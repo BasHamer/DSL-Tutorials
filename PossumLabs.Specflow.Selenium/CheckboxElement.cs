@@ -18,19 +18,25 @@ namespace PossumLabs.Specflow.Selenium
         {
             if (WebElement.Selected)
             {
-                if (string.Equals(text, "checked", StringComparison.InvariantCultureIgnoreCase))
+                if (IsProbablychecked(text))
                     noop();
                 else
                     WebElement.Click();
             }
             else
             {
-                if (string.Equals(text, "checked", StringComparison.InvariantCultureIgnoreCase))
+                if (IsProbablychecked(text))
                     WebElement.Click();
                 else
                     noop();
             }
         }
+
+        private bool IsProbablychecked(string text)
+            =>
+            string.Equals(text, "checked", StringComparison.InvariantCultureIgnoreCase) ||
+            string.Equals(text, "true", StringComparison.InvariantCultureIgnoreCase);
+
 
         public override List<string> Values => new List<string>
         {

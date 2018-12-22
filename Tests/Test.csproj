@@ -151,16 +151,6 @@
     <Compile Include="DomainObjects\Employee.cs" />
     <Compile Include="DomainObjects\HtmlInjection .cs" />
     <Compile Include="DomainObjects\User.cs" />
-    <Compile Include="Features\Amazon.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Amazon.feature</DependentUpon>
-    </Compile>
-    <Compile Include="Features\Envision.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Envision.feature</DependentUpon>
-    </Compile>
     <Compile Include="Features\ExistingData.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -171,30 +161,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>IFrames.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\LinkedIn.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>LinkedIn.feature</DependentUpon>
-    </Compile>
     <Compile Include="Features\RowSelector.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>RowSelector.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\SalesForce.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SalesForce.feature</DependentUpon>
-    </Compile>
     <Compile Include="Features\Selector.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Selector.feature</DependentUpon>
-    </Compile>
-    <Compile Include="Features\ServiceNow.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ServiceNow.feature</DependentUpon>
     </Compile>
     <Compile Include="Features\Tables.feature.cs">
       <AutoGen>True</AutoGen>
@@ -276,14 +251,6 @@
     <None Include="DomainObjects\Templates\Employee.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Features\Amazon.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Amazon.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\Envision.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Envision.feature.cs</LastGenOutput>
-    </None>
     <None Include="Features\ExistingData.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ExistingData.feature.cs</LastGenOutput>
@@ -295,10 +262,6 @@
     <None Include="Features\IFrames.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>IFrames.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\LinkedIn.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>LinkedIn.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\phpTravels.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -312,17 +275,9 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>RowSelector.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\SalesForce.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SalesForce.feature.cs</LastGenOutput>
-    </None>
     <None Include="Features\Selector.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Selector.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\ServiceNow.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>ServiceNow.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Tables.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

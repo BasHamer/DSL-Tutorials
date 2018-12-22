@@ -72,11 +72,14 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         {
             var t = new T();
             if (Parser.IsId.IsMatch(constructor))
-                t.Init(constructor, By.Id(Parser.IsId.Match(constructor).Groups[1].Value));
+                t.Init(Parser.IsId.Match(constructor).Groups[1].Value,
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> { ById });
             else if (Parser.IsElement.IsMatch(constructor))
-                t.Init(constructor, By.TagName(Parser.IsElement.Match(constructor).Groups[1].Value));
+                t.Init(Parser.IsElement.Match(constructor).Groups[1].Value, 
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>{ ByTag });
             else if (Parser.IsClass.IsMatch(constructor))
-                t.Init(constructor, By.ClassName(Parser.IsClass.Match(constructor).Groups[1].Value));
+                t.Init(Parser.IsClass.Match(constructor).Groups[1].Value,
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> { ByClass });
             else if (Selectors.ContainsKey(t.Type) && Selectors[t.Type].Any())
                 t.Init(constructor, Selectors[t.Type]);
             else
@@ -88,17 +91,26 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         {
             var t = new T();
             if (Parser.IsId.IsMatch(constructor))
-                t.Init(constructor, $"//*[id={Parser.IsId.Match(constructor).Groups[1].Value.XpathEncode()}]");
+                t.Init(constructor, $"//*[@id='{Parser.IsId.Match(constructor).Groups[1].Value}']");
             else if (Parser.IsElement.IsMatch(constructor))
                 t.Init(constructor, $"//{Parser.IsElement.Match(constructor).Groups[1].Value}");
             else if (Parser.IsClass.IsMatch(constructor))
-                t.Init(constructor, $"//*[class={Parser.IsClass.Match(constructor).Groups[1].Value.XpathEncode()}]");
+                t.Init(constructor, $"//*[contains(concat(' ', normalize-space(@class), ' '), ' {Parser.IsClass.Match(constructor).Groups[1].Value} ')]");
             else if (Prefixes.ContainsKey(t.Type) && Prefixes[t.Type].Any())
                 t.Init(constructor, Prefixes[t.Type]);
             else
                 throw new GherkinException($"the prefix type of '{t.Type}' is not supported.");
             return t;
         }
+
+        protected IEnumerable<Element> Permutate(IEnumerable<SelectorPrefix> prefixes, IWebDriver driver, Func<string, string> xpathMaker)
+            => prefixes.CrossMultiply().Select(prefix =>
+                    driver
+                        .FindElements(By.XPath(xpathMaker(prefix)))
+                        .Where(Filter)
+                        .Distinct(Comparer)
+                        .Select(e => CreateElement(driver, e))
+                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
 
         public Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>> Selectors { get; }
         public Dictionary<string, List<Func<string, IEnumerable<string>>>> Prefixes { get; }
@@ -145,68 +157,37 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         //<label>target<input type = "text" ></ label >
         //label[text()='{target}']/*[self::input or self::textarea or self::select]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByNestedInLabel =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                    .FindElements(By.XPath($"{prefix}//label[{TextMatch(target)}]/*[{ActiveElements}]"))
-                    .Where(Filter)
-                    .Distinct(Comparer)
-                    .Select(e => CreateElement(driver, e))
-                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//label[{TextMatch(target)}]/*[{ActiveElements}]");
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> SpecialButtons =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                    .FindElements(By.XPath($"{prefix}//*[(self::input or self::button) and @type={target.XpathEncode()} and (@type='submit' or @type='reset')]"))
-                    .Where(Filter)
-                    .Distinct(Comparer)
-                    .Select(e => CreateElement(driver, e))
-                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[(self::input or self::button) and @type={target.XpathEncode()} and (@type='submit' or @type='reset')]");
 
         //<input aria-label="target">
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and @aria-label='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByNested =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath(
-                            $"{prefix}//*[{ActiveElements} and (" +
-                                $"{TextMatch(target)} or " +
-                                $"label[{TextMatch(target)}] or " +
-                                $"((@type='button' or @type='submit' or @type='reset') and @value={target.XpathEncode()}) or " +
-                                $"@name={target.XpathEncode()} or " +
-                                $"@aria-label={target.XpathEncode()} or " +
-                                $"(@type='radio' and @value={target.XpathEncode()})" +
-                            $")]"))
-                        .Where(Filter)
-                        .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
-                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{ActiveElements} and (" +
+                    $"{TextMatch(target)} or " +
+                    $"label[{TextMatch(target)}] or " +
+                    $"((@type='button' or @type='submit' or @type='reset') and @value={target.XpathEncode()}) or " +
+                    $"@name={target.XpathEncode()} or " +
+                    $"@aria-label={target.XpathEncode()} or " +
+                    $"(@type='radio' and @value={target.XpathEncode()})" +
+                $")]");
 
         //<a href = "https://www.w3schools.com/html/" >target</a>
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem') and text()='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByText =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath($"{prefix}//*[{ActiveElements} and {TextMatch(target)}]"))
-                        .Where(Filter)
-                        .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
-            ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{ActiveElements} and {TextMatch(target)}]");
 
         //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
         //a[@title='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByTitle =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath($"{prefix}//a[@title={target.XpathEncode()}]"))
-                        .Where(Filter)
-                        .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
-            ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//a[@title={target.XpathEncode()}]");
 
         //<input type="radio" id="i1" name="target"
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> RadioByName =>
@@ -246,58 +227,53 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             };
         // //tr[*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]]/following-sibling::tr[1]/td[1+count(//*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]/preceding-sibling::*[self::td])]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByCellBelow =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath($"{prefix}//tr[*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]]/following-sibling::tr[1]/td[1+count(//*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]/preceding-sibling::*[self::td or self::th])]/*[{ActiveElements}]"))
-                        .Where(Filter)
-                        .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
-            ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//tr[*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]]/following-sibling::tr[1]/td[1+count(//*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]/preceding-sibling::*[self::td or self::th])]/*[{ActiveElements}]");
 
         //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
         //a[@title='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByFollowingMarker =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath($"{prefix}//*[{MarkerElements} and {TextMatch(target)}]/following-sibling::*[not(self::br or self::hr)][1][{ActiveElements}]"))
-                        .Where(Filter)
-                        .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
-            ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{MarkerElements} and {TextMatch(target)}]/following-sibling::*[not(self::br or self::hr)][1][{ActiveElements}]");
+
         #endregion
 
         #region content
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContentSelf =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath(string.IsNullOrWhiteSpace(prefix)?
-                            "//[1=2]":
-                            $"{prefix}/self::*[{ContentElements} and {TextMatch(target)}]"))
-                        .Where(Filter)
-                        .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
-                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                string.IsNullOrWhiteSpace(prefix) ?
+                    "//*[1=2]" : //junk, valid xpath that never returns anything. used for prefixes.
+                    $"{prefix}/self::*[{ContentElements} and {TextMatch(target)}]");
+
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContent =>
-            (target, prefixes, driver) =>
-                prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath(
-                            $"{prefix}//*[{ContentElements} and {TextMatch(target)}]"))
-                        .Where(Filter)
-                        .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
-                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{ContentElements} and {TextMatch(target)}]");
+
+        #endregion
+
+
+        #region id & class & tag selectors
+        //https://stackoverflow.com/questions/1604471/how-can-i-find-an-element-by-css-class-with-xpath
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByClass =>
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[contains(concat(' ', normalize-space(@class), ' '), ' {target} ')]");
+
+
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByTag =>
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//{target}");
+
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ById =>
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[@id = {target.XpathEncode()}]");
 
         #endregion
 
         #region Prefixes
         virtual protected Func<string, IEnumerable<string>> TableRow =>
             (target) => new List<string>(){
-                $"//tr[td[normalize-space() = {target.XpathEncode()}]]",
+                $"//tr[td[{TextMatch(target)}]]",
                 $"//tr[td/*[{MarkerElements} and {TextMatch(target)}]]",
                 $"//tr[td/*[@value = {target.XpathEncode()}]]",
                 $"//tr[td/select/option[@selected='selected' and {TextMatch(target)}]]"
@@ -332,7 +308,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         #endregion
 
         virtual protected string TextMatch(string target)
-            => $"text()[normalize-space(.)={target.XpathEncode()}]";
+            => $"text()[normalize-space(.)={target.XpathEncode()} or normalize-space(.)={$"{target}:".XpathEncode()}]";
 
         virtual protected string MarkerElements
             => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";

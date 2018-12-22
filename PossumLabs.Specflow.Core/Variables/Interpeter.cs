@@ -56,7 +56,7 @@ namespace PossumLabs.Specflow.Core.Variables
         }
 
         public object Resolve(string path) 
-            => Walker(path.Split('.'));
+            => (path.Last() == '.')? path : Walker(path.Split('.'));
 
         public object Get(Type t, string path) 
             => IsVarialbe(path) ? Convert(t, Resolve(path)) : Convert(t, path);

@@ -8,12 +8,6 @@ namespace PossumLabs.Specflow.Selenium.Selectors
 {
     public abstract class Selector
     {
-        public void Init(string constructor, By by)
-        {
-            Constructor = constructor;
-            By = by;
-        }
-
         public void Init(string label, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> sequencedByOrder)
         {
             Label = label;

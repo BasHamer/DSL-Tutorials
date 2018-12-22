@@ -29,7 +29,7 @@ namespace PossumLabs.Specflow.Selenium
 
                 foreach( var column in rowValidation.Skip(1))
                 {
-                    var e = table.GetElement(rowId, column.Key);
+                    var e = table.GetActiveElement(rowId, column.Key);
                     var result = column.Value.Predicate(e);
                     if (result != null)
                         return result;
