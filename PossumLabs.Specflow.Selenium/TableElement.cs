@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OpenQA.Selenium;
+using PossumLabs.Specflow.Core;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -12,7 +13,7 @@ namespace PossumLabs.Specflow.Selenium
         {
             RootElement = table;
             Driver = driver;
-
+            IsValid = true;
             Header = new Dictionary<string, int>();
         }
 
@@ -24,8 +25,6 @@ namespace PossumLabs.Specflow.Selenium
         {
             var xpath = $"{Prefix}/tr[td[{TextMatch(key)}] or td/*[{TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
             var count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
-            if (count == 1)
-                throw new Exception("Found header row as the target row");
             return count;
         }
 
@@ -35,7 +34,7 @@ namespace PossumLabs.Specflow.Selenium
 
         //HACK: copy paster
         virtual protected string ActiveElements
-           => "( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' )";
+           => "(not(@type='hidden') and ( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' ))";
 
         //HACK: copy paster
         virtual protected Element CreateElement(IWebDriver driver, IWebElement e)
@@ -47,13 +46,45 @@ namespace PossumLabs.Specflow.Selenium
                 var elements = driver.FindElements(By.XPath($"//input[@type='radio' and @name='{e.GetAttribute("name")}']"));
                 return new RadioElement(elements, driver);
             }
+            if (e.TagName == "input" && e.GetAttribute("type") == "checkbox")
+            {
+                return new CheckboxElement(e, driver);
+            }
             return new Element(e, driver);
         }
 
-        public Element GetElement(int rowId, string columnId)
+        public Element GetActiveElement(int rowId, string columnId)
         {
-            var xpath = $"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{ActiveElements}]";
-            return CreateElement(Driver, Driver.FindElement(By.XPath(xpath)));
+            var elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            throw new Exception("no active element found in cell");
+        }
+
+        public Element GetContentElement(int rowId, string columnId)
+        {
+            var elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{ActiveElements}]"));
+            if (elements.One())
+                return CreateElement(Driver, elements.First());
+            throw new Exception("no active element found in cell");
         }
 
         public string Id { get; private set; }
@@ -64,37 +95,63 @@ namespace PossumLabs.Specflow.Selenium
 
         public string Xpath { get; set; }
 
+        public bool IsValid { get; set; }
+
         public void Setup()
         {
-            var Id = RootElement.GetAttribute("id");
-            if (string.IsNullOrEmpty(Id))
-                Prefix = $"{Xpath}[{Ordinal}]";
-            else
-                Prefix = $"//table[@id={Id.XpathEncode()}]";
-
-            if (Driver.FindElements(By.XPath($"{Prefix}/tbody")).Any())
-                Prefix += "/tbody";
-
-            var headers = Driver.FindElements(By.XPath($"{Prefix}/tr[1]/*[self::td or self::th]"));
-
-            var index = 1;
-            foreach(var h in headers)
+            try
             {
-                if (string.IsNullOrWhiteSpace(h.Text))
+
+                var Id = RootElement.GetAttribute("id");
+                if (string.IsNullOrEmpty(Id))
+                    Prefix = $"({Xpath})[{Ordinal}]";
+                else
+                    Prefix = $"//table[@id={Id.XpathEncode()}]";
+
+                var bodyPrefix = Prefix;
+                if (Driver.FindElements(By.XPath($"{Prefix}/tbody")).Any())
+                    bodyPrefix += "/tbody";
+
+                var headPrefix = Prefix;
+                if (Driver.FindElements(By.XPath($"{Prefix}/thead")).Any())
+                    headPrefix += "/thead";
+                else
+                    headPrefix = bodyPrefix;
+
+                Prefix = bodyPrefix;
+
+                var headers = Driver.FindElements(By.XPath($"{headPrefix}/tr[1]/*[self::td or self::th]"));
+
+                var index = 0;
+                foreach (var h in headers)
                 {
-                    var elements = Driver.FindElements(By.XPath($"{Prefix}/tr[1]//*[text() or @value]"));
-                    foreach (var e in elements)
+                    index++;
+                    if (string.IsNullOrWhiteSpace(h.Text))
                     {
-                        var text = e.Text;
-                        if (string.IsNullOrWhiteSpace(text))
-                            text = e.GetAttribute("value");
-                        Header.Add(text , index);
+                        var elements = Driver.FindElements(By.XPath($"{headPrefix}/tr[1]/*[self::td or self::th][{index}]/*[self::div or self::ul]/*[text() or @value]"));
+                        foreach (var e in elements)
+                        {
+                            var text = e.Text;
+                            if (string.IsNullOrWhiteSpace(text))
+                                text = e.GetAttribute("value");
+                            text = text ?? string.Empty;
+                            if (Header.ContainsKey(text))
+                                continue;
+                            Header.Add(text, index);
+                        }
+                    }
+                    else
+                    {
+                        if (Header.ContainsKey(h.Text))
+                            continue;
+                        Header.Add(h.Text, index);
                     }
                 }
-                else
-                    Header.Add(h.Text, index);
-                index++;
-            }            
+            }
+            catch
+            {
+                IsValid = false;
+            }
         }
     }
 }

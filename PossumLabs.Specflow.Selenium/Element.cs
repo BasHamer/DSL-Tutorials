@@ -7,12 +7,13 @@ using OpenQA.Selenium.Support.UI;
 using PossumLabs.Specflow.Core.Validations;
 using System.Drawing;
 using PossumLabs.Specflow.Core;
+using OpenQA.Selenium.Interactions;
 
 namespace PossumLabs.Specflow.Selenium
 {
     public class Element
     {
-        protected IWebElement WebElement { get; }
+        public IWebElement WebElement { get; }
         protected IWebDriver WebDriver { get; }
 
         public Element(IWebElement element, IWebDriver driver)
@@ -26,6 +27,14 @@ namespace PossumLabs.Specflow.Selenium
         public IEnumerable<string> Classes => WebElement.GetAttribute("class").Split(' ').Select(x=>x.Trim());
         public string Id => WebElement.GetAttribute("id");
         public virtual List<string> Values => new List<string>() { WebElement.GetAttribute("value"), WebElement.Text };
+        public virtual string Value => WebElement.GetAttribute("value") ?? WebElement.Text;
+
+        public string GetAttribute(string name) => WebElement.GetAttribute(name);
+
+        public bool Displayed => WebElement.Displayed;
+
+        public System.Drawing.Size Size { get => WebElement.Size; }
+        public bool IsEnabled { get => WebElement.Enabled; }
 
         public void Select()
             => WebElement.Click();
@@ -34,10 +43,14 @@ namespace PossumLabs.Specflow.Selenium
 
         public virtual void Enter(string text)
         {
+            try
+            {
+                WebElement.Clear();
+            }
+            catch { }
             if (text == null)
-                throw new GherkinException("you can't enter 'null' into an element.");
+                return;
             //TODO: v2 Check Boxes
-            WebElement.Clear();
             WebElement.SendKeys(text);
         }
 
@@ -46,5 +59,12 @@ namespace PossumLabs.Specflow.Selenium
 
         public  string GetCssValue(string prop)
             => WebElement.GetCssValue(prop);
+
+        public void DoubleClick()
+        {
+            var builder = new Actions(WebDriver);
+            var action = builder.DoubleClick(WebElement);
+            action.Build().Perform();
+        }
     }
 }

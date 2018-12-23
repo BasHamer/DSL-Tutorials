@@ -38,10 +38,26 @@ namespace PossumLabs.Specflow.Core.Files
         private string ExampleName { get; set; }
         private DirectoryInfo BaseFolder { get; }
 
+        public object GetPath(IFile file)
+        {
+            throw new NotImplementedException();
+        }
+
         private int Order { get; set; }
 
         private string GetFileName(string type, string extension)
             => $"{FeatureName}-{ScenarioName}-{ExampleName}-{Start.ToString("yyyyMMdd_HHmmss")}-{Order++}-{type}.{extension}";
+
+        public Uri Persist(IFile file)
+        {
+            Uri path = null;
+            using (var fileStream = File.Create(path.ToString()))
+            {
+                file.Stream.Seek(0, SeekOrigin.Begin);
+                file.Stream.CopyTo(fileStream);
+            }
+            return path;
+        }
 
         public Uri CreateFile(byte[] file, string type, string extention)
         {

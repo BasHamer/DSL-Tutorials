@@ -25,25 +25,18 @@ namespace LegacyTest.Selenium
  
             foreach (var row in table.Rows)
             {
-                var rowId = tableElement.GetRowId(row[0]);
+                var rowId = tableElement.GetRowId(Interpeter.Get<string>(row[0]));
 
                 for(int c = 1; c < table.Header.Count; c++)
                 {
-                    var e = tableElement.GetElement(rowId, table.Header.ToList()[c]);
+                    var e = tableElement.GetActiveElement(rowId, table.Header.ToList()[c]);
                     e.Enter(base.Interpeter.Get<string>(row[c]));
                 }
             }
         }
 
         private TableElement FindTable(Table table)
-        {
-            var possilbeTables = base.WebDriver.GetTables(table.Header.Count() - 1).ToList();
-            //HACK: ignoring case
-            var tableElement = possilbeTables.FirstOrDefault(t => table.Header.Where(h=>!string.IsNullOrEmpty(h)).Except(t.Header.Keys).None());
-            if (tableElement == null)
-                throw new Exception($"Unable to find the table, {possilbeTables.Count()} tables detected.");
-            return tableElement;
-        }
+            => base.WebDriver.GetTables(table.Header);
 
 
         //TODO:pick one
@@ -51,10 +44,7 @@ namespace LegacyTest.Selenium
         [Then(@"the Table has values")]
         public void ThenTheTableHasValues(TableValidation table)
         {
-            var possilbeTables = base.WebDriver.GetTables(table.Header.Count() - 1).ToList();
-            var tableElement = possilbeTables.FirstOrDefault(t => table.Header.Where(h => !string.IsNullOrEmpty(h)).Except(t.Header.Keys).None());
-            if (tableElement == null)
-                throw new Exception($"Unable to find the table, {possilbeTables.Count()} tables detected.");
+            var tableElement = base.WebDriver.GetTables(table.Header);
             var e = table.Validate(tableElement);
             if (e != null)
                 throw e;
