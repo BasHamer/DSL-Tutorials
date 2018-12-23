@@ -19,6 +19,8 @@ namespace PossumLabs.Specflow.Core.Variables
         public string Name => (Property != null) ? Property.Name : Field.Name;
         public Type Type => (Property != null) ? Property.PropertyType : Field.FieldType;
 
+        public bool CanRead => (Property != null) ? Property.CanRead : true;
+
         public bool HasValue(object source)
         {
             var value = GetValue(source);

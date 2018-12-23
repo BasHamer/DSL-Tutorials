@@ -1,8 +1,4 @@
 ﻿using BoDi;
-using Microsoft.Extensions.Configuration;
-using PossumLabs.Specflow.Core;
-using PossumLabs.Specflow.Core.Files;
-using PossumLabs.Specflow.Core.Logging;
 using System;
 using System.IO;
 using System.Linq;

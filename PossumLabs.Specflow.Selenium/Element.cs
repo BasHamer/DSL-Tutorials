@@ -6,6 +6,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using PossumLabs.Specflow.Core.Validations;
 using System.Drawing;
+using PossumLabs.Specflow.Core;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -33,6 +34,8 @@ namespace PossumLabs.Specflow.Selenium
 
         public virtual void Enter(string text)
         {
+            if (text == null)
+                throw new GherkinException("you can't enter 'null' into an element.");
             //TODO: v2 Check Boxes
             WebElement.Clear();
             WebElement.SendKeys(text);

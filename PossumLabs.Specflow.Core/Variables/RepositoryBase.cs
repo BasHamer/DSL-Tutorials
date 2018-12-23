@@ -63,5 +63,10 @@ namespace PossumLabs.Specflow.Core.Variables
             }
             return values.MapTo<T>(Interpeter, ObjectFactory);
         }
+
+        public Dictionary<string, object> AsDictionary()
+            => dictionary.ToDictionary(
+                x => x.Key, 
+                x => (object)x.Value);
     }
 }
