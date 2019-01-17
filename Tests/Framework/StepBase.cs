@@ -26,16 +26,14 @@ namespace LegacyTest
         protected FeatureContext FeatureContext { get => ObjectContainer.Resolve<FeatureContext>(); }
 
 
-        protected Interpeter Interpeter => ScenarioContext.Get<Interpeter>((typeof(Interpeter).FullName));
-        protected ActionExecutor Executor => ScenarioContext.Get<ActionExecutor>((typeof(ActionExecutor).FullName));
-        protected ILog Log => ScenarioContext.Get<ILog>((typeof(ILog).FullName));
-        protected ObjectFactory ObjectFactory => ScenarioContext.Get<ObjectFactory>(typeof(ObjectFactory).FullName);
-        protected TemplateManager TemplateManager => ScenarioContext.Get<TemplateManager>(typeof(TemplateManager).FullName);
-        protected FileManager FileManager => ScenarioContext.Get<FileManager>(typeof(FileManager).FullName);
+        protected Interpeter Interpeter => ObjectContainer.Resolve<Interpeter>();
+        protected ActionExecutor Executor => ObjectContainer.Resolve<ActionExecutor>();
+        protected ILog Log => ObjectContainer.Resolve<ILog>();
+        protected ObjectFactory ObjectFactory => ObjectContainer.Resolve<ObjectFactory>();
+        protected TemplateManager TemplateManager => ObjectContainer.Resolve<TemplateManager>();
+        protected FileManager FileManager => ObjectContainer.Resolve<FileManager>();
 
-        internal void Register<T>(T item)
-        {
-            ScenarioContext.Add(typeof(T).FullName, item);
-        }
+        internal void Register<T>(T item) where T : class
+            => ObjectContainer.RegisterInstanceAs<T>(item, dispose: true);
     }
 }

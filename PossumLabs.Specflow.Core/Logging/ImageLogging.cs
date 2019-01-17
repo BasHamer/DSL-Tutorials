@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PossumLabs.Specflow.Core.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -9,16 +10,16 @@ namespace PossumLabs.Specflow.Core.Logging
 {
     public class ImageLogging
     {
-        public ImageLogging(double sizePercentage=.05, string color = "DarkOrange" )
+        public ImageLogging(ImageLoggingConfig config )
         {
-            FontPercentage = sizePercentage;
+            FontPercentage = config.SizePercentage;
             var properties = typeof(Brushes).GetProperties();
-            if (properties.Any(p => p.Name == "DarkOrange"))
-                Brush = (Brush)properties.First(p => p.Name == "DarkOrange").GetValue(null);
+            if (properties.Any(p => p.Name == config.Color))
+                Brush = (Brush)properties.First(p => p.Name == config.Color).GetValue(null);
             else
-                throw new GherkinException($"The Brush color of '{color}' is invalid, please use one of these {properties.LogFormat(p => p.Name)}");
-            if (sizePercentage < 0 || sizePercentage > 1)
-                throw new GherkinException($"The sizePercentage of {sizePercentage} is invalid, please provide a value between 0 and 1");
+                throw new GherkinException($"The Brush color of '{config.Color}' is invalid, please use one of these {properties.LogFormat(p => p.Name)}");
+            if (config.SizePercentage < 0 || config.SizePercentage > 1)
+                throw new GherkinException($"The sizePercentage of {config.SizePercentage} is invalid, please provide a value between 0 and 1");
         }
 
         private double FontPercentage { get; }

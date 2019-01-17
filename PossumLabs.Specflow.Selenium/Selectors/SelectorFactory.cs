@@ -80,6 +80,9 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             else if (Parser.IsClass.IsMatch(constructor))
                 t.Init(Parser.IsClass.Match(constructor).Groups[1].Value,
                     new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> { ByClass });
+            else if (Parser.IsXPath.IsMatch(constructor))
+                t.Init(Parser.IsXPath.Match(constructor).Groups[1].Value,
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>> { ByXpath });
             else if (Selectors.ContainsKey(t.Type) && Selectors[t.Type].Any())
                 t.Init(constructor, Selectors[t.Type]);
             else
@@ -103,6 +106,14 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             return t;
         }
 
+        protected IEnumerable<Element> UnfilteredPermutate(IEnumerable<SelectorPrefix> prefixes, IWebDriver driver, Func<string, string> xpathMaker)
+            => prefixes.CrossMultiply().Select(prefix =>
+                    driver
+                        .FindElements(By.XPath(xpathMaker(prefix)))
+                        .Distinct(Comparer)
+                        .Select(e => CreateElement(driver, e))
+                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+
         protected IEnumerable<Element> Permutate(IEnumerable<SelectorPrefix> prefixes, IWebDriver driver, Func<string, string> xpathMaker)
             => prefixes.CrossMultiply().Select(prefix =>
                     driver
@@ -115,7 +126,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         public Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>> Selectors { get; }
         public Dictionary<string, List<Func<string, IEnumerable<string>>>> Prefixes { get; }
 
-        protected bool Filter(IWebElement e) =>
+        virtual protected bool Filter(IWebElement e) =>
             e is RemoteWebElement && ((RemoteWebElement)e).Displayed && ((RemoteWebElement)e).Enabled;
 
         virtual protected Element CreateElement(IWebDriver driver, IWebElement e)
@@ -256,17 +267,21 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         #region id & class & tag selectors
         //https://stackoverflow.com/questions/1604471/how-can-i-find-an-element-by-css-class-with-xpath
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByClass =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+            (target, prefixes, driver) => UnfilteredPermutate(prefixes, driver, (prefix) => 
                 $"{prefix}//*[contains(concat(' ', normalize-space(@class), ' '), ' {target} ')]");
 
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByTag =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+            (target, prefixes, driver) => UnfilteredPermutate(prefixes, driver, (prefix) => 
                 $"{prefix}//{target}");
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ById =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+            (target, prefixes, driver) => UnfilteredPermutate(prefixes, driver, (prefix) => 
                 $"{prefix}//*[@id = {target.XpathEncode()}]");
+
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByXpath =>
+            (target, prefixes, driver) => UnfilteredPermutate(prefixes, driver, (prefix) =>
+                $"{prefix}{target}");
 
         #endregion
 

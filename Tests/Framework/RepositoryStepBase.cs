@@ -19,7 +19,7 @@ namespace LegacyTest
         {
         }
 
-        protected RepositoryBase<T> Repository => ScenarioContext.Get<RepositoryBase<T>>((typeof(RepositoryBase<T>).FullName));
+        protected RepositoryBase<T> Repository => ObjectContainer.Resolve<RepositoryBase<T>>();
 
         protected T this[string name]
         {

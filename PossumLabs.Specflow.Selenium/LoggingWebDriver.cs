@@ -9,19 +9,22 @@ using System.Drawing;
 using System.Linq;
 using OpenQA.Selenium.Internal;
 using OpenQA.Selenium.Interactions;
+using PossumLabs.Specflow.Core.Logging;
 
 namespace PossumLabs.Specflow.Selenium
 {
     public class LoggingWebDriver : IWebDriver, ITakesScreenshot, IHasInputDevices, IActionExecutor
     {
-        public LoggingWebDriver(IWebDriver driver)
+        public LoggingWebDriver(IWebDriver driver, MovieLogger movieLogger)
         {
             Driver = driver;
             Messages = new List<string>();
             Screenshots = new List<Screenshot>();
+            MovieLogger = movieLogger;
         }
 
         private List<string> Messages { get; }
+        private MovieLogger MovieLogger { get; }
         public List<Screenshot> Screenshots { get; }
 
         public string Url { get => Driver.Url; set => Driver.Url = value; }
@@ -61,10 +64,7 @@ namespace PossumLabs.Specflow.Selenium
             Messages.Add(by.ToString());
             var element = Driver.FindElement(by);
             if (element != null && by.ToString().StartsWith("By.XPath: "))
-            {
-                var xpath = by.ToString().Substring("By.XPath: ".Length);
-                Screenshots.Add(Preview(xpath));
-            }
+                VisualLog(by);
             return element;
         }
 
@@ -72,12 +72,17 @@ namespace PossumLabs.Specflow.Selenium
         {
             Messages.Add(by.ToString());
             var elements = Driver.FindElements(by);
-            if(elements!=null && elements.Any() && by.ToString().StartsWith("By.XPath: "))
-            {
-                var xpath = by.ToString().Substring("By.XPath: ".Length);
-                Screenshots.Add(Preview(xpath));
-            }
+            if (elements != null && elements.Any() && by.ToString().StartsWith("By.XPath: "))
+                VisualLog(by);
             return elements;
+        }
+
+        private void VisualLog(By by)
+        {
+            var xpath = by.ToString().Substring("By.XPath: ".Length);
+            var img = Preview(xpath);
+            MovieLogger.AddScreenShot(img.AsByteArray);
+            Screenshots.Add(img);
         }
 
         public void Log(string message)

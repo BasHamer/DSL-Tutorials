@@ -17,10 +17,10 @@ namespace Shim.Selenium
         public WebDriverStepBase(IObjectContainer objectContainer) : base(objectContainer)
         { }
 
-        protected WebDriver WebDriver => ScenarioContext.Get<WebDriverManager>((typeof(WebDriverManager).FullName)).Current;
+        protected WebDriver WebDriver => ObjectContainer.Resolve<WebDriverManager>().Current;
 
-        protected WebDriverManager WebDriverManager => ScenarioContext.Get<WebDriverManager>((typeof(WebDriverManager).FullName));
-        protected WebValidationFactory WebValidationFactory => ScenarioContext.Get<WebValidationFactory>((typeof(WebValidationFactory).FullName));
-        protected SelectorFactory SelectorFactory => ScenarioContext.Get<SelectorFactory>((typeof(SelectorFactory).FullName));
+        protected WebDriverManager WebDriverManager => ObjectContainer.Resolve<WebDriverManager>();
+        protected WebValidationFactory WebValidationFactory => ObjectContainer.Resolve<WebValidationFactory>();
+        protected SelectorFactory SelectorFactory => ObjectContainer.Resolve<SelectorFactory>();
     }
 }

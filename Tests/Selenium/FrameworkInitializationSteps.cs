@@ -41,12 +41,14 @@ namespace Shim.Selenium
         private PossumLabs.Specflow.Selenium.WebDriverManager WebDriverManager { get; }
         private ScreenshotProcessor ScreenshotProcessor { get; set; }
         private ImageLogging ImageLogging { get; set; }
+        private MovieLogger MovieLogger { get; set; }
 
         [BeforeScenario(Order = int.MinValue+1)]
         public void Setup()
         {
             ScreenshotProcessor = ObjectContainer.Resolve<ScreenshotProcessor>();
             ImageLogging = ObjectContainer.Resolve<ImageLogging>();
+            MovieLogger = ObjectContainer.Resolve<MovieLogger>();
 
             base.Register(WebDriverManager);
             base.Register(new PossumLabs.Specflow.Selenium.WebValidationFactory(Interpeter));
@@ -80,11 +82,7 @@ namespace Shim.Selenium
             }
         }
 
-        [AfterScenario(Order =int.MaxValue)]
-        public void DisposeDriverManager()
-        {
-            WebDriverManager.Dispose();
-        }
+
 
         [AfterScenario(Order = int.MinValue)]
         public void LogHtml()
