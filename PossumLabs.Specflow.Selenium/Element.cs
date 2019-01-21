@@ -24,7 +24,7 @@ namespace PossumLabs.Specflow.Selenium
 
         public string Tag => WebElement.TagName;
         public Point Location => WebElement.Location;
-        public IEnumerable<string> Classes => WebElement.GetAttribute("class").Split(' ').Select(x=>x.Trim());
+        public IEnumerable<string> Classes => WebElement.GetAttribute("class").Split(' ').Select(x => x.Trim());
         public string Id => WebElement.GetAttribute("id");
         public virtual List<string> Values => new List<string>() { WebElement.GetAttribute("value"), WebElement.Text };
         public virtual string Value => WebElement.GetAttribute("value") ?? WebElement.Text;
@@ -57,7 +57,7 @@ namespace PossumLabs.Specflow.Selenium
         public void Click()
             => WebElement.Click();
 
-        public  string GetCssValue(string prop)
+        public string GetCssValue(string prop)
             => WebElement.GetCssValue(prop);
 
         public void DoubleClick()
@@ -66,5 +66,9 @@ namespace PossumLabs.Specflow.Selenium
             var action = builder.DoubleClick(WebElement);
             action.Build().Perform();
         }
+
+        public virtual void Clear()
+        => WebElement.Clear();
+
     }
 }
