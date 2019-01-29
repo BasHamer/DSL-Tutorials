@@ -161,7 +161,7 @@ namespace PossumLabs.Specflow.Selenium
         public void SwitchToWindow(string window)
             => Driver.SwitchTo().Window(window);
 
-        public Element Select(Selector selector)
+        public Element Select(Selector selector, int? waitMs = null)
             => RetryExecutor.RetryFor(() =>
              {
                  var loggingWebdriver = new LoggingWebDriver(Driver, MovieLogger);
@@ -194,7 +194,7 @@ namespace PossumLabs.Specflow.Selenium
                          Screenshots = loggingWebdriver.Screenshots.Select(x => x.AsByteArray).ToList();
 
                  }
-             }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
+             }, TimeSpan.FromMilliseconds(waitMs??SeleniumGridConfiguration.RetryMs));
 
         public IEnumerable<Element> SelectMany(Selector selector)
             => RetryExecutor.RetryFor(() =>
