@@ -38,11 +38,6 @@ namespace PossumLabs.Specflow.Core.Files
         private string ExampleName { get; set; }
         private DirectoryInfo BaseFolder { get; }
 
-        public object GetPath(IFile file)
-        {
-            throw new NotImplementedException();
-        }
-
         private int Order { get; set; }
 
         private string GetFileName(string type, string extension)
@@ -60,12 +55,14 @@ namespace PossumLabs.Specflow.Core.Files
         }
 
         public Uri CreateFile(byte[] file, string type, string extention)
+            => CreateFile(new MemoryStream(file), type, extention);
+
+        public Uri CreateFile(Stream file, string type, string extention)
         {
             var name = GetFileName(type, extention);
             var info = new FileInfo(Path.Combine(BaseFolder.FullName, name));
             var w = info.Create();
-            w.WriteAsync(file, 0, file.Length)
-                .ContinueWith((x)=>w.Close());
+            file.CopyToAsync(w).ContinueWith((x) => w.Close());
             return new Uri(info.FullName);
         }
 

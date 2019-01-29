@@ -169,7 +169,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         //label[text()='{target}']/*[self::input or self::textarea or self::select]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByNestedInLabel =>
             (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
-                $"{prefix}//label[{TextMatch(target)}]/*[{ActiveElements}]");
+                $"{prefix}//*[(self::label or self::div) and {TextMatch(target)}]/*[{ActiveElements}]");
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> SpecialButtons =>
             (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 

@@ -103,10 +103,14 @@ namespace PossumLabs.Specflow.Core.Variables
             var indexResolver = ResolveIndexFactory(rawRoot, out string root, path);
 
             var repo = Repositories.FirstOrDefault(x => x.ContainsKey(root));
-            
-            if (repo == null)
-                return rawRoot;
 
+            if (repo == null)
+            {
+                if (path.One())
+                    return rawRoot;
+                else
+                    throw new GherkinException($"unable to resolve the varaiable with root {root}");
+            }
             var current = indexResolver((object)repo[root]);
 
             while (parts.Count() > leave)

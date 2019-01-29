@@ -145,7 +145,7 @@ namespace PossumLabs.Specflow.Selenium
         }
 
         public void Close()
-        => Driver.Close();
+            => Driver.Close();
 
         public void LeaveFrames()
             => Driver.SwitchTo().DefaultContent();
@@ -154,9 +154,7 @@ namespace PossumLabs.Specflow.Selenium
             => new Actions(Driver);
 
         public void LoadPage(string html)
-        {
-            Driver.Navigate().GoToUrl("data:text/html;charset=utf-8," + html);
-        }
+            => Driver.Navigate().GoToUrl("data:text/html;charset=utf-8," + html);
 
         public void SwitchToWindow(string window)
             => Driver.SwitchTo().Window(window);
@@ -447,6 +445,8 @@ namespace PossumLabs.Specflow.Selenium
         }
 
         IWebDriver IWebDriverWrapper.IWebDriver => Driver;
+
+        public bool Disposed { get; set; }
     }
 }
 
