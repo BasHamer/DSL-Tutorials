@@ -159,13 +159,13 @@ namespace PossumLabs.Specflow.Selenium
         public void SwitchToWindow(string window)
             => Driver.SwitchTo().Window(window);
 
-        public Element Select(Selector selector, int? waitMs = null)
+        public Element Select(Selector selector, int? index = null)
             => RetryExecutor.RetryFor(() =>
              {
                  var loggingWebdriver = new LoggingWebDriver(Driver, MovieLogger);
                  try
                  {
-                     var element = FindElement(selector, loggingWebdriver);
+                     var element = FindElement(selector, loggingWebdriver, index);
                      if (element != null)
                          return element;
                      //iframes ? 
@@ -176,7 +176,7 @@ namespace PossumLabs.Specflow.Selenium
                          {
                              loggingWebdriver.Log($"Trying iframe:{iframe}");
                              Driver.SwitchTo().Frame(iframe);
-                             element = FindElement(selector, loggingWebdriver);
+                             element = FindElement(selector, loggingWebdriver, index);
                              if (element != null)
                                  return element;
                          }
@@ -192,7 +192,7 @@ namespace PossumLabs.Specflow.Selenium
                          Screenshots = loggingWebdriver.Screenshots.Select(x => x.AsByteArray).ToList();
 
                  }
-             }, TimeSpan.FromMilliseconds(waitMs??SeleniumGridConfiguration.RetryMs));
+             }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
 
         public IEnumerable<Element> SelectMany(Selector selector)
             => RetryExecutor.RetryFor(() =>
@@ -243,7 +243,7 @@ namespace PossumLabs.Specflow.Selenium
             public Exception Exception;
         }
 
-        private Element FindElement(Selector selector, LoggingWebDriver loggingWebdriver)
+        private Element FindElement(Selector selector, LoggingWebDriver loggingWebdriver, int? index = null)
         {
             var wrappers = selector.PrioritizedSearchers.Select(s => new Wrapper { Searcher = s }).ToList();
             var loopResults = Parallel.ForEach(wrappers, (wrapper, loopState) =>
@@ -256,6 +256,17 @@ namespace PossumLabs.Specflow.Selenium
                     SuccessfulSearchers.Add(searcher);
                     loopState.Break();
                     wrapper.Element = results.First();
+                    return;
+                }
+                else if (results.Many() && index.HasValue)
+                {
+                    SuccessfulSearchers.Add(searcher);
+                    loopState.Break();
+                    var a = results.ToArray();
+                    if(a.Count()<=index.Value)
+                        wrapper.Exception = new Exception($"Not enough items found, found {a.Count()} and desired index {index}");
+                    else
+                        wrapper.Element = a[index.Value];
                     return;
                 }
                 else if (results.Many())
@@ -286,14 +297,14 @@ namespace PossumLabs.Specflow.Selenium
                 }
             });
             var r = loopResults.IsCompleted;
-            var index = 0;
+            var wrapperIndex = 0;
             foreach (var w in wrappers)
             {
                 if (w.Element != null)
                     return w.Element;
                 if (w.Exception != null)
-                    throw new AggregateException($"Error throw on xpath {index}", w.Exception);
-                index++;
+                    throw new AggregateException($"Error throw on xpath {wrapperIndex}", w.Exception);
+                wrapperIndex++;
             }
             return null;
         }
