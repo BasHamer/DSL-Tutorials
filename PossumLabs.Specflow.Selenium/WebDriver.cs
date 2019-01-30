@@ -159,7 +159,7 @@ namespace PossumLabs.Specflow.Selenium
         public void SwitchToWindow(string window)
             => Driver.SwitchTo().Window(window);
 
-        public Element Select(Selector selector, int? index = null)
+        public Element Select(Selector selector, TimeSpan? retryDuration = null, int? index = null)
             => RetryExecutor.RetryFor(() =>
              {
                  var loggingWebdriver = new LoggingWebDriver(Driver, MovieLogger);
@@ -184,7 +184,7 @@ namespace PossumLabs.Specflow.Selenium
                          { }
                      }
                      Driver.SwitchTo().DefaultContent();
-                     throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}, maybe try one of these identifiers {GetIdentifiers().LogFormat()}");
+                     throw new Exception($"element was not found; tried:\n{loggingWebdriver.GetLogs()}, maybe try one of these identifiers {GetIdentifiers().Take(10).LogFormat()}");
                  }
                  finally
                  {
@@ -192,7 +192,7 @@ namespace PossumLabs.Specflow.Selenium
                          Screenshots = loggingWebdriver.Screenshots.Select(x => x.AsByteArray).ToList();
 
                  }
-             }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
+             }, retryDuration ?? TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
 
         public IEnumerable<Element> SelectMany(Selector selector)
             => RetryExecutor.RetryFor(() =>
@@ -290,6 +290,8 @@ namespace PossumLabs.Specflow.Selenium
                         wrapper.Element = results.First();
                         return;
                     }
+                    //scroll up ?
+                    //WebDriver.ExecuteScript("window.scrollTo(0,1)");
                     var items = results.Select(e => $"{e.Tag}@{e.Location.X},{e.Location.Y}").LogFormat();
                     loopState.Break();
                     wrapper.Exception = new Exception($"Multiple results were found using {searcher.LogFormat()}");
