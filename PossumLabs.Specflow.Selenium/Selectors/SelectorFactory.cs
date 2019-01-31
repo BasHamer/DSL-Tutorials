@@ -34,6 +34,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                     new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>
                     {
                         ByContentSelf,
+                        ByContentSelfForRow,
                         ByContent
                     }
                 }
@@ -255,6 +256,12 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                 string.IsNullOrWhiteSpace(prefix) ?
                     "//*[1=2]" : //junk, valid xpath that never returns anything. used for prefixes.
                     $"{prefix}/self::*[{ContentElements} and {TextMatch(target)}]");
+
+        virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContentSelfForRow =>
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
+                string.IsNullOrWhiteSpace(prefix) ?
+                    "//*[1=2]" : //junk, valid xpath that never returns anything. used for prefixes.
+                    $"{prefix}/*[({ContentElements} or self::td) and {TextMatch(target)}]");
 
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContent =>
