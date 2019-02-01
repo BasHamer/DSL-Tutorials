@@ -162,6 +162,7 @@ namespace PossumLabs.Specflow.Selenium
         public Element Select(Selector selector, TimeSpan? retryDuration = null, int? index = null)
             => RetryExecutor.RetryFor(() =>
              {
+                 var sw = Stopwatch.StartNew();
                  var loggingWebdriver = new LoggingWebDriver(Driver, MovieLogger);
                  try
                  {
@@ -190,6 +191,7 @@ namespace PossumLabs.Specflow.Selenium
                  {
                      if (loggingWebdriver.Screenshots.Any())
                          Screenshots = loggingWebdriver.Screenshots.Select(x => x.AsByteArray).ToList();
+                     Trace.WriteLine($"Xpathing took {sw.ElapsedMilliseconds}");
 
                  }
              }, retryDuration ?? TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
