@@ -395,16 +395,30 @@ namespace PossumLabs.Specflow.Selenium
 
         public WebDriver Prefix(SelectorPrefix prefix)
         {
+            var p = new ValidatedPrefix();
+            var l = Prefixes.Concat(p);
+
+            var possibles = l.CrossMultiply(); 
+            RetryExecutor.RetryFor(() =>
+               {
+                   var valid = possibles.AsParallel().Where(xpath => Driver.FindElements(By.XPath(xpath)).Any());
+                   if (valid.Any())
+                       p.Init("filtered", valid);
+                   else
+                       throw new Exception($"");
+               }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
+
             var wdm = new WebDriver(
-                Driver, 
-                RootUrl, 
-                SeleniumGridConfiguration, 
-                RetryExecutor, 
-                SelectorFactory, 
-                ElementFactory, 
+                Driver,
+                RootUrl,
+                SeleniumGridConfiguration,
+                RetryExecutor,
+                SelectorFactory,
+                ElementFactory,
                 XpathProvider,
                 MovieLogger,
-                Prefixes.Concat(prefix));
+                new List<SelectorPrefix> { p }
+                );
 
             Children.Add(wdm);
             return wdm;
