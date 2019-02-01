@@ -32,7 +32,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
 
         virtual public string ContentElements
             => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
-            "or self::p or self::div or self::option)";
+            "or self::p or self::div or self::option or self::legend)";
 
         virtual public string ActiveElements
            => "(not(@type='hidden') and ( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' ))";

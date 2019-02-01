@@ -1,8 +1,10 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Threading;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PossumLabs.Specflow.Selenium.Selectors
@@ -74,7 +76,18 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         protected static readonly Core.EqualityComparer<IWebElement> Comparer =
             new Core.EqualityComparer<IWebElement>((x, y) => x.Location == y.Location && x.TagName == y.TagName);
 
-
+        virtual protected bool Filter(IWebElement e)
+        {
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                return e is RemoteWebElement && ((RemoteWebElement)e).Displayed && ((RemoteWebElement)e).Enabled;
+            }
+            finally
+            {
+                Trace.WriteLine($"Filter took {sw.ElapsedMilliseconds}");
+            }
+        }
 
         public T CreateSelector<T>(string constructor) where T : Selector, new()
         {
@@ -115,29 +128,28 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         }
 
         protected IEnumerable<Element> UnfilteredPermutate(IEnumerable<SelectorPrefix> prefixes, IWebDriver driver, Func<string, string> xpathMaker)
-            => prefixes.CrossMultiply().Select(prefix =>
-                    driver
-                        .FindElements(By.XPath(xpathMaker(prefix)))
-                        .Distinct(Comparer)
-                        .Select(e => ElementFactory.Create(driver, e))
-                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+            => prefixes.CrossMultiply().ParallelFirstOrException(prefix =>
+                      driver
+                          .FindElements(By.XPath(xpathMaker(prefix)))
+                          .Distinct(Comparer)
+                          .Select(e => ElementFactory.Create(driver, e)),
+                    result => result.Any()
+                   )?.Item ?? new Element[] { };
+           
 
         protected IEnumerable<Element> Permutate(IEnumerable<SelectorPrefix> prefixes, IWebDriver driver, Func<string, string> xpathMaker)
-            => prefixes.CrossMultiply().Select(prefix =>
+            => prefixes.CrossMultiply().ParallelFirstOrException(prefix =>
                     driver
                         .FindElements(By.XPath(xpathMaker(prefix)))
                         .Where(Filter)
                         .Distinct(Comparer)
-                        .Select(e => ElementFactory.Create(driver, e))
-                ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
+                        .Select(e => ElementFactory.Create(driver, e)),
+                result => result.Any()
+                )?.Item ?? new Element[] { };
+           
 
         public Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>> Selectors { get; }
         public Dictionary<string, List<Func<string, IEnumerable<string>>>> Prefixes { get; }
-
-        virtual protected bool Filter(IWebElement e) =>
-            e is RemoteWebElement && ((RemoteWebElement)e).Displayed && ((RemoteWebElement)e).Enabled;
-
- 
 
         #region Selectors
         //https://w3c.github.io/using-aria/
@@ -146,16 +158,16 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         //label[@for and text()='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByForAttribute =>
             (target, prefixes, driver) =>
-            {
-                foreach (var prefix in prefixes.CrossMultiply())
+                prefixes.CrossMultiply().ParallelFirstOrException(prefix =>
                 {
                     var elements = driver.FindElements(By.XPath($"{prefix}//label[@for and {XpathProvider.TextMatch(target)}]"));
                     if (elements.Any())
                         return elements.SelectMany(e => driver.FindElements(By.Id(e.GetAttribute("for"))))
                         .Select(e => ElementFactory.Create(driver, e));
-                }
-                return new Element[] { };
-            };
+                    return new Element[] { };
+                },
+               result => result.Any()
+                )?.Item ?? new Element[] { };
 
         //label[text()[normalize-space(.)='Bob']]/*[self::input]
         //<label>target<input type = "text" ></ label >
@@ -196,39 +208,40 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         //<input type="radio" id="i1" name="target"
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> RadioByName =>
             (target, prefixes, driver) =>
-            {
-                foreach (var prefix in prefixes.CrossMultiply())
+                prefixes.CrossMultiply().ParallelFirstOrException(prefix =>
                 {
                     var elements = driver.FindElements(By.XPath($"{prefix}//input[@type='radio' and @name={target.XpathEncode()}]"));
-                    if (elements.Any())
-                        return new Element[] { new RadioElement(elements, driver) };
-                }
-                return new Element[] { };
-            };
+                        if (elements.Any())
+                            return new Element[] { new RadioElement(elements, driver) };
+                    return new Element[] { };
+                },
+               result => result.Any()
+                )?.Item ?? new Element[] { };
 
         //<input aria-labelledby= "l1 l2 l3"/>
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and  @aria-labelledby]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByLabelledBy =>
             (target, prefixes, driver) =>
-            {
-                foreach (var prefix in prefixes.CrossMultiply())
+                prefixes.CrossMultiply().ParallelFirstOrException(prefix =>
                 {
                     var elements = driver.FindElements(By.XPath($"{prefix}//*[{XpathProvider.ActiveElements} and  @aria-labelledby]"));
-                    if (elements.Any())
-                    {
-                        return elements.Where(e =>
+                        if (elements.Any())
                         {
-                            var ids = e.GetAttribute("aria-labelledby").Split(' ').Select(s => s.Trim()).Where(s => !String.IsNullOrEmpty(s));
-                            var labels = ids.SelectMany(id => driver.FindElements(By.Id(id))).Select(l => l.Text);
-                            var t = target;
-                            foreach (var l in labels)
-                                t = t.Replace(l, string.Empty);
-                            return string.IsNullOrWhiteSpace(t);
-                        }).Select(e => ElementFactory.Create(driver, e));
-                    }
-                }
-                return new Element[] { };
-            };
+                            return elements.Where(e =>
+                            {
+                                var ids = e.GetAttribute("aria-labelledby").Split(' ').Select(s => s.Trim()).Where(s => !String.IsNullOrEmpty(s));
+                                var labels = ids.SelectMany(id => driver.FindElements(By.Id(id))).Select(l => l.Text);
+                                var t = target;
+                                foreach (var l in labels)
+                                    t = t.Replace(l, string.Empty);
+                                return string.IsNullOrWhiteSpace(t);
+                            }).Select(e => ElementFactory.Create(driver, e));
+                        }
+                    return new Element[] { };
+                },
+               result => result.Any()
+                )?.Item ?? new Element[] { };
+
         // //tr[*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]]/following-sibling::tr[1]/td[1+count(//*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]/preceding-sibling::*[self::td])]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByCellBelow =>
             (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
@@ -317,22 +330,13 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                 $"//select[option[@selected='selected' and {XpathProvider.TextMatch(target)}]]/ancestor::div[@role='row'][1]"
             };
         virtual protected Func<string, IEnumerable<string>> Legend =>
-            (target) => new List<string>() { $"//*[legend[{TextMatch(target)}]]" };
+            (target) => new List<string>() { $"//*[legend[{XpathProvider.TextMatch(target)}]]" };
         
         virtual protected Func<string, IEnumerable<string>> FollowingRow =>
             (target) => TableRow(target).Select(x => $"{x}/following-sibling::tr[1]").ToList();
         #endregion
 
-        virtual protected string TextMatch(string target)
-            => $"text()[normalize-space(.)={target.XpathEncode()} or normalize-space(.)={$"{target}:".XpathEncode()}]";
-
-        virtual protected string MarkerElements
-            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";
-
-       TODO:Merge
-        virtual protected string ContentElements
-            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
-            "or self::p or self::div or self::option or self::legend)";
+ 
 
     }
 }

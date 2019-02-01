@@ -10,6 +10,7 @@ using System.Linq;
 using OpenQA.Selenium.Internal;
 using OpenQA.Selenium.Interactions;
 using PossumLabs.Specflow.Core.Logging;
+using System.Diagnostics;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -80,10 +81,13 @@ namespace PossumLabs.Specflow.Selenium
 
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
+            var sw = Stopwatch.StartNew();
             Messages.Add(by.ToString());
             var elements = Driver.FindElements(by);
+            Trace.WriteLine($"xpath {sw.ElapsedMilliseconds}");
             if (elements != null && elements.Any() && by.ToString().StartsWith("By.XPath: "))
                 VisualLog(by);
+            Trace.WriteLine($"xpath + log {sw.ElapsedMilliseconds}");
             return elements;
         }
 
