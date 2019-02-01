@@ -32,57 +32,21 @@ namespace PossumLabs.Specflow.Selenium
 
                 if (text == null) return;
 
-                //WAY faster than looking for the right item and selecting by index.
-                try
+                if (OldStyleSelect != null)
                 {
-                    OldStyleSelect.SelectByText(text);
-                    return;
-                }
-                catch { }
+                    var id = OldStyleSelect.WrappedElement.GetAttribute("id");
+                    var key = text.ToUpper();
+                    var options = base.WebDriver.FindElements(
+                        By.XPath($"//select[@id='{id}']/option[" +
+                        $"translate(@value,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') ='{key}' or " +
+                        $"translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') = '{key}']"));
 
-                try
-                {
-                    OldStyleSelect.SelectByText(text.ToUpper());
-                    return;
-                }
-                catch { }
-
-                try
-                {
-                    OldStyleSelect.SelectByText(ToCammelCase(text));
-                    return;
-                }
-                catch { }
-
-                try
-                {
-                    OldStyleSelect.SelectByText(text.ToLower());
-                    return;
-                }
-                catch { }
-
-                try
-                {
-                    OldStyleSelect.SelectByValue(text);
-                    return;
-                }
-                catch { }
-
-                //Partial match ?
-                var l = AvailableOptions.ToList();
-                var realText = l.Where(x => x.Text.ToLower().Contains(text.ToLower()));
-                if (realText.Count() == 1)
-                {
-                    try
+                    if (options.One())
                     {
-                        OldStyleSelect.SelectByIndex(l.IndexOf(realText.First()));
+                        OldStyleSelect.SelectByValue(options.First().GetAttribute("value"));
                         return;
                     }
-                    catch { }
-
-
                 }
-
                 throw new GherkinException($"Unable to find {text} in the selection, only found {OldStyleSelect.Options.LogFormat(x => x.Text)}");
             }
             else

@@ -8,6 +8,10 @@ namespace PossumLabs.Specflow.Core.Exceptions
 {
     public class RetryExecutor
     {
+
+        public void RetryFor(Action a, TimeSpan retryDuration)
+            => RetryFor<int>(() => { a(); return 42; }, retryDuration); 
+
         public T RetryFor<T>(Func<T> func, TimeSpan retryDuration)
         {
             var sw = new Stopwatch();

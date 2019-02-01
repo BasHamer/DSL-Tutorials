@@ -41,7 +41,26 @@ namespace PossumLabs.Specflow.Core.Files
         private int Order { get; set; }
 
         private string GetFileName(string type, string extension)
-            => $"{FeatureName}-{ScenarioName}-{ExampleName}-{Start.ToString("yyyyMMdd_HHmmss")}-{Order++}-{type}.{extension}";
+            => $"{FeatureName}-{ScenarioName}-{ExampleName}-{Start.ToString("yyyyMMdd_HHmmss")}-{Order++}-{type}.{extension}"
+            // < (less than)
+            .Replace('<', ' ')
+            // > (greater than)
+            .Replace('>', ' ')
+            // : (colon - sometimes works, but is actually NTFS Alternate Data Streams)
+            .Replace(':', ' ')
+            // " (double quote)
+            .Replace('"', ' ')
+            // / (forward slash)
+            .Replace('/', ' ')
+            // \ (backslash)
+            .Replace('\\', ' ')
+            // | (vertical bar or pipe)
+            .Replace('|', ' ')
+            // ? (question mark)
+            .Replace('?', ' ')
+            // * (asterisk)
+            .Replace('*', ' ');
+
 
         public Uri Persist(IFile file)
         {

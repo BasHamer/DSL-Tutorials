@@ -49,9 +49,11 @@ namespace LegacyTest
         [StepArgumentTransformation]
         public List<T> TransformList(Table table)
         {
-            var dupes = table.Header.GroupBy(x => x.Split().Aggregate((y, z) => y + "." + z).ToUpper()).Where(x => x.Many());
+            var dupes = table.Header.GroupBy(x => x.Split()
+                .Aggregate((y, z) => y + "." + z).ToUpper()).Where(x => x.Many());
             if (dupes.Any())
-                throw new GherkinException($"the columns {dupes.LogFormat()} are effectively duplicates, matching of columns is case insesnitive");
+                throw new GherkinException(
+                    $"the columns {dupes.LogFormat()} are effectively duplicates, matching of columns is case insesnitive");
 
             return table.Rows.Select(
                 r => Repository.Map(table.Header.ToDictionary(

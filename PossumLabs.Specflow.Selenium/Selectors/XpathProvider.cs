@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace PossumLabs.Specflow.Selenium.Selectors
+{
+    public class XpathProvider
+    {
+        public XpathProvider()
+        {
+            ActiveInCell = new List<TableCellLocator>
+            {
+                (prefix, row, column)=>$"{prefix}/tr[{row}]/td[{column}]/*[{ActiveElements}]",
+                (prefix, row, column)=>$"{prefix}/tr[{row}]/td[{column}]/div/*[{ActiveElements}]",
+                (prefix, row, column)=>$"{prefix}/tr[{row}]/td[{column}]/div/div/*[{ActiveElements}]",
+                (prefix, row, column)=>$"{prefix}/tr[{row}]/td[{column}]//*[{ActiveElements}]"
+            };
+
+        }
+
+        public delegate string TableCellLocator(string prefix, int row, int column);
+
+        public List<TableCellLocator> ActiveInCell { get; }
+
+        public List<TableCellLocator> ContentInCell { get; }
+
+        virtual public string TextMatch(string target)
+            => $"text()[normalize-space(.)={target.XpathEncode()} or normalize-space(.)={$"{target}:".XpathEncode()}]";
+
+        virtual public string MarkerElements
+            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";
+
+        virtual public string ContentElements
+            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
+            "or self::p or self::div or self::option or self::legend)";
+
+        virtual public string ActiveElements
+           => "(not(@type='hidden') and ( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' ))";
+    }
+}
