@@ -1,4 +1,8 @@
 ﻿using BoDi;
+using Microsoft.Extensions.Configuration;
+using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Files;
+using PossumLabs.Specflow.Core.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -27,11 +31,12 @@ namespace LegacyTest.Steps
             var imageLoggingSize = config["imageLoggingSize"];
 
             ObjectContainer.RegisterInstanceAs(new ImageLogging());
+            var logger = new PossumLabs.Specflow.Core.Logging.DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory));
             var factory = new PossumLabs.Specflow.Core.Variables.ObjectFactory();
             base.Register(factory);
             base.Register(new PossumLabs.Specflow.Core.Variables.Interpeter(factory));
-            base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor());
-            base.Register<PossumLabs.Specflow.Core.Logging.ILog>(new PossumLabs.Specflow.Core.Logging.DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory)));
+            base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor(logger));
+            base.Register<PossumLabs.Specflow.Core.Logging.ILog>(logger);
             base.Register((PossumLabs.Specflow.Core.Logging.ILog)new DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory)));
             base.Register(new FileManager(new DatetimeManager() { Now = () => DateTime.Now }));
             FileManager.Initialize(FeatureContext.FeatureInfo.Title, ScenarioContext.ScenarioInfo.Title, null /*Specflow limitation*/);

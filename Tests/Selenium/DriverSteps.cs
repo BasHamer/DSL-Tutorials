@@ -1,6 +1,7 @@
 ﻿using BoDi;
 using LegacyTest.ValueObjects;
 using PossumLabs.Specflow.Selenium;
+using PossumLabs.Specflow.Selenium.Selectors;
 using TechTalk.SpecFlow;
 
 namespace Shim.Selenium

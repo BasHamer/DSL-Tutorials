@@ -24,6 +24,8 @@ namespace PossumLabs.Specflow.Selenium
             SeleniumGridConfiguration configuration, 
             RetryExecutor retryExecutor, 
             SelectorFactory selectorFactory,
+            ElementFactory elementFactory,
+            XpathProvider xpathProvider,
             IEnumerable<SelectorPrefix> prefixes = null)
         {
             Driver = driver;
@@ -36,8 +38,12 @@ namespace PossumLabs.Specflow.Selenium
 
             Children = new List<WebDriver>();
             Screenshots = new List<byte[]>();
+            ElementFactory = elementFactory;
+            XpathProvider = xpathProvider;
         }
 
+        private ElementFactory ElementFactory { get; }
+        private XpathProvider XpathProvider { get; }
         private Func<Uri> RootUrl { get; set; }
         private IWebDriver Driver { get; }
         private SelectorFactory SelectorFactory { get; }
@@ -102,7 +108,7 @@ namespace PossumLabs.Specflow.Selenium
             //var xpath = $"//tr[*[self::td or self::th][{minimumWidth}] and (.|parent::tbody)[1]/parent::table]/ancestor::table[1]";
             var tables = Driver.
                 FindElements(By.XPath(xpath))
-                .Select(t => new TableElement(t, Driver)).ToList();
+                .Select(t => new TableElement(t, Driver, ElementFactory, XpathProvider)).ToList();
             var Ordinal = 1;
             foreach (var table in tables)
             {
@@ -355,7 +361,15 @@ namespace PossumLabs.Specflow.Selenium
 
         public WebDriver Prefix(SelectorPrefix prefix)
         {
-            var wdm = new WebDriver(Driver, RootUrl, SeleniumGridConfiguration, RetryExecutor, SelectorFactory, Prefixes.Concat(prefix));
+            var wdm = new WebDriver(
+                Driver, 
+                RootUrl, 
+                SeleniumGridConfiguration, 
+                RetryExecutor, 
+                SelectorFactory, 
+                ElementFactory, 
+                XpathProvider, 
+                Prefixes.Concat(prefix));
             Children.Add(wdm);
             return wdm;
         }

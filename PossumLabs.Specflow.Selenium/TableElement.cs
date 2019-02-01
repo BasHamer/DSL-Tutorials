@@ -4,18 +4,24 @@ using System.Linq;
 using System.Text;
 using OpenQA.Selenium;
 using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Selenium.Selectors;
 
 namespace PossumLabs.Specflow.Selenium
 {
     public class TableElement
     {
-        public TableElement(IWebElement table, IWebDriver driver)
+        public TableElement(IWebElement table, IWebDriver driver, ElementFactory elementFactory, XpathProvider xpathProvider)
         {
             RootElement = table;
             Driver = driver;
             IsValid = true;
             Header = new Dictionary<string, int>();
+            ElementFactory = elementFactory;
+            XpathProvider = xpathProvider;
         }
+
+        private ElementFactory ElementFactory { get; }
+        private XpathProvider XpathProvider { get; }
 
         private IWebElement RootElement { get; }
         private IWebDriver Driver { get; }
@@ -23,67 +29,37 @@ namespace PossumLabs.Specflow.Selenium
 
         public int GetRowId(string key)
         {
-            var xpath = $"{Prefix}/tr[td[{TextMatch(key)}] or td/*[{TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
+            var xpath = $"{Prefix}/tr[td[{XpathProvider.TextMatch(key)}] or td/*[{XpathProvider.TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
             var count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
             return count;
         }
 
-        //HACK: copy paster
-        virtual protected string TextMatch(string target)
-            => $"text()[normalize-space(.)={target.XpathEncode()}]";
-
-        //HACK: copy paster
-        virtual protected string ActiveElements
-           => "(not(@type='hidden') and ( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' ))";
-
-        //HACK: copy paster
-        virtual protected Element CreateElement(IWebDriver driver, IWebElement e)
-        {
-            if (e.TagName == "select" || (e.TagName == "input" && !string.IsNullOrEmpty(e.GetAttribute("list"))))
-                return new SelectElement(e, driver);
-            if (e.TagName == "input" && e.GetAttribute("type") == "radio")
-            {
-                var elements = driver.FindElements(By.XPath($"//input[@type='radio' and @name='{e.GetAttribute("name")}']"));
-                return new RadioElement(elements, driver);
-            }
-            if (e.TagName == "input" && e.GetAttribute("type") == "checkbox")
-            {
-                return new CheckboxElement(e, driver);
-            }
-            return new Element(e, driver);
-        }
-
+     
         public Element GetActiveElement(int rowId, string columnId)
         {
-            var elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{ActiveElements}]"));
-            if (elements.One())
-                return CreateElement(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{ActiveElements}]"));
-            if (elements.One())
-                return CreateElement(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{ActiveElements}]"));
-            if (elements.One())
-                return CreateElement(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{ActiveElements}]"));
-            if (elements.One())
-                return CreateElement(Driver, elements.First());
+            foreach( var xpath in XpathProvider.ActiveInCell)
+            {
+                var elements = Driver.FindElements(By.XPath(xpath(Prefix, rowId, Header[columnId])));
+                if (elements.One())
+                    return ElementFactory.Create(Driver, elements.First());
+            }
             throw new Exception("no active element found in cell");
         }
 
         public Element GetContentElement(int rowId, string columnId)
         {
-            var elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{ActiveElements}]"));
+            var elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{XpathProvider.ActiveElements}]"));
             if (elements.One())
-                return CreateElement(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{ActiveElements}]"));
+                return ElementFactory.Create(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{XpathProvider.ActiveElements}]"));
             if (elements.One())
-                return CreateElement(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{ActiveElements}]"));
+                return ElementFactory.Create(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{XpathProvider.ActiveElements}]"));
             if (elements.One())
-                return CreateElement(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{ActiveElements}]"));
+                return ElementFactory.Create(Driver, elements.First());
+            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{XpathProvider.ActiveElements}]"));
             if (elements.One())
-                return CreateElement(Driver, elements.First());
+                return ElementFactory.Create(Driver, elements.First());
             throw new Exception("no active element found in cell");
         }
 
