@@ -9,7 +9,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
 {
     public class SelectorFactory
     {
-        public SelectorFactory()
+        public SelectorFactory(ElementFactory elementFactory, XpathProvider xpathProvider)
         {
             Selectors = new Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>>
             {
@@ -63,7 +63,13 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                 { PrefixNames.Warning, new List<Func<string, IEnumerable<string>>> { } },
                 { PrefixNames.Error, new List<Func<string, IEnumerable<string>>> { } }
             };
+
+            ElementFactory = elementFactory;
+            XpathProvider = xpathProvider;
         }
+
+        protected ElementFactory ElementFactory { get; }
+        protected XpathProvider XpathProvider { get; }
 
         protected static readonly Core.EqualityComparer<IWebElement> Comparer =
             new Core.EqualityComparer<IWebElement>((x, y) => x.Location == y.Location && x.TagName == y.TagName);
@@ -113,7 +119,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                     driver
                         .FindElements(By.XPath(xpathMaker(prefix)))
                         .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
+                        .Select(e => ElementFactory.Create(driver, e))
                 ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
 
         protected IEnumerable<Element> Permutate(IEnumerable<SelectorPrefix> prefixes, IWebDriver driver, Func<string, string> xpathMaker)
@@ -122,7 +128,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                         .FindElements(By.XPath(xpathMaker(prefix)))
                         .Where(Filter)
                         .Distinct(Comparer)
-                        .Select(e => CreateElement(driver, e))
+                        .Select(e => ElementFactory.Create(driver, e))
                 ).FirstOrDefault(e => e.Any()) ?? new Element[] { };
 
         public Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>> Selectors { get; }
@@ -131,22 +137,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         virtual protected bool Filter(IWebElement e) =>
             e is RemoteWebElement && ((RemoteWebElement)e).Displayed && ((RemoteWebElement)e).Enabled;
 
-        virtual protected Element CreateElement(IWebDriver driver, IWebElement e)
-        {
-            if (e.TagName == "select" || (e.TagName == "input" && !string.IsNullOrEmpty(e.GetAttribute("list"))))
-                return new SelectElement(e, driver);
-            if (e.TagName == "input" && e.GetAttribute("type") == "radio")
-            {
-                var elements = driver.FindElements(By.XPath($"//input[@type='radio' and @name='{e.GetAttribute("name")}']"));
-                return new RadioElement(elements, driver);
-            }
-            if (e.TagName == "input" && e.GetAttribute("type") == "checkbox")
-            {
-                return new CheckboxElement(e, driver);
-            }
-
-            return new Element(e, driver);
-        }
+ 
 
         #region Selectors
         //https://w3c.github.io/using-aria/
@@ -158,10 +149,10 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             {
                 foreach (var prefix in prefixes.CrossMultiply())
                 {
-                    var elements = driver.FindElements(By.XPath($"{prefix}//label[@for and {TextMatch(target)}]"));
+                    var elements = driver.FindElements(By.XPath($"{prefix}//label[@for and {XpathProvider.TextMatch(target)}]"));
                     if (elements.Any())
                         return elements.SelectMany(e => driver.FindElements(By.Id(e.GetAttribute("for"))))
-                        .Select(e => CreateElement(driver, e));
+                        .Select(e => ElementFactory.Create(driver, e));
                 }
                 return new Element[] { };
             };
@@ -170,8 +161,8 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         //<label>target<input type = "text" ></ label >
         //label[text()='{target}']/*[self::input or self::textarea or self::select]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByNestedInLabel =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
-                $"{prefix}//*[(self::label or self::div) and {TextMatch(target)}]/*[{ActiveElements}]");
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[(self::label or self::div) and {XpathProvider.TextMatch(target)}]/*[{XpathProvider.ActiveElements}]");
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> SpecialButtons =>
             (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
@@ -180,10 +171,10 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         //<input aria-label="target">
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and @aria-label='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByNested =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
-                $"{prefix}//*[{ActiveElements} and (" +
-                    $"{TextMatch(target)} or " +
-                    $"label[{TextMatch(target)}] or " +
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{XpathProvider.ActiveElements} and (" +
+                    $"{XpathProvider.TextMatch(target)} or " +
+                    $"label[{XpathProvider.TextMatch(target)}] or " +
                     $"((@type='button' or @type='submit' or @type='reset') and @value={target.XpathEncode()}) or " +
                     $"@name={target.XpathEncode()} or " +
                     $"@aria-label={target.XpathEncode()} or " +
@@ -193,8 +184,8 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         //<a href = "https://www.w3schools.com/html/" >target</a>
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem') and text()='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByText =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
-                $"{prefix}//*[{ActiveElements} and {TextMatch(target)}]");
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{XpathProvider.ActiveElements} and {XpathProvider.TextMatch(target)}]");
 
         //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
         //a[@title='{target}']
@@ -222,7 +213,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             {
                 foreach (var prefix in prefixes.CrossMultiply())
                 {
-                    var elements = driver.FindElements(By.XPath($"{prefix}//*[{ActiveElements} and  @aria-labelledby]"));
+                    var elements = driver.FindElements(By.XPath($"{prefix}//*[{XpathProvider.ActiveElements} and  @aria-labelledby]"));
                     if (elements.Any())
                     {
                         return elements.Where(e =>
@@ -233,21 +224,21 @@ namespace PossumLabs.Specflow.Selenium.Selectors
                             foreach (var l in labels)
                                 t = t.Replace(l, string.Empty);
                             return string.IsNullOrWhiteSpace(t);
-                        }).Select(e => CreateElement(driver, e));
+                        }).Select(e => ElementFactory.Create(driver, e));
                     }
                 }
                 return new Element[] { };
             };
         // //tr[*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]]/following-sibling::tr[1]/td[1+count(//*[self::td][*[( self::span ) and text()[normalize-space(.)='Add Clinic']]]/preceding-sibling::*[self::td])]
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByCellBelow =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
-                $"{prefix}//tr[*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]]/following-sibling::tr[1]/td[1+count(//*[self::td or self::th][*[{MarkerElements} and {TextMatch(target)}]]/preceding-sibling::*[self::td or self::th])]/*[{ActiveElements}]");
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//tr[*[self::td or self::th][*[{XpathProvider.MarkerElements} and {XpathProvider.TextMatch(target)}]]]/following-sibling::tr[1]/td[1+count(//*[self::td or self::th][*[{XpathProvider.MarkerElements} and {XpathProvider.TextMatch(target)}]]/preceding-sibling::*[self::td or self::th])]/*[{XpathProvider.ActiveElements}]");
 
         //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
         //a[@title='{target}']
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByFollowingMarker =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
-                $"{prefix}//*[{MarkerElements} and {TextMatch(target)}]/following-sibling::*[not(self::br or self::hr)][1][{ActiveElements}]");
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{XpathProvider.MarkerElements} and {XpathProvider.TextMatch(target)}]/following-sibling::*[not(self::br or self::hr)][1][{XpathProvider.ActiveElements}]");
 
         #endregion
 
@@ -256,18 +247,18 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
                 string.IsNullOrWhiteSpace(prefix) ?
                     "//*[1=2]" : //junk, valid xpath that never returns anything. used for prefixes.
-                    $"{prefix}/self::*[{ContentElements} and {TextMatch(target)}]");
+                    $"{prefix}/self::*[{XpathProvider.ContentElements} and {XpathProvider.TextMatch(target)}]");
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContentSelfForRow =>
             (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
                 string.IsNullOrWhiteSpace(prefix) ?
                     "//*[1=2]" : //junk, valid xpath that never returns anything. used for prefixes.
-                    $"{prefix}/*[({ContentElements} or self::td) and {TextMatch(target)}]");
+                    $"{prefix}/*[({XpathProvider.ContentElements} or self::td) and {XpathProvider.TextMatch(target)}]");
 
 
         virtual protected Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>> ByContent =>
-            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) =>
-                $"{prefix}//*[{ContentElements} and {TextMatch(target)}]");
+            (target, prefixes, driver) => Permutate(prefixes, driver, (prefix) => 
+                $"{prefix}//*[{XpathProvider.ContentElements} and {XpathProvider.TextMatch(target)}]");
 
         #endregion
 
@@ -296,34 +287,34 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         #region Prefixes
         virtual protected Func<string, IEnumerable<string>> TableRow =>
             (target) => new List<string>(){
-                $"//tr[td[{TextMatch(target)}]]",
-                $"//tr[td/*[{MarkerElements} and {TextMatch(target)}]]",
+                $"//tr[td[{XpathProvider.TextMatch(target)}]]",
+                $"//tr[td/*[{XpathProvider.MarkerElements} and {XpathProvider.TextMatch(target)}]]",
                 $"//tr[td/*[@value = {target.XpathEncode()}]]",
-                $"//tr[td/select/option[@selected='selected' and {TextMatch(target)}]]"
+                $"//tr[td/select/option[@selected='selected' and {XpathProvider.TextMatch(target)}]]"
             };
 
         virtual protected Func<string, IEnumerable<string>> DivRoleRow =>
             (target) => new List<string>() {
-                $"//*[{MarkerElements} and {TextMatch(target)}]/ancestor::div[@role='row'][1]",
+                $"//*[{XpathProvider.MarkerElements} and {XpathProvider.TextMatch(target)}]/ancestor::div[@role='row'][1]",
                 $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
-                $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]",
-                $"//div[{TextMatch(target)}]/ancestor-or-self::div[@role='row'][1]",
+                $"//select[option[@selected='selected' and {XpathProvider.TextMatch(target)}]]/ancestor::div[@role='row'][1]",
+                $"//div[{XpathProvider.TextMatch(target)}]/ancestor-or-self::div[@role='row'][1]"
             };
 
         virtual protected Func<string, IEnumerable<string>> ParrentDiv =>
             (target) => new List<string>() { $"//div[" +
-                    $"{TextMatch(target)} or " +
-                    $"*[{MarkerElements} and {TextMatch(target)}] or " +
-                    $"*[{ActiveElements} and @value = {target.XpathEncode()}] or " +
+                    $"{XpathProvider.TextMatch(target)} or " +
+                    $"*[{XpathProvider.MarkerElements} and {XpathProvider.TextMatch(target)}] or " +
+                    $"*[{XpathProvider.ActiveElements} and @value = {target.XpathEncode()}] or " +
                     $"@name={target.XpathEncode()} or " +
                     $"@aria-label={target.XpathEncode()}" +
                 $"]" };
 
         virtual protected Func<string, IEnumerable<string>> ParrentDivWithRowRole =>
             (target) => new List<string>() {
-                $"//*[{MarkerElements} and {TextMatch(target)}]/ancestor::div[@role='row'][1]",
+                $"//*[{XpathProvider.MarkerElements} and {XpathProvider.TextMatch(target)}]/ancestor::div[@role='row'][1]",
                 $"//*[@value = {target.XpathEncode()}]/ancestor::div[@role='row'][1]",
-                $"//select[option[@selected='selected' and {TextMatch(target)}]]/ancestor::div[@role='row'][1]"
+                $"//select[option[@selected='selected' and {XpathProvider.TextMatch(target)}]]/ancestor::div[@role='row'][1]"
             };
         virtual protected Func<string, IEnumerable<string>> Legend =>
             (target) => new List<string>() { $"//*[legend[{TextMatch(target)}]]" };
@@ -338,11 +329,10 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         virtual protected string MarkerElements
             => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";
 
+       TODO:Merge
         virtual protected string ContentElements
             => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
             "or self::p or self::div or self::option or self::legend)";
 
-        virtual protected string ActiveElements
-            => "( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' )";
     }
 }
