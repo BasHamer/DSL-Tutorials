@@ -69,5 +69,13 @@ namespace PossumLabs.Specflow.Selenium
             .SelectMany(x=>new List<string>() { x.Text, x.GetAttribute("value") })
             .Where(s=>!string.IsNullOrWhiteSpace(s))
             .ToList();
+
+        public override void Clear()
+        {
+            if (OldStyleSelect != null)
+                OldStyleSelect.DeselectAll();
+            else
+                base.Clear();
+        }
     }
 }

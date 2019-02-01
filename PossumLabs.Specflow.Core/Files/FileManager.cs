@@ -38,15 +38,29 @@ namespace PossumLabs.Specflow.Core.Files
         private string ExampleName { get; set; }
         private DirectoryInfo BaseFolder { get; }
 
-        public object GetPath(IFile file)
-        {
-            throw new NotImplementedException();
-        }
-
         private int Order { get; set; }
 
         private string GetFileName(string type, string extension)
-            => $"{FeatureName}-{ScenarioName}-{ExampleName}-{Start.ToString("yyyyMMdd_HHmmss")}-{Order++}-{type}.{extension}";
+            => $"{FeatureName}-{ScenarioName}-{ExampleName}-{Start.ToString("yyyyMMdd_HHmmss")}-{Order++}-{type}.{extension}"
+            // < (less than)
+            .Replace('<', ' ')
+            // > (greater than)
+            .Replace('>', ' ')
+            // : (colon - sometimes works, but is actually NTFS Alternate Data Streams)
+            .Replace(':', ' ')
+            // " (double quote)
+            .Replace('"', ' ')
+            // / (forward slash)
+            .Replace('/', ' ')
+            // \ (backslash)
+            .Replace('\\', ' ')
+            // | (vertical bar or pipe)
+            .Replace('|', ' ')
+            // ? (question mark)
+            .Replace('?', ' ')
+            // * (asterisk)
+            .Replace('*', ' ');
+
 
         public Uri Persist(IFile file)
         {
@@ -60,12 +74,14 @@ namespace PossumLabs.Specflow.Core.Files
         }
 
         public Uri CreateFile(byte[] file, string type, string extention)
+            => CreateFile(new MemoryStream(file), type, extention);
+
+        public Uri CreateFile(Stream file, string type, string extention)
         {
             var name = GetFileName(type, extention);
             var info = new FileInfo(Path.Combine(BaseFolder.FullName, name));
             var w = info.Create();
-            w.WriteAsync(file, 0, file.Length)
-                .ContinueWith((x)=>w.Close());
+            file.CopyToAsync(w).ContinueWith((x) => w.Close());
             return new Uri(info.FullName);
         }
 

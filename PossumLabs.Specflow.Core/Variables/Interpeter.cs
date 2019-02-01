@@ -37,7 +37,7 @@ namespace PossumLabs.Specflow.Core.Variables
                     Properties = r.properties.Select(m => m.Name).ToList(),
                     Objects = r.repository.AsDictionary().Select(kv=>new ObjectView
                     {
-                        Var = kv.Key,
+                        var = kv.Key,
                         LogFormat = (kv.Value is IDomainObject) ? ((IDomainObject)kv.Value).LogFormat():null, 
                         Values = r.properties.Select(p=>p.GetValue(kv.Value)?.ToString()).ToList()
                     }).ToList()
@@ -55,14 +55,14 @@ namespace PossumLabs.Specflow.Core.Variables
             prop.SetValue(target, value);
         }
 
-        public object Resolve(string path) 
+        private object Resolve(string path) 
             => (path.Last() == '.')? path : Walker(path.Split('.'));
 
         public object Get(Type t, string path) 
             => IsVarialbe(path) ? Convert(t, Resolve(path)) : Convert(t, path);
 
         public X Get<X>(string path) 
-            => Convert<X>(Resolve(path));
+            => IsVarialbe(path) ? Convert<X>(Resolve(path)) : Convert<X>(path);
 
         private Func<object, object> ResolveIndexFactory(string rawRoot, out string root, IEnumerable<string> path)
         {
@@ -103,10 +103,14 @@ namespace PossumLabs.Specflow.Core.Variables
             var indexResolver = ResolveIndexFactory(rawRoot, out string root, path);
 
             var repo = Repositories.FirstOrDefault(x => x.ContainsKey(root));
-            
-            if (repo == null)
-                return rawRoot;
 
+            if (repo == null)
+            {
+                if (path.One())
+                    return rawRoot;
+                else
+                    throw new GherkinException($"unable to resolve the varaiable with root {root}");
+            }
             var current = indexResolver((object)repo[root]);
 
             while (parts.Count() > leave)

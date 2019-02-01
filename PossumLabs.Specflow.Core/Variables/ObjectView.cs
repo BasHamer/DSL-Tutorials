@@ -6,7 +6,7 @@ namespace PossumLabs.Specflow.Core.Variables
 {
     public class ObjectView
     {
-        public string Var { get; set; }
+        public string var { get; set; }
         public string LogFormat { get; set; }
 
         public List<string> Values { get; set; }

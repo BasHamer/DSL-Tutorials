@@ -31,6 +31,16 @@ namespace PossumLabs.Specflow.Selenium
         {
             var xpath = $"{Prefix}/tr[td[{XpathProvider.TextMatch(key)}] or td/*[{XpathProvider.TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
             var count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
+            var rowMatch = $"td[{XpathProvider.TextMatch(key)}] or td/*[{XpathProvider.TextMatch(key)}] or td/*/*[{XpathProvider.TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ";
+            
+            var rows = Driver.FindElements(By.XPath(xpath));
+
+            if (rows.None())
+                throw new Exception($"Unable to find the row '{key}'");
+            if (rows.Many())
+                throw new Exception($"Unable to uniquely identify the row '{key}', found {rows.Count()} rows that matched it");
+
+            xpath += "/preceding-sibling::tr";
             return count;
         }
 
@@ -46,21 +56,16 @@ namespace PossumLabs.Specflow.Selenium
             throw new Exception("no active element found in cell");
         }
 
-        public Element GetContentElement(int rowId, string columnId)
+        public IEnumerable<Element> GetContentElement(int rowId, string columnId)
         {
-            var elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{XpathProvider.ActiveElements}]"));
-            if (elements.One())
-                return ElementFactory.Create(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{XpathProvider.ActiveElements}]"));
-            if (elements.One())
-                return ElementFactory.Create(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{XpathProvider.ActiveElements}]"));
-            if (elements.One())
-                return ElementFactory.Create(Driver, elements.First());
-            elements = Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{XpathProvider.ActiveElements}]"));
-            if (elements.One())
-                return ElementFactory.Create(Driver, elements.First());
-            throw new Exception("no active element found in cell");
+            var elements = new List<IWebElement>();
+
+            elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{XpathProvider.ActiveElements}]")));
+            elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{XpathProvider.ActiveElements}]")));
+            elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{XpathProvider.ActiveElements}]")));
+            elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{XpathProvider.ActiveElements}]")));
+            
+            return elements.Select(e => ElementFactory.Create(Driver, e));
         }
 
         public string Id { get; private set; }

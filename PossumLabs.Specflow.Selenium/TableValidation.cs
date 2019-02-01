@@ -29,10 +29,11 @@ namespace PossumLabs.Specflow.Selenium
 
                 foreach( var column in rowValidation.Skip(1))
                 {
-                    var e = table.GetActiveElement(rowId, column.Key);
-                    var result = column.Value.Predicate(e);
-                    if (result != null)
-                        return result;
+                    var elements = table.GetContentElement(rowId, column.Key);
+                    var results = elements.Select(e => column.Value.Predicate(e));
+                    if (results.Any(result=>result == null))
+                        return null;
+                    return results.Distinct().LogFormat();
                 }
             }
 

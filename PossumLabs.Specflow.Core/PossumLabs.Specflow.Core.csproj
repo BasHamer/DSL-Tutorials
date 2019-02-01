@@ -2,6 +2,49 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Bas Hamer</Authors>
+    <Company>Possum Labs</Company>
+    <Product>Possum Lab</Product>
+    <Copyright>MIT</Copyright>
+    <PackageProjectUrl>https://PossumLabs.com</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/BasHamer/PossumLabs.Specflow.Core/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/BasHamer/PossumLabs.Specflow.Core</RepositoryUrl>
+    <PackageTags>BDD, SpecFlow, gherkin, cucumber</PackageTags>
+    <RepositoryType>Git</RepositoryType>
+    <PackageReleaseNotes>Setting up references and notes.</PackageReleaseNotes>
+    <Description>This library extends SpecFlow with the following new capabilities;
+
+-	Domain Objects
+
+-	Variables
+
+- 	Validation
+
+This allows for test cases that look like this;
+
+
+Given the Companies
+
+| Var | 
+
+| C1  |
+
+And the Users
+
+| Var | Company |
+
+| U1  |             C1 |
+
+| U2  |             C2 |
+
+When Entering 'U1.Username' into the username field
+
+Then 'C1.Name' is 'U1.Company.Name'
+
+
+
+
+Please check the repository for examples.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,10 +60,6 @@
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Configuration\" />
   </ItemGroup>
 
 </Project>

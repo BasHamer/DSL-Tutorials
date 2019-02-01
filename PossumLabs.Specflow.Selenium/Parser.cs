@@ -13,5 +13,7 @@ namespace PossumLabs.Specflow.Selenium
         public static Regex IsClass = new Regex(@"^\.(\w+)$", RegexOptions.Compiled);
         //element	$("p")	All <p> elements
         public static Regex IsElement = new Regex(@"^<([a-z][a-z0-9]*)>$", RegexOptions.Compiled);
+        //xpath //p	All <p> elements
+        public static Regex IsXPath = new Regex(@"^(//.*)$", RegexOptions.Compiled);
     }
 }

@@ -79,6 +79,7 @@ namespace PossumLabs.Specflow.Selenium
                     var d = ((IWebDriverWrapper)OverWrittenDriver).IWebDriver;
                     d.Quit();
                     d.Dispose();
+                    OverWrittenDriver.Disposed = true;
                     OverWrittenDriver = c;
                 });
         }
@@ -100,7 +101,7 @@ namespace PossumLabs.Specflow.Selenium
         {
             public DisposableDriverScope(Action disposal)
             {
-
+                Disposal = disposal;
             }
             Action Disposal { get; }
             public void Dispose()
