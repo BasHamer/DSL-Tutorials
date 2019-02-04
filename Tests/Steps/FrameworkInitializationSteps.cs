@@ -1,8 +1,10 @@
 ﻿using BoDi;
+using LegacyTest.ValueObjects;
 using Microsoft.Extensions.Configuration;
 using PossumLabs.Specflow.Core;
 using PossumLabs.Specflow.Core.Files;
 using PossumLabs.Specflow.Core.Logging;
+using PossumLabs.Specflow.Selenium.Diagnostic;
 using System;
 using System.IO;
 using System.Linq;
@@ -16,39 +18,47 @@ namespace LegacyTest.Steps
     [Binding]
     public class FrameworkInitializationSteps : StepBase
     {
-        public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer)
-        {
-            ComparisonDefaults.StringComparison = StringComparison.InvariantCultureIgnoreCase;
-        }
-        [BeforeScenario(Order = int.MinValue)]
+        public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer) { }
+
+        private ScreenshotProcessor ScreenshotProcessor { get; set; }
+        private ImageLogging ImageLogging { get; set; }
+        private MovieLogger MovieLogger { get; set; }
+
+        [StepArgumentTransformation]
+        public object Transform(string id) => Interpeter.Get<object>(id);
+
+        [BeforeScenario(Order = int.MinValue + 1)]
         public void Setup()
         {
-            IConfiguration config = new ConfigurationBuilder()
-              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-              .AddEnvironmentVariables()
-              .Build();
-            var imageLoggingColor = config["imageLoggingColor"];
-            var imageLoggingSize = config["imageLoggingSize"];
+            ScreenshotProcessor = ObjectContainer.Resolve<ScreenshotProcessor>();
+        }
 
-            ObjectContainer.RegisterInstanceAs(new ImageLogging());
-            var logger = new PossumLabs.Specflow.Core.Logging.DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory));
+        [BeforeScenario(Order = int.MinValue)]
+        public void SetupInfrastructure()
+        {
+   
+            var metadata = new ScenarioMetadata
+            {
+                FeatureName = FeatureContext.FeatureInfo.Title,
+                ScenarioName = ScenarioContext.ScenarioInfo.Title
+            };
+            Register(metadata);
+
             var factory = new PossumLabs.Specflow.Core.Variables.ObjectFactory();
-            base.Register(factory);
-            base.Register(new PossumLabs.Specflow.Core.Variables.Interpeter(factory));
-            base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor(logger));
-            base.Register<PossumLabs.Specflow.Core.Logging.ILog>(logger);
-            base.Register((PossumLabs.Specflow.Core.Logging.ILog)new DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory)));
-            base.Register(new FileManager(new DatetimeManager() { Now = () => DateTime.Now }));
+            Register(factory);
+            Register(new PossumLabs.Specflow.Core.Variables.Interpeter(factory));
+            var logger = new DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory));
+            Register((PossumLabs.Specflow.Core.Logging.ILog)logger);
+            Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor(logger));
+
+            Register(new FileManager(new DatetimeManager() { Now = () => DateTime.Now }));
             FileManager.Initialize(FeatureContext.FeatureInfo.Title, ScenarioContext.ScenarioInfo.Title, null /*Specflow limitation*/);
             var templateManager = new PossumLabs.Specflow.Core.Variables.TemplateManager();
             templateManager.Initialize(Assembly.GetExecutingAssembly());
-            base.Register(templateManager);
-        }
+            Register(templateManager);
 
-        [BeforeScenario(Order = 1)]
-        public void SetupExistingData()
-        {
-            new PossumLabs.Specflow.Core.Variables.ExistingDataManager(this.Interpeter).Initialize(Assembly.GetExecutingAssembly());
+            Log.Message($"feature: {FeatureContext.FeatureInfo.Title} scenario: {ScenarioContext.ScenarioInfo.Title} \n" +
+                $"Tags: {FeatureContext.FeatureInfo.Tags.LogFormat()} {ScenarioContext.ScenarioInfo.Tags.LogFormat()}");
         }
     }
 }

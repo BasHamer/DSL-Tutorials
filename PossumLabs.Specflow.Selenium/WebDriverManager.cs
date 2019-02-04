@@ -66,6 +66,7 @@ namespace PossumLabs.Specflow.Selenium
         };
 
         public Size DefaultSize { get; set; }
+        public bool IsInitialized => DefaultDriver.IsValueCreated;
 
         private List<RemoteWebDriver> Drivers;
 

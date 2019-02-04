@@ -1,6 +1,14 @@
 ﻿using BoDi;
+using FluentAssertions;
 using LegacyTest;
+using LegacyTest.Framework;
+using LegacyTest.ValueObjects;
+using Microsoft.Extensions.Configuration;
+using OpenQA.Selenium;
+using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Configuration;
 using PossumLabs.Specflow.Core.Exceptions;
+using PossumLabs.Specflow.Core.Files;
 using PossumLabs.Specflow.Core.Logging;
 using PossumLabs.Specflow.Selenium;
 using PossumLabs.Specflow.Selenium.Configuration;
@@ -8,7 +16,9 @@ using PossumLabs.Specflow.Selenium.Diagnostic;
 using PossumLabs.Specflow.Selenium.Selectors;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
@@ -16,81 +26,90 @@ using TechTalk.SpecFlow;
 namespace Shim.Selenium
 {
     [Binding]
-    public class FrameworkInitializationSteps : StepBase
+    public class FrameworkInitializationSteps : WebDriverStepBase
     {
-        public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer)
-        {
-            WebDriverManager = new PossumLabs.Specflow.Selenium.WebDriverManager( 
-                this.Interpeter,
-                this.ObjectFactory,
-                new PossumLabs.Specflow.Selenium.Configuration.SeleniumGridConfiguration() );
-            WebDriverManager.Initialize(BuildDriver);
-            SelectorFactory = new LegacyTest.Framework.SpecializedSelectorFactory();
-        }
+        public FrameworkInitializationSteps(IObjectContainer objectContainer) : base(objectContainer) { }
 
-        private SelectorFactory SelectorFactory { get; }
 
-        public WebDriver BuildDriver()
-            => new WebDriver(
-                WebDriverManager.Create(),
-                () => WebDriverManager.BaseUrl,
-                ObjectContainer.Resolve<SeleniumGridConfiguration>(),
-                ObjectContainer.Resolve<RetryExecutor>(),
-                SelectorFactory);
-
-        private PossumLabs.Specflow.Selenium.WebDriverManager WebDriverManager { get; }
         private ScreenshotProcessor ScreenshotProcessor { get; set; }
         private ImageLogging ImageLogging { get; set; }
         private MovieLogger MovieLogger { get; set; }
 
-        [BeforeScenario(Order = int.MinValue+1)]
+        [BeforeScenario(Order = int.MinValue + 1)]
         public void Setup()
         {
             ScreenshotProcessor = ObjectContainer.Resolve<ScreenshotProcessor>();
-            ImageLogging = ObjectContainer.Resolve<ImageLogging>();
-            MovieLogger = ObjectContainer.Resolve<MovieLogger>();
-
-            base.Register(WebDriverManager);
-            base.Register(new PossumLabs.Specflow.Selenium.WebValidationFactory(Interpeter));
-            base.Register<SelectorFactory>(SelectorFactory);
         }
 
         [AfterStep]
-        public void TakeScreenshot()
+        public void LogStep()
         {
-            if (WebDriverManager.ActiveDriver)
-            {
-                foreach (var img in WebDriverManager.Current.GetScreenshots())
-                {
-                    var withText = ImageLogging.AddTextToImage(img, $"{ScenarioContext.StepContext.StepInfo.StepDefinitionType} {ScenarioContext.StepContext.StepInfo.Text}");
-                    WebDriverManager.Screenshots.Add(withText);
-                }
-
-                WebDriverManager.Current.ResetScreenshots();
-            }
+            MovieLogger.StepEnd($"{ScenarioContext.StepContext.StepInfo.StepDefinitionType} {ScenarioContext.StepContext.StepInfo.Text}");
         }
 
         [AfterScenario]
         public void LogScreenshots()
         {
-            if (WebDriverManager.Screenshots.Any())
-            {
-                //This is a seperation of concerns issue; not sure how to fix it yet w/o a package update for the gif code. 
-                string random = "temp";
-                ScreenshotProcessor.CreateGif($"{random}.gif", WebDriverManager.Screenshots);
-                FileManager.CreateFile($"{random}.gif", "movie", "gif");
-            }
+            MovieLogger.ComposeMovie();
         }
 
-
-
-        [AfterScenario(Order = int.MinValue)]
+        [AfterScenario(Order = int.MinValue + 1)]
         public void LogHtml()
         {
             if (WebDriverManager.ActiveDriver)
             {
-                FileManager.CreateFile(Encoding.UTF8.GetBytes(WebDriverManager.Current.PageSource), "source", "html");
+                try
+                {
+                    FileManager.CreateFile(Encoding.UTF8.GetBytes(WebDriverManager.Current.PageSource), "source", "html");
+                }
+                catch (UnhandledAlertException) { return; }
             }
+        }
+
+        [AfterScenario(Order = int.MinValue)]
+        public void CheckForAlerts()
+        {
+            if (!WebDriverManager.ActiveDriver)
+                return;
+            WebDriver.AlertText.Should().BeNull($"An allert was left open at the end of the test with text:{WebDriver.AlertText}");
+        }
+
+        [BeforeScenario(Order = int.MinValue+1)]
+        public void SetupInfrastructure()
+        {
+            IConfiguration config = new ConfigurationBuilder()
+              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddEnvironmentVariables()
+              .Build();
+
+            var configFactory = new ConfigurationFactory(config);
+
+            ObjectContainer.RegisterInstanceAs(configFactory.Create<MovieLoggerConfig>());
+            ObjectContainer.RegisterInstanceAs(configFactory.Create<ImageLoggingConfig>());
+
+            ImageLogging = new ImageLogging(ObjectContainer.Resolve<ImageLoggingConfig>());
+            MovieLogger = new MovieLogger(ObjectContainer.Resolve<MovieLoggerConfig>(), Metadata);
+
+            ObjectContainer.RegisterInstanceAs(ImageLogging);
+            ObjectContainer.RegisterInstanceAs(MovieLogger);
+
+            Register<ElementFactory>(new SpecializedElementFactory());
+            Register<XpathProvider>(new XpathProvider());
+            Register<SelectorFactory>(new SpecializedSelectorFactory(ElementFactory, XpathProvider).UseBootstrap());
+
+            Register(new PossumLabs.Specflow.Selenium.WebDriverManager(
+                this.Interpeter,
+                this.ObjectFactory,
+                new PossumLabs.Specflow.Selenium.Configuration.SeleniumGridConfiguration()));
+
+            Log.Message($"feature: {FeatureContext.FeatureInfo.Title} scenario: {ScenarioContext.ScenarioInfo.Title} \n" +
+                $"Tags: {FeatureContext.FeatureInfo.Tags.LogFormat()} {ScenarioContext.ScenarioInfo.Tags.LogFormat()}");
+        }
+
+        [BeforeScenario(Order = 1)]
+        public void SetupExistingData()
+        {
+            new PossumLabs.Specflow.Core.Variables.ExistingDataManager(this.Interpeter).Initialize(Assembly.GetExecutingAssembly());
         }
     }
 }

@@ -1,12 +1,15 @@
 ﻿using BoDi;
 using LegacyTest.DomainObjects;
 using LegacyTest.Managers;
+using System;
+using System.Threading;
 using TechTalk.SpecFlow;
+using PossumLabs.Specflow.Core;
 
 namespace LegacyTest.Steps
 {
     [Binding]
-    public class RetirementManagerSteps:StepBase
+    public class RetirementManagerSteps : StepBase
     {
         public RetirementManagerSteps(IObjectContainer objectContainer) : base(objectContainer)
         {
@@ -17,7 +20,7 @@ namespace LegacyTest.Steps
 
         [Given(@"the root Employee is '(.*)'")]
         public void GivenTheRootEmployeeIs(Employee ceo)
-            =>RetirementManager.SetCEO(ceo);
+            => RetirementManager.SetCEO(ceo);
 
 
         [When(@"Employee '(.*)' Retires")]

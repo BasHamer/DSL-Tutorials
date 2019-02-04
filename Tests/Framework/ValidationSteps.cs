@@ -19,9 +19,7 @@ namespace LegacyTest.Framework
 
         private ValidationFactory ValidationFactory;
 
-        [StepArgumentTransformation]
-        public object Transform(string id) => 
-            Interpeter.Resolve(id);
+     
 
         [StepArgumentTransformation]
         public IEnumerable<IEnumerable<Validation>> TransformForContains(Table table) => 
