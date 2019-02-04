@@ -22,5 +22,8 @@ namespace Shim.Selenium
         protected WebDriverManager WebDriverManager => ObjectContainer.Resolve<WebDriverManager>();
         protected WebValidationFactory WebValidationFactory => ObjectContainer.Resolve<WebValidationFactory>();
         protected SelectorFactory SelectorFactory => ObjectContainer.Resolve<SelectorFactory>();
+
+        protected ElementFactory ElementFactory => ObjectContainer.Resolve<ElementFactory>();
+        protected XpathProvider XpathProvider => ObjectContainer.Resolve<XpathProvider>();
     }
 }

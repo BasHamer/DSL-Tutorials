@@ -9,5 +9,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
         public static string Unknown => "Unknown";
         public static string Active => "Active";
         public static string Content => "Content";
+        public static string Clickable => "Clickable";
+        public static string Settable => "Settable";
     }
 }

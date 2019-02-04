@@ -33,6 +33,11 @@ namespace LegacyTest
         protected TemplateManager TemplateManager => ObjectContainer.Resolve<TemplateManager>();
         protected FileManager FileManager => ObjectContainer.Resolve<FileManager>();
 
+        protected ScenarioMetadata Metadata => ObjectContainer.Resolve<ScenarioMetadata>();
+
+
+
+
         internal void Register<T>(T item) where T : class
             => ObjectContainer.RegisterInstanceAs<T>(item, dispose: true);
     }

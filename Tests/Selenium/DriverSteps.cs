@@ -39,7 +39,7 @@ namespace Shim.Selenium
         [AfterStep]
         public void Cleanup()
         {
-            if (WebDriver != null) WebDriver.LeaveFrames();
+            if (WebDriverManager.IsInitialized && WebDriver != null) WebDriver.LeaveFrames();
         }
 
         [When(@"clicking the element '(.*)'")]

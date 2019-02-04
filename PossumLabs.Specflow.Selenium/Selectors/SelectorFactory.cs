@@ -16,6 +16,35 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             Selectors = new Dictionary<string, List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>>
             {
                 {
+                    SelectorNames.Settable,
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>
+                    {
+                        ByForAttribute,
+                        ByNestedInLabel,
+                        ByNested,
+                        ByText,
+                        ByTitle,
+                        ByLabelledBy,
+                        RadioByName,
+                        ByFollowingMarker,
+                        ByCellBelow,
+                    }
+                },
+                {
+                    SelectorNames.Clickable,
+                    new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>
+                    {
+                        ByNestedInLabel,
+                        ByNested,
+                        ByText,
+                        ByTitle,
+                        RadioByName,
+                        SpecialButtons,
+                        ByFollowingMarker,
+                        ByCellBelow,
+                    }
+                },
+                {
                     SelectorNames.Active,
                     new List<Func<string, IEnumerable<SelectorPrefix>, IWebDriver, IEnumerable<Element>>>
                     {
