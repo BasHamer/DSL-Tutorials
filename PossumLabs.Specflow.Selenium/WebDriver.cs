@@ -421,12 +421,12 @@ namespace PossumLabs.Specflow.Selenium
             RetryExecutor.RetryFor(() =>
                {
                    var sw = Stopwatch.StartNew();
-                   var valid = possibles.AsParallel().Where(xpath => Driver.FindElements(By.XPath(xpath)).Any());
+                   var valid = possibles.AsParallel().AsOrdered().Where(xpath => Driver.FindElements(By.XPath(xpath)).Any());
                    if (valid.Any())
                        p.Init("filtered", valid);
                    else
                        throw new Exception($"");
-                   Trace.WriteLine($"filtering took {sw.ElapsedMilliseconds}");
+                   Trace.WriteLine($"filtering took {sw.ElapsedMilliseconds} went from {possibles.Count()} to {valid.Count()}");
                }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
 
             var wdm = new WebDriver(
