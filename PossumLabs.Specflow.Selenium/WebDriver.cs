@@ -132,7 +132,7 @@ namespace PossumLabs.Specflow.Selenium
                 table.Xpath = xpath;
             }
             tables.AsParallel().ForAll(table => table.Setup());
-            return tables.Where(t=>t.IsValid);
+            return tables.Where(t=>t.IsValid).ToList();
         }
 
         private SeleniumGridConfiguration SeleniumGridConfiguration { get; }
@@ -168,7 +168,6 @@ namespace PossumLabs.Specflow.Selenium
         public Element Select(Selector selector, TimeSpan? retryDuration = null, int? index = null)
             => RetryExecutor.RetryFor(() =>
              {
-                 var sw = Stopwatch.StartNew();
                  var loggingWebdriver = new LoggingWebDriver(Driver, MovieLogger);
                  try
                  {
@@ -197,7 +196,6 @@ namespace PossumLabs.Specflow.Selenium
                  {
                      if (loggingWebdriver.Screenshots.Any())
                          Screenshots = loggingWebdriver.Screenshots.Select(x => x.AsByteArray).ToList();
-                     Trace.WriteLine($"Xpathing took {sw.ElapsedMilliseconds}");
 
                  }
              }, retryDuration ?? TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
@@ -255,74 +253,62 @@ namespace PossumLabs.Specflow.Selenium
         private Element FindElement(Selector selector, LoggingWebDriver loggingWebdriver, int? index = null)
         {
             var wrappers = selector.PrioritizedSearchers.Select(s => new Wrapper { Searcher = s }).ToList();
-            var sw = Stopwatch.StartNew();
             var loopResults = Parallel.ForEach(wrappers, 
                 //new ParallelOptions { MaxDegreeOfParallelism = 4 }, 
                 (wrapper, loopState) =>
             {
-                var swi = Stopwatch.StartNew();
-                try
-                {
-                    var searcher = wrapper.Searcher;
+                var searcher = wrapper.Searcher;
 
-                    var results = searcher.SearchIn(loggingWebdriver, Prefixes);
-                    Trace.WriteLine($"SearchIn took {swi.ElapsedMilliseconds}");
-                    if (loopState.ShouldExitCurrentIteration)
-                        return;
-                    else if (results.One())
+                var results = searcher.SearchIn(loggingWebdriver, Prefixes);
+                if (loopState.ShouldExitCurrentIteration)
+                    return;
+                else if (results.One())
+                {
+                    SuccessfulSearchers.Add(searcher);
+                    loopState.Break();
+                    wrapper.Element = results.First();
+                    return;
+                }
+                else if (results.Many() && index.HasValue)
+                {
+                    SuccessfulSearchers.Add(searcher);
+                    loopState.Break();
+                    var a = results.ToArray();
+                    if (a.Count() <= index.Value)
+                        wrapper.Exception = new Exception($"Not enough items found, found {a.Count()} and desired index {index}");
+                    else
+                        wrapper.Element = a[index.Value];
+                    return;
+                }
+                else if (results.Many())
+                {
+                    //lets make sure none are hidden
+                    var filterHidden = results
+                        .Select(e => new { e, o = loggingWebdriver.GetElementFromPoint(e.Location.X + 1, e.Location.Y + 1) })
+                        .Where(p => p.e.Tag == p.o?.TagName && p.e.Location == p.o?.Location);
+                    if (filterHidden.One())
                     {
                         SuccessfulSearchers.Add(searcher);
                         loopState.Break();
                         wrapper.Element = results.First();
                         return;
                     }
-                    else if (results.Many() && index.HasValue)
+                    //check if they are logical duplicates.
+                    if (results.GroupBy(e => e.Id).One())
                     {
                         SuccessfulSearchers.Add(searcher);
                         loopState.Break();
-                        var a = results.ToArray();
-                        if (a.Count() <= index.Value)
-                            wrapper.Exception = new Exception($"Not enough items found, found {a.Count()} and desired index {index}");
-                        else
-                            wrapper.Element = a[index.Value];
+                        wrapper.Element = results.First();
                         return;
                     }
-                    else if (results.Many())
-                    {
-                        //lets make sure none are hidden
-                        var filterHidden = results
-                            .Select(e => new { e, o = loggingWebdriver.GetElementFromPoint(e.Location.X + 1, e.Location.Y + 1) })
-                            .Where(p => p.e.Tag == p.o?.TagName && p.e.Location == p.o?.Location);
-                        if (filterHidden.One())
-                        {
-                            SuccessfulSearchers.Add(searcher);
-                            loopState.Break();
-                            wrapper.Element = results.First();
-                            return;
-                        }
-                        //check if they are logical duplicates.
-                        if (results.GroupBy(e => e.Id).One())
-                        {
-                            SuccessfulSearchers.Add(searcher);
-                            loopState.Break();
-                            wrapper.Element = results.First();
-                            return;
-                        }
-                        //scroll up ?
-                        //WebDriver.ExecuteScript("window.scrollTo(0,1)");
-                        var items = results.Select(e => $"{e.Tag}@{e.Location.X},{e.Location.Y}").LogFormat();
-                        loopState.Break();
-                        wrapper.Exception = new Exception($"Multiple results were found using {searcher.LogFormat()}");
-                        return;
-                    }
-                }
-                finally
-                {
-                    wrapper.DurationMs = swi.ElapsedMilliseconds;
-                    Trace.WriteLine($"inner loop took {swi.ElapsedMilliseconds}");
+                    //scroll up ?
+                    //WebDriver.ExecuteScript("window.scrollTo(0,1)");
+                    var items = results.Select(e => $"{e.Tag}@{e.Location.X},{e.Location.Y}").LogFormat();
+                    loopState.Break();
+                    wrapper.Exception = new Exception($"Multiple results were found using {searcher.LogFormat()}");
+                    return;
                 }
             });
-            Trace.WriteLine($"paralell loop took {sw.ElapsedMilliseconds} of a total of {wrappers.Sum(x=>x.DurationMs)}");
             var r = loopResults.IsCompleted;
             var wrapperIndex = 0;
             foreach (var w in wrappers)
@@ -420,13 +406,11 @@ namespace PossumLabs.Specflow.Selenium
             var possibles = l.CrossMultiply(); 
             RetryExecutor.RetryFor(() =>
                {
-                   var sw = Stopwatch.StartNew();
-                   var valid = possibles.AsParallel().AsOrdered().Where(xpath => Driver.FindElements(By.XPath(xpath)).Any());
+                   var valid = possibles.AsParallel().AsOrdered().Where(xpath => Driver.FindElements(By.XPath(xpath)).Any()).ToList();
                    if (valid.Any())
                        p.Init("filtered", valid);
                    else
                        throw new Exception($"");
-                   Trace.WriteLine($"filtering took {sw.ElapsedMilliseconds} went from {possibles.Count()} to {valid.Count()}");
                }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
 
             var wdm = new WebDriver(

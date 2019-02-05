@@ -1238,12 +1238,12 @@ this.Checkboxes("checked", "target", "checked", "<label>target<input type=\"chec
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "unchecking")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "unchecking")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:target", "target")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:value", "uncheck")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:value", "unchecked")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<label>target<input type=\"checkbox\"></input></label>")]
         public virtual void Checkboxes_Unchecking()
         {
 #line 102
-this.Checkboxes("unchecking", "target", "uncheck", "<label>target<input type=\"checkbox\"></input></label>", ((string[])(null)));
+this.Checkboxes("unchecking", "target", "unchecked", "<label>target<input type=\"checkbox\"></input></label>", ((string[])(null)));
 #line hidden
         }
         
@@ -1255,12 +1255,12 @@ this.Checkboxes("unchecking", "target", "uncheck", "<label>target<input type=\"c
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("VariantName", "unchecking  checked")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:description", "unchecking  checked")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:target", "target")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:value", "uncheck")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:value", "unchecked")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("Parameter:html", "<label>target<input type=\"checkbox\" checked></input></label>")]
         public virtual void Checkboxes_UncheckingChecked()
         {
 #line 102
-this.Checkboxes("unchecking  checked", "target", "uncheck", "<label>target<input type=\"checkbox\" checked></input></label>", ((string[])(null)));
+this.Checkboxes("unchecking  checked", "target", "unchecked", "<label>target<input type=\"checkbox\" checked></input></label>", ((string[])(null)));
 #line hidden
         }
         

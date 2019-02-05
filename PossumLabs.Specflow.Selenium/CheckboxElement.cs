@@ -35,6 +35,7 @@ namespace PossumLabs.Specflow.Selenium
         private bool IsProbablychecked(string text)
             =>
             string.Equals(text, "checked", StringComparison.InvariantCultureIgnoreCase) ||
+            string.Equals(text, "check", StringComparison.InvariantCultureIgnoreCase) ||
             string.Equals(text, "true", StringComparison.InvariantCultureIgnoreCase);
 
 

@@ -35,11 +35,77 @@ namespace PossumLabs.Specflow.Selenium
                 if (OldStyleSelect != null)
                 {
                     var id = OldStyleSelect.WrappedElement.GetAttribute("id");
+                    if(string.IsNullOrWhiteSpace(id))
+                    {
+                        try
+                        {
+                            OldStyleSelect.SelectByText(text);
+                            return;
+                        }
+                        catch { }
+
+                        try
+                        {
+                            OldStyleSelect.SelectByText(text.ToUpper());
+                            return;
+                        }
+                        catch { }
+
+                        try
+                        {
+                            OldStyleSelect.SelectByText(ToCammelCase(text));
+                            return;
+                        }
+                        catch { }
+
+                        try
+                        {
+                            OldStyleSelect.SelectByText(text.ToLower());
+                            return;
+                        }
+                        catch { }
+
+                        try
+                        {
+                            OldStyleSelect.SelectByValue(text);
+                            return;
+                        }
+                        catch { }
+
+                        //Partial match ?
+                        var l = AvailableOptions.ToList();
+                        var realText = l.Where(x => x.Text.ToLower().Contains(text.ToLower()));
+                        if (realText.Count() == 1)
+                        {
+                            try
+                            {
+                                OldStyleSelect.SelectByIndex(l.IndexOf(realText.First()));
+                                return;
+                            }
+                            catch { }
+
+
+                        }
+                    }
                     var key = text.ToUpper();
+
+                    //case insensitive
                     var options = base.WebDriver.FindElements(
                         By.XPath($"//select[@id='{id}']/option[" +
                         $"translate(@value,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') ='{key}' or " +
                         $"translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') = '{key}']"));
+
+                    if (options.One())
+                    {
+                        OldStyleSelect.SelectByValue(options.First().GetAttribute("value"));
+                        return;
+                    }
+
+                    //case insensitive contains
+                    options = base.WebDriver.FindElements(
+                        By.XPath($"//select[@id='{id}']/option[contains(" +
+                        $"translate(@value,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '{key}') or contains(" +
+                        $"translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '{key}')]"));
 
                     if (options.One())
                     {

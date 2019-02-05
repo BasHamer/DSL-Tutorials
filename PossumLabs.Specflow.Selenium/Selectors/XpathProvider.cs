@@ -36,5 +36,13 @@ namespace PossumLabs.Specflow.Selenium.Selectors
 
         virtual public string ActiveElements
            => "(not(@type='hidden') and ( self::a or self::button or self::input or self::select or self::textarea or @role='button' or @role='link' or @role='menuitem' ))";
+
+        virtual public string SettableElements
+          => "(not(@type='hidden') and (self::input or self::select or self::textarea))";
+
+
+        virtual public string ClickableElements
+          => "(not(@type='hidden') and ( self::a or self::button or self::input or @role='button' or @role='link' or @role='menuitem' ))";
+
     }
 }

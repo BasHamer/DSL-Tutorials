@@ -43,11 +43,36 @@ namespace PossumLabs.Specflow.Selenium
         {
             if (OldStyleSelect != null)
             {
-                var options = AvailableOptions.Where(o => 
-                    string.Equals(o.Text, text, ComparisonDefaults.StringComparison) || 
-                    string.Equals(o.GetAttribute("value"), text, ComparisonDefaults.StringComparison));
+                if (text == null) return;
+
+                var id = OldStyleSelect.WrappedElement.GetAttribute("id");
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    try
+                    {
+                        OldStyleSelect.SelectByText(text);
+                        return;
+                    }
+                    catch { }
+
+                    try
+                    {
+                        OldStyleSelect.SelectByText(text.ToUpper());
+                        return;
+                    }
+                    catch { }
+                }
+
+                var options = base.WebDriver.FindElements(
+                By.XPath($"//select[@id='{id}']/option[" +
+                $"@value ='{text}' or " +
+                $"text() = '{text}']"));
+
                 if (options.One())
-                    OldStyleSelect.SelectByText(options.First().Text);
+                {
+                    OldStyleSelect.SelectByValue(options.First().GetAttribute("value"));
+                    return;
+                }
                 else if (options.Many())
                         throw new GherkinException("too many matches"); //TODO: cleanup
                 else

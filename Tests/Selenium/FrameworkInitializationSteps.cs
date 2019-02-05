@@ -104,7 +104,20 @@ namespace Shim.Selenium
 
             Log.Message($"feature: {FeatureContext.FeatureInfo.Title} scenario: {ScenarioContext.ScenarioInfo.Title} \n" +
                 $"Tags: {FeatureContext.FeatureInfo.Tags.LogFormat()} {ScenarioContext.ScenarioInfo.Tags.LogFormat()}");
+
+            WebDriverManager.Initialize(BuildDriver);
         }
+
+        public WebDriver BuildDriver()
+            => new WebDriver(
+                WebDriverManager.Create(),
+                () => WebDriverManager.BaseUrl,
+                ObjectContainer.Resolve<SeleniumGridConfiguration>(),
+                ObjectContainer.Resolve<RetryExecutor>(),
+                SelectorFactory,
+                ElementFactory,
+                XpathProvider,
+                ObjectContainer.Resolve<MovieLogger>());
 
         [BeforeScenario(Order = 1)]
         public void SetupExistingData()
