@@ -1,5 +1,6 @@
 ﻿using BoDi;
 using LegacyTest;
+using LegacyTest.Framework;
 using OpenQA.Selenium;
 using PossumLabs.Specflow.Selenium;
 using PossumLabs.Specflow.Selenium.Selectors;

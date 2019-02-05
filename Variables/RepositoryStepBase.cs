@@ -1,5 +1,4 @@
 ﻿using BoDi;
-using LegacyTest.Framework;
 using PossumLabs.Specflow.Core;
 using PossumLabs.Specflow.Core.Variables;
 using System;
@@ -11,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
-namespace LegacyTest
+namespace Variables
 {
     public abstract class RepositoryStepBase<T> : StepBase
         where T : IValueObject

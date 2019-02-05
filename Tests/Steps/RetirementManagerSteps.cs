@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using TechTalk.SpecFlow;
 using PossumLabs.Specflow.Core;
+using LegacyTest.Framework;
 
 namespace LegacyTest.Steps
 {

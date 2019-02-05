@@ -45,9 +45,6 @@ namespace PossumLabs.Specflow.Core.Threading
                         wrapper.DurationMs = sw.ElapsedMilliseconds;
                     }
                 });
-
-            Trace.WriteLine($"ParallelFirstOrException total { wrappers.Sum(wp=>wp.DurationMs) } real {swt.ElapsedMilliseconds}");
-
             if (!state.LowestBreakIteration.HasValue)
                 return null;
 

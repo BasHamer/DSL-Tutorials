@@ -26,22 +26,54 @@ namespace PossumLabs.Specflow.Selenium
         private IWebElement RootElement { get; }
         private IWebDriver Driver { get; }
         public Dictionary<string, int> Header { get; }
+        public int MaxColumnIndex { get; set; }
 
-        public int GetRowId(string key)
+        public int GetRowId(string key, string column = null)
         {
-            var xpath = $"{Prefix}/tr[td[{XpathProvider.TextMatch(key)}] or td/*[{XpathProvider.TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
-            var count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
-            var rowMatch = $"td[{XpathProvider.TextMatch(key)}] or td/*[{XpathProvider.TextMatch(key)}] or td/*/*[{XpathProvider.TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ";
-            
-            var rows = Driver.FindElements(By.XPath(xpath));
+            if (String.IsNullOrWhiteSpace(column))
+            {
+                
+                var columnLimit = Header.Values.Max();
+                var xpath = $"{Prefix}/tr[td[{XpathProvider.TextMatch(key)}] or td/*[{XpathProvider.TextMatch(key)}] or td/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
+                var count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
+                var rowMatch = $"{Prefix}/tr[td[{XpathProvider.TextMatch(key)}] or td/*[{XpathProvider.TextMatch(key)}] or td/*/*[{XpathProvider.TextMatch(key)}] or td/*[@value = {key.XpathEncode()}]]";
 
-            if (rows.None())
-                throw new Exception($"Unable to find the row '{key}'");
-            if (rows.Many())
-                throw new Exception($"Unable to uniquely identify the row '{key}', found {rows.Count()} rows that matched it");
+                var rows = Driver.FindElements(By.XPath(rowMatch));
 
-            xpath += "/preceding-sibling::tr";
-            return count;
+                if (rows.None())
+                    throw new Exception($"Unable to find the row '{key}'");
+                if (rows.Many())
+                {
+                    for (var indexer = 1; indexer <= MaxColumnIndex; indexer++)
+                    {
+                        xpath = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
+                        count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
+                        rowMatch = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[@value = {key.XpathEncode()}]]";
+
+                        rows = Driver.FindElements(By.XPath(rowMatch));
+                        if (rows.One())
+                            return count;
+                    }
+                    throw new Exception($"Unable to uniquely identify the row id '{key}', found {rows.Count()} rows that matched it");
+                }
+                return count;
+            }
+            else
+            {
+                if(!Header.ContainsKey(column))
+                    throw new Exception($"the column {column} is not part of the table");
+                var indexer = Header[column];
+                var xpath = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
+                var count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
+                var rowMatch = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[@value = {key.XpathEncode()}]]";
+
+                var rows = Driver.FindElements(By.XPath(rowMatch));
+                if (rows.One())
+                    return count;
+                if (rows.Many())
+                    throw new Exception($"multiple matches found for row id '{key}' for column {column}");
+                throw new Exception($"Unable to find the row id '{key}' for column {column}");
+            }
         }
 
      
@@ -61,10 +93,15 @@ namespace PossumLabs.Specflow.Selenium
             var elements = new List<IWebElement>();
 
             elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/*[{XpathProvider.ActiveElements}]")));
-            elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{XpathProvider.ActiveElements}]")));
-            elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{XpathProvider.ActiveElements}]")));
-            elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{XpathProvider.ActiveElements}]")));
-            
+            if (elements.None())
+                elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/*[{XpathProvider.ActiveElements}]")));
+            if (elements.None())
+                elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]/div/div/*[{XpathProvider.ActiveElements}]")));
+            if (elements.None())
+                elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]//*[{XpathProvider.ActiveElements}]")));
+            if(elements.None())
+                elements.AddRange(Driver.FindElements(By.XPath($"{Prefix}/tr[{rowId}]/td[{Header[columnId]}]")));
+
             return elements.Select(e => ElementFactory.Create(Driver, e));
         }
 
@@ -128,6 +165,7 @@ namespace PossumLabs.Specflow.Selenium
                         Header.Add(h.Text, index);
                     }
                 }
+                MaxColumnIndex = index;
             }
             catch
             {

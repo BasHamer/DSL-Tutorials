@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace LegacyTest.ValueObjects
+namespace PossumLabs.Specflow.Core
 {
     public class ResolvedString
     {

@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
-namespace LegacyTest.Framework
+namespace Variables
 {
     public abstract class StepBase
     {

@@ -25,7 +25,7 @@ namespace PossumLabs.Specflow.Selenium
 
             foreach(var rowValidation in validations)
             {
-                var rowId = table.GetRowId(rowValidation.First().Value.Text);
+                var rowId = table.GetRowId(rowValidation.First().Value.Text, rowValidation.First().Key);
 
                 foreach( var column in rowValidation.Skip(1))
                 {

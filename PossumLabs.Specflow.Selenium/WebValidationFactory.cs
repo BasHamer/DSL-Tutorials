@@ -20,7 +20,7 @@ namespace PossumLabs.Specflow.Selenium
                 if (field != null)
                     o = o.Resolve(field);
                 if (MakePredicate(constructor).Invoke(o) != true)
-                    return $" the value was '{((Element)o).Values.LogFormat()}' which was not '{constructor}'";
+                    return $"the value was '{((Element)o).Values.Where(s=>!String.IsNullOrWhiteSpace(s)).LogFormat()}' which was not '{constructor}'";
                 return null;
             }, constructor);
 

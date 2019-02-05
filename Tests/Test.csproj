@@ -222,7 +222,6 @@
     <Compile Include="Selenium\ValidationSteps.cs" />
     <Compile Include="Selenium\WebDriverStepBase.cs" />
     <Compile Include="ValueObjects\Date.cs" />
-    <Compile Include="ValueObjects\ResolvedString.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
