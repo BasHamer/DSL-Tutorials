@@ -35,7 +35,7 @@ namespace PossumLabs.Specflow.Selenium
                 if (OldStyleSelect != null)
                 {
                     var id = OldStyleSelect.WrappedElement.GetAttribute("id");
-                    if(string.IsNullOrWhiteSpace(id))
+                    if (string.IsNullOrWhiteSpace(id))
                     {
                         try
                         {
@@ -88,24 +88,14 @@ namespace PossumLabs.Specflow.Selenium
                         }
                     }
                     var key = text.ToUpper();
-
-                    //case insensitive
-                    var options = base.WebDriver.FindElements(
-                        By.XPath($"//select[@id='{id}']/option[" +
-                        $"translate(@value,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') ='{key}' or " +
-                        $"translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') = '{key}']"));
+                    var options = FindByExactMatch(id, key);
 
                     if (options.One())
                     {
                         OldStyleSelect.SelectByValue(options.First().GetAttribute("value"));
                         return;
                     }
-
-                    //case insensitive contains
-                    options = base.WebDriver.FindElements(
-                        By.XPath($"//select[@id='{id}']/option[contains(" +
-                        $"translate(@value,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '{key}') or contains(" +
-                        $"translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '{key}')]"));
+                    options = FindByContains(id, key);
 
                     if (options.One())
                     {
@@ -126,6 +116,18 @@ namespace PossumLabs.Specflow.Selenium
                     throw new GherkinException("no matches"); //TODO: cleanup
             }
         }
+
+        protected virtual System.Collections.ObjectModel.ReadOnlyCollection<IWebElement> FindByContains(string id, string key)
+            => base.WebDriver.FindElements(
+                By.XPath($"//select[@id='{id}']/option[contains(" +
+                $"translate(@value,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '{key}') or contains(" +
+                $"translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'), '{key}')]"));
+
+        protected virtual System.Collections.ObjectModel.ReadOnlyCollection<IWebElement> FindByExactMatch(string id, string key)
+            => base.WebDriver.FindElements(
+                By.XPath($"//select[@id='{id}']/option[" +
+                $"translate(@value,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') ='{key}' or " +
+                $"translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ') = '{key}']"));
 
         public override List<string> Values => SelectedOptions
             .SelectMany(x=>new List<string>() { x.Text, x.GetAttribute("value") })

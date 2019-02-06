@@ -410,7 +410,7 @@ namespace PossumLabs.Specflow.Selenium
                    if (valid.Any())
                        p.Init("filtered", valid);
                    else
-                       throw new Exception($"");
+                       throw new Exception($"Was unable to find any that matched prefix, tried:{possibles.LogFormat()}");
                }, TimeSpan.FromMilliseconds(SeleniumGridConfiguration.RetryMs));
 
             var wdm = new WebDriver(

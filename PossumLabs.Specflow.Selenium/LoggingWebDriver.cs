@@ -41,16 +41,8 @@ namespace PossumLabs.Specflow.Selenium
         public ReadOnlyCollection<string> WindowHandles => Driver.WindowHandles;
 
 #pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
         private IHasInputDevices HasInputDevices => (IHasInputDevices)Driver;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-
-#pragma warning disable CS0618 // Type or member is obsolete
         public IKeyboard Keyboard => HasInputDevices.Keyboard;
-#pragma warning restore CS0618 // Type or member is obsolete
-
-#pragma warning disable CS0618 // Type or member is obsolete
         public IMouse Mouse => HasInputDevices.Mouse;
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -90,10 +82,13 @@ namespace PossumLabs.Specflow.Selenium
 
         private void VisualLog(By by)
         {
-            var xpath = by.ToString().Substring("By.XPath: ".Length);
-            var img = Preview(xpath);
-            MovieLogger.AddScreenShot(img.AsByteArray);
-            Screenshots.Add(img);
+            if (MovieLogger.IsEnabled)
+            {
+                var xpath = by.ToString().Substring("By.XPath: ".Length);
+                var img = Preview(xpath);
+                MovieLogger.AddScreenShot(img.AsByteArray);
+                Screenshots.Add(img);
+            }
         }
 
         public void Log(string message)
