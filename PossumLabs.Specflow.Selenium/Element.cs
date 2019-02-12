@@ -51,6 +51,7 @@ namespace PossumLabs.Specflow.Selenium
             if (text == null)
                 return;
             //TODO: v2 Check Boxes
+            WebElement.Click(); //Works with date time elements require formatting
             WebElement.SendKeys(text);
         }
 
