@@ -32,7 +32,7 @@ namespace PossumLabs.Specflow.Selenium.Selectors
             => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span )";
 
         virtual public string ContentElements
-            => "( self::label or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
+            => "( self::label or self::a or self::b or self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6 or self::span " +
             "or self::p or self::div or self::option or self::legend or self::td)";
 
         virtual public string ActiveElements
