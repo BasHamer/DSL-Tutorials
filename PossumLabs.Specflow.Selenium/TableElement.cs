@@ -46,9 +46,9 @@ namespace PossumLabs.Specflow.Selenium
                 {
                     for (var indexer = 1; indexer <= MaxColumnIndex; indexer++)
                     {
-                        xpath = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[@value = {key.XpathEncode()}] ]/preceding-sibling::tr";
+                        xpath = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)} or *[{XpathProvider.TextMatch(key)}] or *[@value = {key.XpathEncode()}]]]/preceding-sibling::tr";
                         count = Driver.FindElements(By.XPath(xpath)).Count() + 1;
-                        rowMatch = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*/*[{XpathProvider.TextMatch(key)}] or (td[{indexer}])/*[@value = {key.XpathEncode()}]]";
+                        rowMatch = $"{Prefix}/tr[(td[{indexer}])[{XpathProvider.TextMatch(key)} or *[{XpathProvider.TextMatch(key)}] or */*[{XpathProvider.TextMatch(key)}] or *[@value = {key.XpathEncode()}]]]";
 
                         rows = Driver.FindElements(By.XPath(rowMatch));
                         if (rows.One())
