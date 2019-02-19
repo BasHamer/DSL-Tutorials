@@ -8,6 +8,7 @@ using PossumLabs.Specflow.Core.Validations;
 using System.Drawing;
 using PossumLabs.Specflow.Core;
 using OpenQA.Selenium.Interactions;
+using System.Text.RegularExpressions;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -50,9 +51,27 @@ namespace PossumLabs.Specflow.Selenium
             catch { }
             if (text == null)
                 return;
+
             //TODO: v2 Check Boxes
+            WebElement.SendKeys(text);
+            if (Equivalent(WebElement.GetAttribute("value"), text))
+                return;
+
+            try
+            {
+                WebElement.Clear();
+            }
+            catch { }
             WebElement.Click(); //Works with date time elements require formatting
             WebElement.SendKeys(text);
+            if (Equivalent(WebElement.GetAttribute("value"), text))
+                throw new Exception($"failed setting element, desired '{text}' got '{WebElement.GetAttribute("value")}'");
+        }
+
+        protected bool Equivalent(string a, string b)
+        {
+            Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+            return rgx.Replace(a, "").ToUpper() == rgx.Replace(b,"").ToUpper();
         }
 
         public void Click()
